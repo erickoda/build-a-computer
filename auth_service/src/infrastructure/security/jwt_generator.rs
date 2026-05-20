@@ -74,7 +74,7 @@ impl From<jsonwebtoken::errors::Error> for TokenError {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct Claims {
+struct Claims {
     sub: Uuid,
     username: String,
     email: String,
