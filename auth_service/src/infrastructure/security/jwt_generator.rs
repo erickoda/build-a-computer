@@ -129,11 +129,11 @@ impl Claims {
 
 impl Into<TokenPayload> for Claims {
     fn into(self) -> TokenPayload {
-        TokenPayload {
-            id: self.get_sub(),
-            username: self.get_username().to_string(),
-            email: self.get_email().to_string(),
-            role: self.get_role(),
-        }
+        TokenPayload::new(
+            self.get_sub(),
+            self.get_username().to_string(),
+            self.get_email().to_string(),
+            self.get_role(),
+        )
     }
 }

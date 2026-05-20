@@ -11,10 +11,10 @@ pub trait TokenGenerator {
 
 #[derive(Debug, Clone)]
 pub struct TokenPayload {
-    pub id: Uuid,
-    pub username: String,
-    pub email: String,
-    pub role: Role,
+    id: Uuid,
+    username: String,
+    email: String,
+    role: Role,
 }
 
 impl TokenPayload {
