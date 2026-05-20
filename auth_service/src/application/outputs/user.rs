@@ -7,7 +7,7 @@ use crate::domain::{
 };
 
 #[derive(Serialize)]
-pub struct GetUserResponseOutput {
+pub struct UserOutput {
     id: Uuid,
     username: String,
     email: String,
@@ -15,7 +15,7 @@ pub struct GetUserResponseOutput {
     status: Status,
 }
 
-impl From<UserEntity> for GetUserResponseOutput {
+impl From<UserEntity> for UserOutput {
     fn from(user_entity: UserEntity) -> Self {
         Self {
             id: user_entity.get_id(),
@@ -45,7 +45,7 @@ mod test {
         let user_entity: UserEntity = UserEntity::new(username, email, password, role);
         let id: Uuid = user_entity.get_id();
 
-        let create_user_output: GetUserResponseOutput = GetUserResponseOutput::from(user_entity);
+        let create_user_output: UserOutput = UserOutput::from(user_entity);
 
         assert_eq!(
             "Username", create_user_output.username,

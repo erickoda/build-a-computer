@@ -2,10 +2,7 @@ use actix_web::{HttpResponse, web};
 use uuid::Uuid;
 
 use crate::{
-    application::{
-        commands::create_user::CreateUserCommand,
-        outputs::{create_user::CreateUserOutput, get_user::GetUserResponseOutput},
-    },
+    application::{commands::create_user::CreateUserCommand, outputs::user::UserOutput},
     infrastructure::{
         AppUserService,
         web::extractors::{admin::AdminUser, authenticated::AuthenticatedUser},
@@ -19,7 +16,7 @@ pub async fn create_user(
 ) -> Result<HttpResponse, actix_web::Error> {
     let command: CreateUserCommand = json_command.0;
 
-    Ok(HttpResponse::Created().json(CreateUserOutput::from(service.create_user(command).await?)))
+    Ok(HttpResponse::Created().json(UserOutput::from(service.create_user(command).await?)))
 }
 
 pub async fn get_user(
@@ -29,7 +26,7 @@ pub async fn get_user(
 ) -> Result<HttpResponse, actix_web::Error> {
     let id: Uuid = path.into_inner();
 
-    Ok(HttpResponse::Ok().json(GetUserResponseOutput::from(service.get_user(id).await?)))
+    Ok(HttpResponse::Ok().json(UserOutput::from(service.get_user(id).await?)))
 }
 
 pub async fn get_users(
@@ -41,8 +38,8 @@ pub async fn get_users(
             .get_users()
             .await?
             .into_iter()
-            .map(GetUserResponseOutput::from)
-            .collect::<Vec<GetUserResponseOutput>>(),
+            .map(UserOutput::from)
+            .collect::<Vec<UserOutput>>(),
     ))
 }
 
