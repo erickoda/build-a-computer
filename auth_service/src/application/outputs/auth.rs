@@ -1,6 +1,6 @@
 use serde::Serialize;
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct AuthOutput {
     token: String,
 }
@@ -8,5 +8,22 @@ pub struct AuthOutput {
 impl AuthOutput {
     pub fn new(token: String) -> Self {
         Self { token }
+    }
+
+    pub fn get_token(&self) -> &str {
+        &self.token
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    pub fn test_auth_output_creation() {
+        let token: &str = "MyToken";
+        let auth_output = AuthOutput::new(token.into());
+
+        assert_eq!(token, auth_output.token);
     }
 }
