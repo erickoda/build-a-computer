@@ -8,6 +8,7 @@ use uuid::Uuid;
 
 use crate::domain::{entities::user::UserEntity, value_objects::role::Role};
 
+#[cfg_attr(test, mockall::automock)]
 pub trait TokenGenerator {
     fn generate_token(&self, user_entity: &UserEntity) -> Result<String, TokenError>;
     fn verify_token(&self, token: &str) -> Result<Claims, TokenError>;
