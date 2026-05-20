@@ -10,6 +10,7 @@ impl AuthOutput {
         Self { token }
     }
 
+    #[cfg(test)]
     pub fn get_token(&self) -> &str {
         &self.token
     }
