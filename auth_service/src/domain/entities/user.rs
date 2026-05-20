@@ -5,7 +5,7 @@ use crate::domain::value_objects::{
     email::Email, hashed_password::HashedPassword, role::Role, status::Status, username::Username,
 };
 
-#[derive(Validate, Debug)]
+#[derive(Clone, Validate, Debug)]
 pub struct UserEntity {
     id: Uuid,
     username: Username,
@@ -88,12 +88,8 @@ mod test {
 
         let role: Role = Role::Admin;
 
-        let user: UserEntity = UserEntity::new(
-            username.clone(),
-            email.clone(),
-            password.clone(),
-            role.clone(),
-        );
+        let user: UserEntity =
+            UserEntity::new(username.clone(), email.clone(), password.clone(), role);
 
         assert_eq!(username, *user.get_username());
         assert_eq!(email, *user.get_email());
