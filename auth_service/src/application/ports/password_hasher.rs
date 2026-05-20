@@ -2,6 +2,7 @@ use crate::domain::value_objects::{
     hashed_password::HashedPassword, plain_password::PlainPassword,
 };
 
+#[cfg_attr(test, mockall::automock)]
 pub trait PasswordHasher {
     fn hash_password(
         &self,
