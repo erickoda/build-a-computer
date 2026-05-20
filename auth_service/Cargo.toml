@@ -9,6 +9,7 @@ argon2 = "0.5.3"
 clap = { version = "4.6.1", features = ["derive"] }
 dotenvy = "0.15.7"
 jsonwebtoken = { version = "10.4.0", features = ["aws_lc_rs"] }
+mockall = "0.14.0"
 regex = "1.12.3"
 rpassword = "7.5.2"
 serde = { version = "1.0.228", features = ["derive"] }
@@ -20,5 +21,6 @@ sqlx = { version = "0.8.6", features = [
     "time",
     "uuid",
 ] }
+tokio = { version = "1.52.3", features = ["macros"] }
 uuid = { version = "1.23.1", features = ["v4", "serde"] }
 validator = { version = "0.20.0", features = ["derive"] }
