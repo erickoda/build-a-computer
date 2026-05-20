@@ -1,6 +1,7 @@
 use crate::domain::{entities::user::UserEntity, value_objects::email::Email};
 use sqlx::types::Uuid;
 
+#[cfg_attr(test, mockall::automock)]
 pub trait UserRepository: Send + Sync {
     async fn insert_user(&self, user_entity: UserEntity) -> Result<UserEntity, RepositoryError>;
     async fn get_user(&self, id: Uuid) -> Result<UserEntity, RepositoryError>;
