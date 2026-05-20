@@ -48,7 +48,7 @@ impl Claims {
     }
 
     pub fn get_username(&self) -> &str {
-        &self.email
+        &self.username
     }
 
     pub fn get_email(&self) -> &str {
