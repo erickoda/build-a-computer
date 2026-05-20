@@ -41,9 +41,9 @@ impl FromRequest for AuthenticatedUser {
         };
 
         match jwt_generator.verify_token(auth_str) {
-            Ok(claims) => ready(Ok(AuthenticatedUser {
-                id: claims.get_sub(),
-                role: claims.get_role(),
+            Ok(token_payload) => ready(Ok(AuthenticatedUser {
+                id: token_payload.get_id(),
+                role: token_payload.get_role(),
             })),
             Err(_) => ready(Err(ErrorUnauthorized("Invalid or expired token"))),
         }

@@ -1,9 +1,4 @@
-use std::{
-    fmt::{self},
-    time::{SystemTime, UNIX_EPOCH},
-};
-
-use serde::{Deserialize, Serialize};
+use std::fmt::{self};
 use uuid::Uuid;
 
 use crate::domain::{entities::user::UserEntity, value_objects::role::Role};
@@ -11,40 +6,29 @@ use crate::domain::{entities::user::UserEntity, value_objects::role::Role};
 #[cfg_attr(test, mockall::automock)]
 pub trait TokenGenerator {
     fn generate_token(&self, user_entity: &UserEntity) -> Result<String, TokenError>;
-    fn verify_token(&self, token: &str) -> Result<Claims, TokenError>;
+    fn verify_token(&self, token: &str) -> Result<TokenPayload, TokenError>;
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct Claims {
-    sub: Uuid,
-    username: String,
-    email: String,
-    role: Role,
-    exp: u64,
-    iat: u64,
+#[derive(Debug, Clone)]
+pub struct TokenPayload {
+    pub id: Uuid,
+    pub username: String,
+    pub email: String,
+    pub role: Role,
 }
 
-impl Claims {
-    pub fn new(user_entity: &UserEntity, expiration_seconds: u64) -> Self {
-        let now: u64 = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .expect("Time went backwards")
-            .as_secs();
-
-        let exp: u64 = now + expiration_seconds;
-
+impl TokenPayload {
+    pub fn new(id: Uuid, username: String, email: String, role: Role) -> Self {
         Self {
-            sub: user_entity.get_id(),
-            username: user_entity.get_username().into(),
-            email: user_entity.get_email().into(),
-            role: *user_entity.get_role(),
-            exp,
-            iat: now,
+            id,
+            username,
+            email,
+            role,
         }
     }
 
-    pub fn get_sub(&self) -> Uuid {
-        self.sub
+    pub fn get_id(&self) -> Uuid {
+        self.id
     }
 
     pub fn get_username(&self) -> &str {
@@ -57,14 +41,6 @@ impl Claims {
 
     pub fn get_role(&self) -> Role {
         self.role
-    }
-
-    pub fn get_exp(&self) -> u64 {
-        self.exp
-    }
-
-    pub fn get_iat(&self) -> u64 {
-        self.iat
     }
 }
 
