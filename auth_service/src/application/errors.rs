@@ -41,6 +41,7 @@ impl From<UserEntityError> for UserServiceError {
     }
 }
 
+#[derive(Debug)]
 pub enum AuthServiceError {
     InvalidCredentials,
     InternalError(String),
