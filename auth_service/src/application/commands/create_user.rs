@@ -51,7 +51,7 @@ mod tests {
             username: username.clone(),
             email: email.clone(),
             password: password.clone(),
-            role: role.clone(),
+            role,
         };
 
         assert_eq!(username, command.get_username());
