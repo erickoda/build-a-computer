@@ -128,10 +128,9 @@ impl UserRepository for SqlxUserRepository {
         .fetch_all(&self.pool)
         .await?;
 
-        Ok(rows
-            .into_iter()
+        rows.into_iter()
             .map(|row| row.try_into())
-            .collect::<Result<Vec<UserEntity>, _>>()?)
+            .collect::<Result<Vec<UserEntity>, _>>()
     }
 }
 
