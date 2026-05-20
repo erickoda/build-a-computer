@@ -49,3 +49,142 @@ impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher> AuthService<R, T, 
         Ok(AuthOutput::new(token))
     }
 }
+
+#[cfg(test)]
+mod test {
+    use mockall::predicate::*;
+
+    use uuid::Uuid;
+
+    use crate::{
+        application::ports::{
+            password_hasher::MockPasswordHasher,
+            token_generator::MockTokenGenerator,
+            user_repository::{MockUserRepository, RepositoryError},
+        },
+        domain::value_objects::{
+            hashed_password::HashedPassword, role::Role, status::Status, username::Username,
+        },
+    };
+
+    use super::*;
+
+    fn create_dummy_user() -> UserEntity {
+        UserEntity::restore(
+            Uuid::new_v4(),
+            Username::try_from("usuario_teste".to_string()).unwrap(),
+            Email::try_from("user@email.com".to_string()).unwrap(),
+            HashedPassword::from_hash("hashed_password".to_string()),
+            Role::Common,
+            Status::Active,
+        )
+    }
+
+    #[tokio::test]
+    async fn test_should_authenticate_successfully() {
+        let mut mock_repository = MockUserRepository::new();
+        let mut mock_password_hasher = MockPasswordHasher::new();
+        let mut mock_token_generator = MockTokenGenerator::new();
+
+        let dummy_user = create_dummy_user();
+        let expected_token = "jwt_token_valido_123".to_string();
+
+        mock_repository
+            .expect_get_user_by_email()
+            .with(eq(Email::try_from("user@email.com".to_string()).unwrap()))
+            .times(1)
+            .returning({
+                let user = dummy_user.clone();
+                move |_| Ok(user.clone())
+            });
+
+        mock_password_hasher
+            .expect_verify_password()
+            .with(eq("hashed_password"), eq("senha_correta_123"))
+            .times(1)
+            .returning(|_, _| Ok(true));
+
+        mock_token_generator
+            .expect_generate_token()
+            .times(1)
+            .returning({
+                let token = expected_token.clone();
+                move |_| Ok(token.clone())
+            });
+
+        let auth_service =
+            AuthService::new(mock_repository, mock_token_generator, mock_password_hasher);
+
+        let command = AuthCommand::new("user@email.com".into(), "senha_correta_123".into());
+
+        let result = auth_service.authenticate(command).await;
+
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().get_token(), expected_token);
+    }
+
+    #[tokio::test]
+    async fn test_should_return_invalid_credentials_when_password_is_wrong() {
+        let mut mock_repository = MockUserRepository::new();
+        let mut mock_password_hasher = MockPasswordHasher::new();
+        let mock_token_generator = MockTokenGenerator::new();
+
+        let dummy_user = create_dummy_user();
+
+        mock_repository
+            .expect_get_user_by_email()
+            .with(eq(Email::try_from("user@email.com".to_string()).unwrap()))
+            .times(1)
+            .returning({
+                let user = dummy_user.clone();
+                move |_| Ok(user.clone())
+            });
+
+        mock_password_hasher
+            .expect_verify_password()
+            .with(eq("hashed_password"), eq("wrong_password"))
+            .times(1)
+            .returning(|_, _| Ok(false));
+
+        let command = AuthCommand::new("user@email.com".into(), "wrong_password".into());
+
+        let auth_service =
+            AuthService::new(mock_repository, mock_token_generator, mock_password_hasher);
+
+        let result = auth_service.authenticate(command).await;
+
+        assert!(result.is_err());
+        assert!(matches!(
+            result.unwrap_err(),
+            AuthServiceError::InvalidCredentials
+        ));
+    }
+
+    #[tokio::test]
+    async fn test_should_return_invalid_credentials_when_user_not_found() {
+        let mut mock_repository = MockUserRepository::new();
+        let mock_password_hasher = MockPasswordHasher::new();
+        let mock_token_generator = MockTokenGenerator::new();
+
+        mock_repository
+            .expect_get_user_by_email()
+            .with(eq(
+                Email::try_from("user_not_found@email.com".to_string()).unwrap()
+            ))
+            .times(1)
+            .returning(|_| Err(RepositoryError::NotFound));
+
+        let command = AuthCommand::new("user_not_found@email.com".into(), "any_password".into());
+
+        let auth_service =
+            AuthService::new(mock_repository, mock_token_generator, mock_password_hasher);
+
+        let result = auth_service.authenticate(command).await;
+
+        assert!(result.is_err());
+        assert!(matches!(
+            result.unwrap_err(),
+            AuthServiceError::InvalidCredentials
+        ));
+    }
+}
