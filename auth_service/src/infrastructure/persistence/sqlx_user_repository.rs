@@ -69,9 +69,11 @@ impl UserRepository for SqlxUserRepository {
     async fn delete_user(&self, id: Uuid) -> Result<(), RepositoryError> {
         let result = sqlx::query!(
             r#"
-            DELETE FROM users
-            WHERE id = $1
+            UPDATE users
+            SET status = $1::user_status
+            WHERE id = $2
             "#,
+            PgStatus::Inactive as _,
             id
         )
         .execute(&self.pool)
