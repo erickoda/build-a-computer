@@ -54,9 +54,10 @@ impl UserRepository for SqlxUserRepository {
             r#"
             SELECT id, username, email, password, role AS "role: PgRole", status AS "status: PgStatus"
             FROM users
-            WHERE id = $1
+            WHERE id = $1 and status = $2::user_status
             "#,
-            id
+            id,
+            PgStatus::Active as _,
         )
         .fetch_one(&self.pool)
         .await?;
@@ -102,9 +103,10 @@ impl UserRepository for SqlxUserRepository {
                 role AS "role: PgRole", 
                 status AS "status: PgStatus"
             FROM users
-            WHERE email = $1
+            WHERE email = $1 and status = $2::user_status
             "#,
-            email_string
+            email_string,
+            PgStatus::Active as _,
         )
         .fetch_one(&self.pool)
         .await?;
@@ -125,7 +127,9 @@ impl UserRepository for SqlxUserRepository {
                 role AS "role: PgRole", 
                 status AS "status: PgStatus"
             FROM users
+            WHERE status = $1::user_status
             "#,
+            PgStatus::Active as _,
         )
         .fetch_all(&self.pool)
         .await?;
