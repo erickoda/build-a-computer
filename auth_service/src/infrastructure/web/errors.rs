@@ -8,7 +8,12 @@ impl From<UserServiceError> for actix_web::Error {
             UserServiceError::InternalError(error) => {
                 actix_web::error::ErrorInternalServerError(error)
             }
-            UserServiceError::NotFound => actix_web::error::ErrorNotFound("Not Found"),
+            UserServiceError::NotFound => {
+                actix_web::error::ErrorNotFound(UserServiceError::NotFound.to_string())
+            }
+            UserServiceError::Forbidden => {
+                actix_web::error::ErrorForbidden(UserServiceError::Forbidden.to_string())
+            }
         }
     }
 }

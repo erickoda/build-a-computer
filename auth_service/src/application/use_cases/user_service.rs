@@ -57,7 +57,16 @@ impl<R: UserRepository, P: PasswordHasher> UserService<R, P> {
         Ok(self.repository.get_users().await?)
     }
 
-    pub async fn delete_user(&self, id: Uuid) -> Result<(), UserServiceError> {
+    pub async fn delete_user(
+        &self,
+        id: Uuid,
+        requester_id: Uuid,
+        requester_role: Role,
+    ) -> Result<(), UserServiceError> {
+        if requester_id != id && requester_role != Role::Admin {
+            return Err(UserServiceError::Forbidden);
+        }
+
         Ok(self.repository.delete_user(id).await?)
     }
 }

@@ -46,11 +46,13 @@ pub async fn get_users(
 pub async fn delete_user(
     path: web::Path<Uuid>,
     service: web::Data<AppUserService>,
-    _: AdminUser,
+    requester_user: AuthenticatedUser,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let id: Uuid = path.into_inner();
+    let delete_user_id: Uuid = path.into_inner();
 
-    service.delete_user(id).await?;
+    service
+        .delete_user(delete_user_id, requester_user.id, requester_user.role)
+        .await?;
 
     Ok(HttpResponse::NoContent().finish())
 }

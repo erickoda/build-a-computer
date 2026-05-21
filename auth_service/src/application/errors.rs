@@ -7,6 +7,7 @@ pub enum UserServiceError {
     ValidationError(String),
     Conflict(String),
     NotFound,
+    Forbidden,
     InternalError(String),
 }
 
@@ -19,6 +20,7 @@ impl std::fmt::Display for UserServiceError {
                 write!(f, "Invalid Request Format: {}", error)
             }
             UserServiceError::NotFound => write!(f, "Resource not found"),
+            UserServiceError::Forbidden => write!(f, "Forbidden action"),
         }
     }
 }
