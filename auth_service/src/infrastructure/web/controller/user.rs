@@ -1,14 +1,28 @@
-use actix_web::{HttpResponse, web};
+use actix_web::{web, HttpResponse};
 use uuid::Uuid;
 
 use crate::{
     application::{commands::create_user::CreateUserCommand, outputs::user::UserOutput},
     infrastructure::{
-        AppUserService,
         web::extractors::{admin::AdminUser, authenticated::AuthenticatedUser},
+        AppUserService,
     },
 };
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/user",
+    request_body = CreateUserCommand,
+    responses(
+        (status = 201, description = "Successfully created user", body = UserOutput),
+        (status = 400, description = "Invalid request data"),
+        (status = 409, description = "Email already in use"),
+    ),
+    security(
+        ("bearer_auth" = [])
+    ),
+    tag = "Users"
+)]
 pub async fn create_user(
     json_command: web::Json<CreateUserCommand>,
     service: web::Data<AppUserService>,
@@ -19,6 +33,18 @@ pub async fn create_user(
     Ok(HttpResponse::Created().json(UserOutput::from(service.create_user(command).await?)))
 }
 
+#[utoipa::path(
+    get,
+    path = "/api/v1/user/{id}",
+    responses(
+        (status = 201, description = "Successfully got user", body = UserOutput),
+        (status = 404, description = "Not Found")
+    ),
+    security(
+        ("bearer_auth" = [])
+    ),
+    tag = "Users"
+)]
 pub async fn get_user(
     path: web::Path<Uuid>,
     service: web::Data<AppUserService>,
@@ -29,6 +55,17 @@ pub async fn get_user(
     Ok(HttpResponse::Ok().json(UserOutput::from(service.get_user(id).await?)))
 }
 
+#[utoipa::path(
+    get,
+    path = "/api/v1/user",
+    responses(
+        (status = 200, description = "Successfully got users", body = [UserOutput]),
+    ),
+    security(
+        ("bearer_auth" = [])
+    ),
+    tag = "Users"
+)]
 pub async fn get_users(
     service: web::Data<AppUserService>,
     _: AuthenticatedUser,
@@ -43,6 +80,17 @@ pub async fn get_users(
     ))
 }
 
+#[utoipa::path(
+    delete,
+    path = "/api/v1/user/{id}",
+    responses(
+        (status = 204, description = "Successfully deleted user"),
+    ),
+    security(
+        ("bearer_auth" = [])
+    ),
+    tag = "Users"
+)]
 pub async fn delete_user(
     path: web::Path<Uuid>,
     service: web::Data<AppUserService>,

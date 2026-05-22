@@ -22,5 +22,7 @@ sqlx = { version = "0.8.6", features = [
     "uuid",
 ] }
 tokio = { version = "1.52.3", features = ["macros"] }
+utoipa = { version = "5.5.0", features = ["uuid", "actix_extras"] }
+utoipa-swagger-ui = { version = "9.0.2", features = ["actix-web"] }
 uuid = { version = "1.23.1", features = ["v4", "serde"] }
 validator = { version = "0.20.0", features = ["derive"] }
