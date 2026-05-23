@@ -1,8 +1,8 @@
-use actix_web::{web, HttpResponse};
+use actix_web::{HttpResponse, web};
 
 use crate::{
     application::{commands::auth::AuthCommand, outputs::auth::AuthOutput},
-    infrastructure::AppAuthService,
+    infrastructure::AppAuthUseCase,
 };
 
 #[utoipa::path(
@@ -17,7 +17,7 @@ use crate::{
 )]
 pub async fn auth(
     json_command: web::Json<AuthCommand>,
-    service: web::Data<AppAuthService>,
+    service: web::Data<AppAuthUseCase>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let command: AuthCommand = json_command.into_inner();
 

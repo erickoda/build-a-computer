@@ -2,10 +2,10 @@ use rpassword::read_password;
 
 use crate::{
     application::commands::create_user::CreateUserCommand, domain::value_objects::role::Role,
-    infrastructure::AppUserService,
+    infrastructure::AppUserUseCase,
 };
 
-pub async fn create_admin(app_user_service: AppUserService, username: &str, email: &str) {
+pub async fn create_admin(app_user_service: AppUserUseCase, username: &str, email: &str) {
     print_anime_girl();
     println!("⚙️  Initializing admin creation...");
 

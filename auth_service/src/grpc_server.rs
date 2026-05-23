@@ -1,11 +1,11 @@
 use auth_service::{
-    application::use_cases::{auth_service::AuthService, user_service::UserService},
+    application::use_cases::{auth::AuthUseCase, user::UserUseCase},
     auth_grpc::auth_server::AuthServer,
     config::AppConfig,
     infrastructure::{
         grpc::{
             interceptors::auth_interceptor,
-            services::{auth::AuthService as GRPCAuthService, users::UsersService},
+            services::{auth::AuthService, users::UsersService},
         },
         persistence::sqlx_user_repository::SqlxUserRepository,
         security::{argo2_cryptography::Argo2Hasher, jwt_generator::JwtGenerator},
@@ -32,16 +32,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let password_hasher: Argo2Hasher = Argo2Hasher {};
 
-    let jwt_generator = JwtGenerator::new(config.jwt_secret, config.jwt_expiration);
+    let jwt_generator: JwtGenerator = JwtGenerator::new(config.jwt_secret, config.jwt_expiration);
 
-    let user_use_case: UserService<SqlxUserRepository, Argo2Hasher> =
-        UserService::new(sqlx_repository.clone(), password_hasher.clone());
+    let user_use_case: UserUseCase<SqlxUserRepository, Argo2Hasher> =
+        UserUseCase::new(sqlx_repository.clone(), password_hasher.clone());
 
-    let auth_use_case: AuthService<SqlxUserRepository, JwtGenerator, Argo2Hasher> =
-        AuthService::new(sqlx_repository.clone(), jwt_generator, password_hasher);
+    let auth_use_case: AuthUseCase<SqlxUserRepository, JwtGenerator, Argo2Hasher> =
+        AuthUseCase::new(sqlx_repository.clone(), jwt_generator, password_hasher);
 
-    let user_service = UsersService::new(user_use_case);
-    let auth_service = GRPCAuthService::new(auth_use_case);
+    let user_service: UsersService = UsersService::new(user_use_case);
+    let auth_service: AuthService = AuthService::new(auth_use_case);
 
     let addr: SocketAddr = "0.0.0.0:50051".parse()?;
 

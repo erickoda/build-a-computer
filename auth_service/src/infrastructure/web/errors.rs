@@ -1,18 +1,18 @@
-use crate::application::errors::{AuthServiceError, UserServiceError};
+use crate::application::errors::{AuthServiceError, UserUseCaseError};
 
-impl From<UserServiceError> for actix_web::Error {
-    fn from(user_service_errors: UserServiceError) -> Self {
+impl From<UserUseCaseError> for actix_web::Error {
+    fn from(user_service_errors: UserUseCaseError) -> Self {
         match user_service_errors {
-            UserServiceError::ValidationError(error) => actix_web::error::ErrorBadRequest(error),
-            UserServiceError::Conflict(error) => actix_web::error::ErrorConflict(error),
-            UserServiceError::InternalError(error) => {
+            UserUseCaseError::ValidationError(error) => actix_web::error::ErrorBadRequest(error),
+            UserUseCaseError::Conflict(error) => actix_web::error::ErrorConflict(error),
+            UserUseCaseError::InternalError(error) => {
                 actix_web::error::ErrorInternalServerError(error)
             }
-            UserServiceError::NotFound => {
-                actix_web::error::ErrorNotFound(UserServiceError::NotFound.to_string())
+            UserUseCaseError::NotFound => {
+                actix_web::error::ErrorNotFound(UserUseCaseError::NotFound.to_string())
             }
-            UserServiceError::Forbidden => {
-                actix_web::error::ErrorForbidden(UserServiceError::Forbidden.to_string())
+            UserUseCaseError::Forbidden => {
+                actix_web::error::ErrorForbidden(UserUseCaseError::Forbidden.to_string())
             }
         }
     }

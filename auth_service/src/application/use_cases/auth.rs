@@ -11,13 +11,13 @@ use crate::{
     domain::{entities::user::UserEntity, value_objects::email::Email},
 };
 
-pub struct AuthService<R: UserRepository, T: TokenGenerator, P: PasswordHasher> {
+pub struct AuthUseCase<R: UserRepository, T: TokenGenerator, P: PasswordHasher> {
     repository: R,
     token_generator: T,
     password_hasher: P,
 }
 
-impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher> AuthService<R, T, P> {
+impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher> AuthUseCase<R, T, P> {
     pub fn new(repository: R, token_generator: T, password_hasher: P) -> Self {
         Self {
             repository,
@@ -113,7 +113,7 @@ mod test {
             });
 
         let auth_service =
-            AuthService::new(mock_repository, mock_token_generator, mock_password_hasher);
+            AuthUseCase::new(mock_repository, mock_token_generator, mock_password_hasher);
 
         let command = AuthCommand::new("user@email.com".into(), "senha_correta_123".into());
 
@@ -149,7 +149,7 @@ mod test {
         let command = AuthCommand::new("user@email.com".into(), "wrong_password".into());
 
         let auth_service =
-            AuthService::new(mock_repository, mock_token_generator, mock_password_hasher);
+            AuthUseCase::new(mock_repository, mock_token_generator, mock_password_hasher);
 
         let result = auth_service.authenticate(command).await;
 
@@ -177,7 +177,7 @@ mod test {
         let command = AuthCommand::new("user_not_found@email.com".into(), "any_password".into());
 
         let auth_service =
-            AuthService::new(mock_repository, mock_token_generator, mock_password_hasher);
+            AuthUseCase::new(mock_repository, mock_token_generator, mock_password_hasher);
 
         let result = auth_service.authenticate(command).await;
 

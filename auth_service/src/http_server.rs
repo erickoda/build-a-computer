@@ -3,7 +3,7 @@ use clap::Parser;
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 
 use auth_service::{
-    application::use_cases::{auth_service::AuthService, user_service::UserService},
+    application::use_cases::{auth::AuthUseCase, user::UserUseCase},
     config::AppConfig,
     infrastructure::{
         cli::{
@@ -31,8 +31,8 @@ async fn main() -> std::io::Result<()> {
 
     let password_hasher: Argo2Hasher = Argo2Hasher {};
 
-    let user_service: UserService<SqlxUserRepository, Argo2Hasher> =
-        UserService::new(sqlx_repository.clone(), password_hasher.clone());
+    let user_service: UserUseCase<SqlxUserRepository, Argo2Hasher> =
+        UserUseCase::new(sqlx_repository.clone(), password_hasher.clone());
 
     match &cli.command {
         Some(Commands::CreateAdmin { username, email }) => {
@@ -45,13 +45,13 @@ async fn main() -> std::io::Result<()> {
             let jwt_generator = JwtGenerator::new(config.jwt_secret, config.jwt_expiration);
             let jwt_generator_data: web::Data<JwtGenerator> = web::Data::new(jwt_generator.clone());
 
-            let user_service_data: web::Data<UserService<SqlxUserRepository, Argo2Hasher>> =
+            let user_service_data: web::Data<UserUseCase<SqlxUserRepository, Argo2Hasher>> =
                 web::Data::new(user_service);
 
-            let auth_service: AuthService<SqlxUserRepository, JwtGenerator, Argo2Hasher> =
-                AuthService::new(sqlx_repository.clone(), jwt_generator, password_hasher);
+            let auth_service: AuthUseCase<SqlxUserRepository, JwtGenerator, Argo2Hasher> =
+                AuthUseCase::new(sqlx_repository.clone(), jwt_generator, password_hasher);
             let auth_service_data: web::Data<
-                AuthService<SqlxUserRepository, JwtGenerator, Argo2Hasher>,
+                AuthUseCase<SqlxUserRepository, JwtGenerator, Argo2Hasher>,
             > = web::Data::new(auth_service);
 
             println!("Server running in {}:{}", config.host, config.port);

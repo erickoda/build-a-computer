@@ -1,6 +1,6 @@
 use tonic::Status;
 
-use crate::application::errors::{AuthServiceError, UserServiceError};
+use crate::application::errors::{AuthServiceError, UserUseCaseError};
 
 impl From<AuthServiceError> for Status {
     fn from(auth_service_error: AuthServiceError) -> Self {
@@ -11,16 +11,16 @@ impl From<AuthServiceError> for Status {
     }
 }
 
-impl From<UserServiceError> for Status {
-    fn from(user_service_error: UserServiceError) -> Self {
+impl From<UserUseCaseError> for Status {
+    fn from(user_service_error: UserUseCaseError) -> Self {
         match user_service_error {
-            UserServiceError::NotFound => Self::not_found("User not found!"),
-            UserServiceError::Forbidden => {
+            UserUseCaseError::NotFound => Self::not_found("User not found!"),
+            UserUseCaseError::Forbidden => {
                 Self::permission_denied("User does not have access to this route!")
             }
-            UserServiceError::Conflict(err) => Self::already_exists(err),
-            UserServiceError::InternalError(err) => Self::internal(err),
-            UserServiceError::ValidationError(err) => Self::invalid_argument(err),
+            UserUseCaseError::Conflict(err) => Self::already_exists(err),
+            UserUseCaseError::InternalError(err) => Self::internal(err),
+            UserUseCaseError::ValidationError(err) => Self::invalid_argument(err),
         }
     }
 }

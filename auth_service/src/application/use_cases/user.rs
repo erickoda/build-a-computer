@@ -3,7 +3,7 @@ use uuid::Uuid;
 use crate::{
     application::{
         commands::create_user::CreateUserCommand,
-        errors::UserServiceError,
+        errors::UserUseCaseError,
         ports::{password_hasher::PasswordHasher, user_repository::UserRepository},
     },
     domain::{
@@ -15,12 +15,12 @@ use crate::{
     },
 };
 
-pub struct UserService<R: UserRepository, P: PasswordHasher> {
+pub struct UserUseCase<R: UserRepository, P: PasswordHasher> {
     repository: R,
     password_hasher: P,
 }
 
-impl<R: UserRepository, P: PasswordHasher> UserService<R, P> {
+impl<R: UserRepository, P: PasswordHasher> UserUseCase<R, P> {
     pub fn new(repository: R, password_hasher: P) -> Self {
         Self {
             repository,
@@ -31,7 +31,7 @@ impl<R: UserRepository, P: PasswordHasher> UserService<R, P> {
     pub async fn create_user(
         &self,
         command: CreateUserCommand,
-    ) -> Result<UserEntity, UserServiceError> {
+    ) -> Result<UserEntity, UserUseCaseError> {
         let username: Username = Username::try_from(command.get_username().to_string())?;
         let email: Email = Email::try_from(command.get_email().to_string())?;
         let plain_password: PlainPassword =
@@ -40,7 +40,7 @@ impl<R: UserRepository, P: PasswordHasher> UserService<R, P> {
         let hashed_password: HashedPassword = self
             .password_hasher
             .hash_password(plain_password)
-            .map_err(|_| UserServiceError::InternalError("Failed to hash password".into()))?;
+            .map_err(|_| UserUseCaseError::InternalError("Failed to hash password".into()))?;
 
         let role: Role = command.get_role();
 
@@ -49,11 +49,11 @@ impl<R: UserRepository, P: PasswordHasher> UserService<R, P> {
         Ok(self.repository.insert_user(user_entity).await?)
     }
 
-    pub async fn get_user(&self, id: Uuid) -> Result<UserEntity, UserServiceError> {
+    pub async fn get_user(&self, id: Uuid) -> Result<UserEntity, UserUseCaseError> {
         Ok(self.repository.get_user(id).await?)
     }
 
-    pub async fn get_users(&self) -> Result<Vec<UserEntity>, UserServiceError> {
+    pub async fn get_users(&self) -> Result<Vec<UserEntity>, UserUseCaseError> {
         Ok(self.repository.get_users().await?)
     }
 
@@ -62,9 +62,9 @@ impl<R: UserRepository, P: PasswordHasher> UserService<R, P> {
         id: Uuid,
         requester_id: Uuid,
         requester_role: Role,
-    ) -> Result<(), UserServiceError> {
+    ) -> Result<(), UserUseCaseError> {
         if requester_id != id && requester_role != Role::Admin {
-            return Err(UserServiceError::Forbidden);
+            return Err(UserUseCaseError::Forbidden);
         }
 
         Ok(self.repository.delete_user(id).await?)

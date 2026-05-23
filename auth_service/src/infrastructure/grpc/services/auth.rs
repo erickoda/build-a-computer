@@ -3,15 +3,15 @@ use tonic::{Request, Response, Status};
 use crate::{
     application::{commands::auth::AuthCommand, outputs::auth::AuthOutput},
     auth_grpc::{AuthReply, AuthRequest, auth_server::Auth},
-    infrastructure::AppAuthService,
+    infrastructure::AppAuthUseCase,
 };
 
 pub struct AuthService {
-    auth_use_case: AppAuthService,
+    auth_use_case: AppAuthUseCase,
 }
 
 impl AuthService {
-    pub fn new(auth_use_case: AppAuthService) -> Self {
+    pub fn new(auth_use_case: AppAuthUseCase) -> Self {
         Self { auth_use_case }
     }
 }

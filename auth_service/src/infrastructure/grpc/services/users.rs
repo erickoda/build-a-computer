@@ -4,16 +4,16 @@ use tonic::{Request, Response, Status};
 use uuid::Uuid;
 
 use crate::{
-    infrastructure::{AppUserService, grpc::interceptors::UserContext},
+    infrastructure::{AppUserUseCase, grpc::interceptors::UserContext},
     users_grpc::{CreateUserRequest, Empty, ListOfUsers, User, UserId, users_server::Users},
 };
 
 pub struct UsersService {
-    user_use_case: AppUserService,
+    user_use_case: AppUserUseCase,
 }
 
 impl UsersService {
-    pub fn new(user_use_case: AppUserService) -> Self {
+    pub fn new(user_use_case: AppUserUseCase) -> Self {
         Self { user_use_case }
     }
 }

@@ -1,11 +1,11 @@
-use actix_web::{web, HttpResponse};
+use actix_web::{HttpResponse, web};
 use uuid::Uuid;
 
 use crate::{
     application::{commands::create_user::CreateUserCommand, outputs::user::UserOutput},
     infrastructure::{
+        AppUserUseCase,
         web::extractors::{admin::AdminUser, authenticated::AuthenticatedUser},
-        AppUserService,
     },
 };
 
@@ -25,7 +25,7 @@ use crate::{
 )]
 pub async fn create_user(
     json_command: web::Json<CreateUserCommand>,
-    service: web::Data<AppUserService>,
+    service: web::Data<AppUserUseCase>,
     _: AdminUser,
 ) -> Result<HttpResponse, actix_web::Error> {
     let command: CreateUserCommand = json_command.0;
@@ -47,7 +47,7 @@ pub async fn create_user(
 )]
 pub async fn get_user(
     path: web::Path<Uuid>,
-    service: web::Data<AppUserService>,
+    service: web::Data<AppUserUseCase>,
     _: AuthenticatedUser,
 ) -> Result<HttpResponse, actix_web::Error> {
     let id: Uuid = path.into_inner();
@@ -67,7 +67,7 @@ pub async fn get_user(
     tag = "Users"
 )]
 pub async fn get_users(
-    service: web::Data<AppUserService>,
+    service: web::Data<AppUserUseCase>,
     _: AuthenticatedUser,
 ) -> Result<HttpResponse, actix_web::Error> {
     Ok(HttpResponse::Ok().json(
@@ -93,7 +93,7 @@ pub async fn get_users(
 )]
 pub async fn delete_user(
     path: web::Path<Uuid>,
-    service: web::Data<AppUserService>,
+    service: web::Data<AppUserUseCase>,
     requester_user: AuthenticatedUser,
 ) -> Result<HttpResponse, actix_web::Error> {
     let delete_user_id: Uuid = path.into_inner();
