@@ -2,7 +2,7 @@ use actix_web::{App, HttpServer, web};
 use clap::Parser;
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 
-use crate::{
+use auth_service::{
     application::use_cases::{auth_service::AuthService, user_service::UserService},
     config::AppConfig,
     infrastructure::{
@@ -15,11 +15,6 @@ use crate::{
         web::routes::configure_routes,
     },
 };
-
-mod application;
-mod config;
-mod domain;
-mod infrastructure;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {

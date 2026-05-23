@@ -8,7 +8,6 @@ pub struct AuthCommand {
 }
 
 impl AuthCommand {
-    #[cfg(test)]
     pub fn new(email: String, password: String) -> Self {
         Self { email, password }
     }

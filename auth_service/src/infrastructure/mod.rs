@@ -7,6 +7,7 @@ use crate::{
 };
 
 pub mod cli;
+pub mod grpc;
 pub mod persistence;
 pub mod security;
 pub mod web;
