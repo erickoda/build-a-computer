@@ -1,3 +1,4 @@
+use clap::CommandFactory;
 use clap::Parser;
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 
@@ -14,7 +15,7 @@ use auth_service::{
     },
 };
 
-#[actix_web::main]
+#[tokio::main]
 async fn main() -> std::io::Result<()> {
     let cli = Cli::parse();
 
@@ -40,7 +41,10 @@ async fn main() -> std::io::Result<()> {
         }
 
         None => {
-            todo!()
+            Cli::command().print_help()?;
+            println!();
+
+            Ok(())
         }
     }
 }
