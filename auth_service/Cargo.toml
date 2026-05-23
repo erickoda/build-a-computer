@@ -43,5 +43,9 @@ path = "src/grpc_server.rs"
 name = "http_server"
 path = "src/http_server.rs"
 
+[[bin]]
+name = "cli"
+path = "src/cli.rs"
+
 [build-dependencies]
 tonic-prost-build = "0.14.6"
