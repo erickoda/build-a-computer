@@ -5,3 +5,12 @@ tasks:
       desc: Generate gRPC stubs from proto files
       cmds:
          - protoc -I pkg/protos --experimental_allow_proto3_optional --go_out=. --go_opt=module=github.com/erickoda/build-a-computer/pc_builder_service --go-grpc_out=. --go-grpc_opt=module=github.com/erickoda/build-a-computer/pc_builder_service pkg/protos/*.proto
+   run:
+     desc: Run the gRPC server
+     cmds:
+      - go run cmd/server/main.go
+
+   build:
+     desc: Build the PC builder service
+     cmds:
+      - go build -o bin/server cmd/server/main.go
