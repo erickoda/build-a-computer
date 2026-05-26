@@ -20,8 +20,5 @@ pub async fn authenticate(
 
     let grpc_response = client.authenticate_user(grpc_request).await?.into_inner();
 
-    Ok((
-        StatusCode::CREATED,
-        Json(AuthResponse::new(grpc_response.token)),
-    ))
+    Ok((StatusCode::OK, Json(AuthResponse::new(grpc_response.token))))
 }
