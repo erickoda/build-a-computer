@@ -7,6 +7,8 @@ import (
 
 	pb "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos"
 	"google.golang.org/grpc"
+
+	"github.com/erickoda/build-a-computer/pc_builder_service/internal/adapters/db"
 )
 
 var addr string = os.Getenv("ADDR")
@@ -21,6 +23,14 @@ func main() {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 
+	db := &db.DB{}
+	if err := db.New_data_base(); err != nil {
+		log.Fatal(err)
+	}
+	
+	log.Println("database running...")
+	defer db.Close()
+
 	s := grpc.NewServer()
 
 	pb.RegisterBuilderServiceServer(s, Server{})
@@ -29,5 +39,6 @@ func main() {
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
+	
 }
 
