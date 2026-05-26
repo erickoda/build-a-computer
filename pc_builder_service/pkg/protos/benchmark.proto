@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package builder;
+
+option go_package = "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos";
+
+import "google/protobuf/timestamp.proto";
+
+message Benchmark {
+    string id = 1;
+    string name = 2;
+
+    string cpu_id = 3;
+    string gpu_id = 4;
+    string ram_id = 5;
+
+    int32 avg_fps = 6;
+    int32 min_fps = 7;
+    int32 max_fps = 8;
+
+    string game_id = 9;
+    string user_id = 10;
+
+    google.protobuf.Timestamp created_at = 11;
+}

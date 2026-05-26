@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package builder;
+
+option go_package = "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos";
+
+import "game.proto";
+import "hardwares.proto";
+
+message RequestBuilderPC {
+    repeated Game games = 1;
+}
+
+message ResponseBuilderPC {
+    CPU cpu = 1;
+    GPU gpu = 2;
+    RAM_Memory ram = 3;
+    Mother_Board mother_board = 4;
+    Power_Source psu = 5;
+}
+
+service BuilderService {
+    rpc BuildPC (RequestBuilderPC) returns (ResponseBuilderPC);
+}
