@@ -74,7 +74,8 @@ type BuildPCRequest struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	Games               []string               `protobuf:"bytes,1,rep,name=games,proto3" json:"games,omitempty"`
 	MaxPrice            float32                `protobuf:"fixed32,2,opt,name=max_price,json=maxPrice,proto3" json:"max_price,omitempty"`
-	ComputerPerformance ComputerPerformance    `protobuf:"varint,3,opt,name=computer_performance,json=computerPerformance,proto3,enum=pkg.proto.ComputerPerformance" json:"computer_performance,omitempty"`
+	Resolution          int32                  `protobuf:"varint,3,opt,name=resolution,proto3" json:"resolution,omitempty"`
+	ComputerPerformance ComputerPerformance    `protobuf:"varint,4,opt,name=computer_performance,json=computerPerformance,proto3,enum=pkg.proto.ComputerPerformance" json:"computer_performance,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -123,6 +124,13 @@ func (x *BuildPCRequest) GetMaxPrice() float32 {
 	return 0
 }
 
+func (x *BuildPCRequest) GetResolution() int32 {
+	if x != nil {
+		return x.Resolution
+	}
+	return 0
+}
+
 func (x *BuildPCRequest) GetComputerPerformance() ComputerPerformance {
 	if x != nil {
 		return x.ComputerPerformance
@@ -132,11 +140,7 @@ func (x *BuildPCRequest) GetComputerPerformance() ComputerPerformance {
 
 type BuildPCResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Cpu           *CPU                   `protobuf:"bytes,1,opt,name=cpu,proto3" json:"cpu,omitempty"`
-	Gpu           *GPU                   `protobuf:"bytes,2,opt,name=gpu,proto3" json:"gpu,omitempty"`
-	Ram           *RAMMemory             `protobuf:"bytes,3,opt,name=ram,proto3" json:"ram,omitempty"`
-	MotherBoard   *MotherBoard           `protobuf:"bytes,4,opt,name=mother_board,json=motherBoard,proto3" json:"mother_board,omitempty"`
-	Psu           *PowerSource           `protobuf:"bytes,5,opt,name=psu,proto3" json:"psu,omitempty"`
+	Pc            []*PC                  `protobuf:"bytes,1,rep,name=pc,proto3" json:"pc,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -171,35 +175,83 @@ func (*BuildPCResponse) Descriptor() ([]byte, []int) {
 	return file_builder_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *BuildPCResponse) GetCpu() *CPU {
+func (x *BuildPCResponse) GetPc() []*PC {
+	if x != nil {
+		return x.Pc
+	}
+	return nil
+}
+
+type PC struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Cpu           *CPU                   `protobuf:"bytes,1,opt,name=cpu,proto3" json:"cpu,omitempty"`
+	Gpu           *GPU                   `protobuf:"bytes,2,opt,name=gpu,proto3" json:"gpu,omitempty"`
+	Ram           *RAMMemory             `protobuf:"bytes,3,opt,name=ram,proto3" json:"ram,omitempty"`
+	MotherBoard   *MotherBoard           `protobuf:"bytes,4,opt,name=mother_board,json=motherBoard,proto3" json:"mother_board,omitempty"`
+	Psu           *PowerSource           `protobuf:"bytes,5,opt,name=psu,proto3" json:"psu,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PC) Reset() {
+	*x = PC{}
+	mi := &file_builder_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PC) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PC) ProtoMessage() {}
+
+func (x *PC) ProtoReflect() protoreflect.Message {
+	mi := &file_builder_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PC.ProtoReflect.Descriptor instead.
+func (*PC) Descriptor() ([]byte, []int) {
+	return file_builder_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *PC) GetCpu() *CPU {
 	if x != nil {
 		return x.Cpu
 	}
 	return nil
 }
 
-func (x *BuildPCResponse) GetGpu() *GPU {
+func (x *PC) GetGpu() *GPU {
 	if x != nil {
 		return x.Gpu
 	}
 	return nil
 }
 
-func (x *BuildPCResponse) GetRam() *RAMMemory {
+func (x *PC) GetRam() *RAMMemory {
 	if x != nil {
 		return x.Ram
 	}
 	return nil
 }
 
-func (x *BuildPCResponse) GetMotherBoard() *MotherBoard {
+func (x *PC) GetMotherBoard() *MotherBoard {
 	if x != nil {
 		return x.MotherBoard
 	}
 	return nil
 }
 
-func (x *BuildPCResponse) GetPsu() *PowerSource {
+func (x *PC) GetPsu() *PowerSource {
 	if x != nil {
 		return x.Psu
 	}
@@ -210,12 +262,17 @@ var File_builder_proto protoreflect.FileDescriptor
 
 const file_builder_proto_rawDesc = "" +
 	"\n" +
-	"\rbuilder.proto\x12\tpkg.proto\x1a\x0fhardwares.proto\"\x96\x01\n" +
+	"\rbuilder.proto\x12\tpkg.proto\x1a\x0fhardwares.proto\"\xb6\x01\n" +
 	"\x0eBuildPCRequest\x12\x14\n" +
 	"\x05games\x18\x01 \x03(\tR\x05games\x12\x1b\n" +
-	"\tmax_price\x18\x02 \x01(\x02R\bmaxPrice\x12Q\n" +
-	"\x14computer_performance\x18\x03 \x01(\x0e2\x1e.pkg.proto.ComputerPerformanceR\x13computerPerformance\"\xe2\x01\n" +
-	"\x0fBuildPCResponse\x12 \n" +
+	"\tmax_price\x18\x02 \x01(\x02R\bmaxPrice\x12\x1e\n" +
+	"\n" +
+	"resolution\x18\x03 \x01(\x05R\n" +
+	"resolution\x12Q\n" +
+	"\x14computer_performance\x18\x04 \x01(\x0e2\x1e.pkg.proto.ComputerPerformanceR\x13computerPerformance\"0\n" +
+	"\x0fBuildPCResponse\x12\x1d\n" +
+	"\x02pc\x18\x01 \x03(\v2\r.pkg.proto.PCR\x02pc\"\xd5\x01\n" +
+	"\x02PC\x12 \n" +
 	"\x03cpu\x18\x01 \x01(\v2\x0e.pkg.proto.CPUR\x03cpu\x12 \n" +
 	"\x03gpu\x18\x02 \x01(\v2\x0e.pkg.proto.GPUR\x03gpu\x12&\n" +
 	"\x03ram\x18\x03 \x01(\v2\x14.pkg.proto.RAMMemoryR\x03ram\x129\n" +
@@ -241,31 +298,33 @@ func file_builder_proto_rawDescGZIP() []byte {
 }
 
 var file_builder_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_builder_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_builder_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_builder_proto_goTypes = []any{
 	(ComputerPerformance)(0), // 0: pkg.proto.ComputerPerformance
 	(*BuildPCRequest)(nil),   // 1: pkg.proto.BuildPCRequest
 	(*BuildPCResponse)(nil),  // 2: pkg.proto.BuildPCResponse
-	(*CPU)(nil),              // 3: pkg.proto.CPU
-	(*GPU)(nil),              // 4: pkg.proto.GPU
-	(*RAMMemory)(nil),        // 5: pkg.proto.RAMMemory
-	(*MotherBoard)(nil),      // 6: pkg.proto.MotherBoard
-	(*PowerSource)(nil),      // 7: pkg.proto.PowerSource
+	(*PC)(nil),               // 3: pkg.proto.PC
+	(*CPU)(nil),              // 4: pkg.proto.CPU
+	(*GPU)(nil),              // 5: pkg.proto.GPU
+	(*RAMMemory)(nil),        // 6: pkg.proto.RAMMemory
+	(*MotherBoard)(nil),      // 7: pkg.proto.MotherBoard
+	(*PowerSource)(nil),      // 8: pkg.proto.PowerSource
 }
 var file_builder_proto_depIdxs = []int32{
 	0, // 0: pkg.proto.BuildPCRequest.computer_performance:type_name -> pkg.proto.ComputerPerformance
-	3, // 1: pkg.proto.BuildPCResponse.cpu:type_name -> pkg.proto.CPU
-	4, // 2: pkg.proto.BuildPCResponse.gpu:type_name -> pkg.proto.GPU
-	5, // 3: pkg.proto.BuildPCResponse.ram:type_name -> pkg.proto.RAMMemory
-	6, // 4: pkg.proto.BuildPCResponse.mother_board:type_name -> pkg.proto.MotherBoard
-	7, // 5: pkg.proto.BuildPCResponse.psu:type_name -> pkg.proto.PowerSource
-	1, // 6: pkg.proto.BuilderService.BuildPC:input_type -> pkg.proto.BuildPCRequest
-	2, // 7: pkg.proto.BuilderService.BuildPC:output_type -> pkg.proto.BuildPCResponse
-	7, // [7:8] is the sub-list for method output_type
-	6, // [6:7] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	3, // 1: pkg.proto.BuildPCResponse.pc:type_name -> pkg.proto.PC
+	4, // 2: pkg.proto.PC.cpu:type_name -> pkg.proto.CPU
+	5, // 3: pkg.proto.PC.gpu:type_name -> pkg.proto.GPU
+	6, // 4: pkg.proto.PC.ram:type_name -> pkg.proto.RAMMemory
+	7, // 5: pkg.proto.PC.mother_board:type_name -> pkg.proto.MotherBoard
+	8, // 6: pkg.proto.PC.psu:type_name -> pkg.proto.PowerSource
+	1, // 7: pkg.proto.BuilderService.BuildPC:input_type -> pkg.proto.BuildPCRequest
+	2, // 8: pkg.proto.BuilderService.BuildPC:output_type -> pkg.proto.BuildPCResponse
+	8, // [8:9] is the sub-list for method output_type
+	7, // [7:8] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_builder_proto_init() }
@@ -280,7 +339,7 @@ func file_builder_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_builder_proto_rawDesc), len(file_builder_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

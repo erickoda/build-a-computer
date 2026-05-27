@@ -22,21 +22,75 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type GraphicsQuality int32
+
+const (
+	GraphicsQuality_GRAPHICS_QUALITY_LOW_UNSPECIFIED GraphicsQuality = 0
+	GraphicsQuality_GRAPHICS_QUALITY_MEDIUM          GraphicsQuality = 1
+	GraphicsQuality_GRAPHICS_QUALITY_HIGH            GraphicsQuality = 2
+	GraphicsQuality_GRAPHICS_QUALITY_ULTRA           GraphicsQuality = 3
+)
+
+// Enum value maps for GraphicsQuality.
+var (
+	GraphicsQuality_name = map[int32]string{
+		0: "GRAPHICS_QUALITY_LOW_UNSPECIFIED",
+		1: "GRAPHICS_QUALITY_MEDIUM",
+		2: "GRAPHICS_QUALITY_HIGH",
+		3: "GRAPHICS_QUALITY_ULTRA",
+	}
+	GraphicsQuality_value = map[string]int32{
+		"GRAPHICS_QUALITY_LOW_UNSPECIFIED": 0,
+		"GRAPHICS_QUALITY_MEDIUM":          1,
+		"GRAPHICS_QUALITY_HIGH":            2,
+		"GRAPHICS_QUALITY_ULTRA":           3,
+	}
+)
+
+func (x GraphicsQuality) Enum() *GraphicsQuality {
+	p := new(GraphicsQuality)
+	*p = x
+	return p
+}
+
+func (x GraphicsQuality) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (GraphicsQuality) Descriptor() protoreflect.EnumDescriptor {
+	return file_benchmark_proto_enumTypes[0].Descriptor()
+}
+
+func (GraphicsQuality) Type() protoreflect.EnumType {
+	return &file_benchmark_proto_enumTypes[0]
+}
+
+func (x GraphicsQuality) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use GraphicsQuality.Descriptor instead.
+func (GraphicsQuality) EnumDescriptor() ([]byte, []int) {
+	return file_benchmark_proto_rawDescGZIP(), []int{0}
+}
+
 type Benchmark struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	CpuId         string                 `protobuf:"bytes,3,opt,name=cpu_id,json=cpuId,proto3" json:"cpu_id,omitempty"`
-	GpuId         string                 `protobuf:"bytes,4,opt,name=gpu_id,json=gpuId,proto3" json:"gpu_id,omitempty"`
-	RamId         string                 `protobuf:"bytes,5,opt,name=ram_id,json=ramId,proto3" json:"ram_id,omitempty"`
-	AvgFps        int32                  `protobuf:"varint,6,opt,name=avg_fps,json=avgFps,proto3" json:"avg_fps,omitempty"`
-	MinFps        int32                  `protobuf:"varint,7,opt,name=min_fps,json=minFps,proto3" json:"min_fps,omitempty"`
-	MaxFps        int32                  `protobuf:"varint,8,opt,name=max_fps,json=maxFps,proto3" json:"max_fps,omitempty"`
-	GameId        string                 `protobuf:"bytes,9,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
-	UserId        string                 `protobuf:"bytes,10,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	CreatedAt     *timestamp.Timestamp   `protobuf:"bytes,11,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	Id              string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name            string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Resolution      int32                  `protobuf:"varint,3,opt,name=resolution,proto3" json:"resolution,omitempty"`
+	GraphicsQuality GraphicsQuality        `protobuf:"varint,4,opt,name=graphics_quality,json=graphicsQuality,proto3,enum=pkg.proto.GraphicsQuality" json:"graphics_quality,omitempty"`
+	CpuId           string                 `protobuf:"bytes,5,opt,name=cpu_id,json=cpuId,proto3" json:"cpu_id,omitempty"`
+	GpuId           string                 `protobuf:"bytes,6,opt,name=gpu_id,json=gpuId,proto3" json:"gpu_id,omitempty"`
+	RamId           string                 `protobuf:"bytes,7,opt,name=ram_id,json=ramId,proto3" json:"ram_id,omitempty"`
+	AvgFps          int32                  `protobuf:"varint,8,opt,name=avg_fps,json=avgFps,proto3" json:"avg_fps,omitempty"`
+	MinFps          int32                  `protobuf:"varint,9,opt,name=min_fps,json=minFps,proto3" json:"min_fps,omitempty"`
+	MaxFps          int32                  `protobuf:"varint,10,opt,name=max_fps,json=maxFps,proto3" json:"max_fps,omitempty"`
+	GameId          string                 `protobuf:"bytes,11,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
+	UserId          string                 `protobuf:"bytes,12,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	CreatedAt       *timestamp.Timestamp   `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *Benchmark) Reset() {
@@ -81,6 +135,20 @@ func (x *Benchmark) GetName() string {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *Benchmark) GetResolution() int32 {
+	if x != nil {
+		return x.Resolution
+	}
+	return 0
+}
+
+func (x *Benchmark) GetGraphicsQuality() GraphicsQuality {
+	if x != nil {
+		return x.GraphicsQuality
+	}
+	return GraphicsQuality_GRAPHICS_QUALITY_LOW_UNSPECIFIED
 }
 
 func (x *Benchmark) GetCpuId() string {
@@ -150,21 +218,30 @@ var File_benchmark_proto protoreflect.FileDescriptor
 
 const file_benchmark_proto_rawDesc = "" +
 	"\n" +
-	"\x0fbenchmark.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xac\x02\n" +
+	"\x0fbenchmark.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x93\x03\n" +
 	"\tBenchmark\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x15\n" +
-	"\x06cpu_id\x18\x03 \x01(\tR\x05cpuId\x12\x15\n" +
-	"\x06gpu_id\x18\x04 \x01(\tR\x05gpuId\x12\x15\n" +
-	"\x06ram_id\x18\x05 \x01(\tR\x05ramId\x12\x17\n" +
-	"\aavg_fps\x18\x06 \x01(\x05R\x06avgFps\x12\x17\n" +
-	"\amin_fps\x18\a \x01(\x05R\x06minFps\x12\x17\n" +
-	"\amax_fps\x18\b \x01(\x05R\x06maxFps\x12\x17\n" +
-	"\agame_id\x18\t \x01(\tR\x06gameId\x12\x17\n" +
-	"\auser_id\x18\n" +
-	" \x01(\tR\x06userId\x129\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1e\n" +
 	"\n" +
-	"created_at\x18\v \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtBDZBgithub.com/erickoda/build-a-computer/pc_builder_service/pkg/protosb\x06proto3"
+	"resolution\x18\x03 \x01(\x05R\n" +
+	"resolution\x12E\n" +
+	"\x10graphics_quality\x18\x04 \x01(\x0e2\x1a.pkg.proto.GraphicsQualityR\x0fgraphicsQuality\x12\x15\n" +
+	"\x06cpu_id\x18\x05 \x01(\tR\x05cpuId\x12\x15\n" +
+	"\x06gpu_id\x18\x06 \x01(\tR\x05gpuId\x12\x15\n" +
+	"\x06ram_id\x18\a \x01(\tR\x05ramId\x12\x17\n" +
+	"\aavg_fps\x18\b \x01(\x05R\x06avgFps\x12\x17\n" +
+	"\amin_fps\x18\t \x01(\x05R\x06minFps\x12\x17\n" +
+	"\amax_fps\x18\n" +
+	" \x01(\x05R\x06maxFps\x12\x17\n" +
+	"\agame_id\x18\v \x01(\tR\x06gameId\x12\x17\n" +
+	"\auser_id\x18\f \x01(\tR\x06userId\x129\n" +
+	"\n" +
+	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt*\x8b\x01\n" +
+	"\x0fGraphicsQuality\x12$\n" +
+	" GRAPHICS_QUALITY_LOW_UNSPECIFIED\x10\x00\x12\x1b\n" +
+	"\x17GRAPHICS_QUALITY_MEDIUM\x10\x01\x12\x19\n" +
+	"\x15GRAPHICS_QUALITY_HIGH\x10\x02\x12\x1a\n" +
+	"\x16GRAPHICS_QUALITY_ULTRA\x10\x03BDZBgithub.com/erickoda/build-a-computer/pc_builder_service/pkg/protosb\x06proto3"
 
 var (
 	file_benchmark_proto_rawDescOnce sync.Once
@@ -178,18 +255,21 @@ func file_benchmark_proto_rawDescGZIP() []byte {
 	return file_benchmark_proto_rawDescData
 }
 
+var file_benchmark_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_benchmark_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_benchmark_proto_goTypes = []any{
-	(*Benchmark)(nil),           // 0: pkg.proto.Benchmark
-	(*timestamp.Timestamp)(nil), // 1: google.protobuf.Timestamp
+	(GraphicsQuality)(0),        // 0: pkg.proto.GraphicsQuality
+	(*Benchmark)(nil),           // 1: pkg.proto.Benchmark
+	(*timestamp.Timestamp)(nil), // 2: google.protobuf.Timestamp
 }
 var file_benchmark_proto_depIdxs = []int32{
-	1, // 0: pkg.proto.Benchmark.created_at:type_name -> google.protobuf.Timestamp
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: pkg.proto.Benchmark.graphics_quality:type_name -> pkg.proto.GraphicsQuality
+	2, // 1: pkg.proto.Benchmark.created_at:type_name -> google.protobuf.Timestamp
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_benchmark_proto_init() }
@@ -202,13 +282,14 @@ func file_benchmark_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_benchmark_proto_rawDesc), len(file_benchmark_proto_rawDesc)),
-			NumEnums:      0,
+			NumEnums:      1,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_benchmark_proto_goTypes,
 		DependencyIndexes: file_benchmark_proto_depIdxs,
+		EnumInfos:         file_benchmark_proto_enumTypes,
 		MessageInfos:      file_benchmark_proto_msgTypes,
 	}.Build()
 	File_benchmark_proto = out.File

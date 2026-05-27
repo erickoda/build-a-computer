@@ -6,20 +6,29 @@ option go_package = "github.com/erickoda/build-a-computer/pc_builder_service/pkg
 
 import "google/protobuf/timestamp.proto";
 
+enum GraphicsQuality {
+  GRAPHICS_QUALITY_LOW_UNSPECIFIED = 0;
+  GRAPHICS_QUALITY_MEDIUM = 1;
+  GRAPHICS_QUALITY_HIGH = 2;
+  GRAPHICS_QUALITY_ULTRA = 3;
+}
+
 message Benchmark {
     string id = 1;
     string name = 2;
+    int32 resolution = 3;
+    GraphicsQuality graphics_quality = 4;
 
-    string cpu_id = 3;
-    string gpu_id = 4;
-    string ram_id = 5;
+    string cpu_id = 5;
+    string gpu_id = 6;
+    string ram_id = 7;
 
-    int32 avg_fps = 6;
-    int32 min_fps = 7;
-    int32 max_fps = 8;
+    int32 avg_fps = 8;
+    int32 min_fps = 9;
+    int32 max_fps = 10;
 
-    string game_id = 9;
-    string user_id = 10;
+    string game_id = 11;
+    string user_id = 12;
 
-    google.protobuf.Timestamp created_at = 11;
+    google.protobuf.Timestamp created_at = 13;
 }

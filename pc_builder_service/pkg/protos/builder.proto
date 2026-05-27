@@ -15,10 +15,15 @@ enum ComputerPerformance {
 message BuildPCRequest {
   repeated string games = 1;
   float max_price = 2;
-  ComputerPerformance computer_performance = 3;
+  int32 resolution = 3;
+  ComputerPerformance computer_performance = 4;
 }
 
 message BuildPCResponse {
+  repeated PC pc = 1;
+}
+
+message PC {
   CPU cpu = 1;
   GPU gpu = 2;
   RAMMemory ram = 3;
