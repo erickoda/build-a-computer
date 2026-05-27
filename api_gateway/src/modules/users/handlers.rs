@@ -1,16 +1,15 @@
 use axum::{
+    Json,
     extract::{Path, State},
     http::StatusCode,
-    Json,
 };
 use uuid::Uuid;
 
 use crate::{
-    clients::metadata::with_auth_metadata,
+    AppState,
     errors::AppError,
     modules::users::dtos::{request::create_user::CreateUserRequestDto, response::user::UserDto},
     security::token::AuthenticatedUser,
-    users_grpc, AppState,
 };
 
 pub async fn create_user(
@@ -18,18 +17,16 @@ pub async fn create_user(
     user: AuthenticatedUser,
     Json(dto): Json<CreateUserRequestDto>,
 ) -> Result<(StatusCode, Json<UserDto>), AppError> {
-    let grpc_payload = users_grpc::CreateUserRequest {
-        username: dto.get_username().to_string(),
-        email: dto.get_email().to_string(),
-        password: dto.get_password().to_string(),
-        role: users_grpc::Role::from(dto.get_role()).into(),
-    };
-
-    let grpc_request = with_auth_metadata(grpc_payload, &user)?;
-
-    let mut client = app_state.user_client.clone();
-
-    let grpc_response: users_grpc::User = client.create_user(grpc_request).await?.into_inner();
+    let grpc_response = app_state
+        .user_client
+        .create_user(
+            dto.get_username().to_string(),
+            dto.get_email().to_string(),
+            dto.get_password().to_string(),
+            dto.get_role().into(),
+            &user,
+        )
+        .await?;
 
     Ok((StatusCode::CREATED, Json(UserDto::try_from(grpc_response)?)))
 }
@@ -39,13 +36,10 @@ pub async fn get_user(
     user: AuthenticatedUser,
     Path(id): Path<Uuid>,
 ) -> Result<(StatusCode, Json<UserDto>), AppError> {
-    let grpc_payload = users_grpc::UserId { id: id.to_string() };
-
-    let grpc_request = with_auth_metadata(grpc_payload, &user)?;
-
-    let mut client = app_state.user_client.clone();
-
-    let grpc_response = client.get_user(grpc_request).await?.into_inner();
+    let grpc_response = app_state
+        .user_client
+        .get_user(id.to_string(), &user)
+        .await?;
 
     Ok((StatusCode::OK, Json(UserDto::try_from(grpc_response)?)))
 }
@@ -54,13 +48,7 @@ pub async fn get_users(
     State(app_state): State<AppState>,
     user: AuthenticatedUser,
 ) -> Result<(StatusCode, Json<Vec<UserDto>>), AppError> {
-    let grpc_payload = users_grpc::Empty {};
-
-    let grpc_request = with_auth_metadata(grpc_payload, &user)?;
-
-    let mut client = app_state.user_client.clone();
-
-    let grpc_response = client.get_users(grpc_request).await?.into_inner();
+    let grpc_response = app_state.user_client.get_users(&user).await?;
 
     let users: Vec<UserDto> = grpc_response.try_into()?;
 
@@ -72,13 +60,10 @@ pub async fn delete_user(
     user: AuthenticatedUser,
     Path(id): Path<Uuid>,
 ) -> Result<StatusCode, AppError> {
-    let grpc_payload = users_grpc::UserId { id: id.to_string() };
-
-    let grpc_request = with_auth_metadata(grpc_payload, &user)?;
-
-    let mut client = app_state.user_client.clone();
-
-    client.delete_user(grpc_request).await?.into_inner();
+    app_state
+        .user_client
+        .delete_user(id.to_string(), &user)
+        .await?;
 
     Ok(StatusCode::NO_CONTENT)
 }

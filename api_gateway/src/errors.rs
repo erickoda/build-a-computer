@@ -6,6 +6,7 @@ use axum::{
 use serde_json::json;
 use tonic::Status;
 
+#[derive(Debug)]
 pub enum AppError {
     Grpc(Status),
     InternalError(String),
@@ -15,6 +16,26 @@ pub enum AppError {
 impl From<Status> for AppError {
     fn from(grpc_status: Status) -> Self {
         Self::Grpc(grpc_status)
+    }
+}
+
+impl std::fmt::Display for AppError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AppError::Grpc(status) => write!(f, "gRPC error: {}", status.message()),
+            AppError::InternalError(msg) => write!(f, "Internal server error: {}", msg),
+            AppError::Unauthorized(msg) => write!(f, "Unauthorized request: {}", msg),
+        }
+    }
+}
+
+impl std::error::Error for AppError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            AppError::Grpc(status) => Some(status),
+            AppError::InternalError(_) => None,
+            AppError::Unauthorized(_) => None,
+        }
     }
 }
 

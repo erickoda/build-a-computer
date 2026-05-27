@@ -1,24 +1,19 @@
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{Json, extract::State, http::StatusCode};
 
 use crate::{
-    auth_grpc,
+    AppState,
     errors::AppError,
     modules::auth::dtos::{request::auth::AuthRequestDto, response::auth::AuthResponse},
-    AppState,
 };
 
 pub async fn authenticate(
     State(app_state): State<AppState>,
     Json(dto): Json<AuthRequestDto>,
 ) -> Result<(StatusCode, Json<AuthResponse>), AppError> {
-    let grpc_request = auth_grpc::AuthRequest {
-        email: dto.get_email().to_string(),
-        password: dto.get_password().to_string(),
-    };
+    let token = app_state
+        .auth_client
+        .authenticate_user(dto.get_email(), dto.get_password())
+        .await?;
 
-    let mut client = app_state.auth_client.clone();
-
-    let grpc_response = client.authenticate_user(grpc_request).await?.into_inner();
-
-    Ok((StatusCode::OK, Json(AuthResponse::new(grpc_response.token))))
+    Ok((StatusCode::OK, Json(AuthResponse::new(token))))
 }
