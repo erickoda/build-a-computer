@@ -9,6 +9,8 @@ import "hardwares.proto";
 
 message RequestBuilderPC {
     repeated Game games = 1;
+    float max_price = 2;
+    float min_price = 3;
 }
 
 message ResponseBuilderPC {

@@ -24,6 +24,8 @@ const (
 type RequestBuilderPC struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Games         []*Game                `protobuf:"bytes,1,rep,name=games,proto3" json:"games,omitempty"`
+	MaxPrice      float32                `protobuf:"fixed32,2,opt,name=max_price,json=maxPrice,proto3" json:"max_price,omitempty"`
+	MinPrice      float32                `protobuf:"fixed32,3,opt,name=min_price,json=minPrice,proto3" json:"min_price,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -63,6 +65,20 @@ func (x *RequestBuilderPC) GetGames() []*Game {
 		return x.Games
 	}
 	return nil
+}
+
+func (x *RequestBuilderPC) GetMaxPrice() float32 {
+	if x != nil {
+		return x.MaxPrice
+	}
+	return 0
+}
+
+func (x *RequestBuilderPC) GetMinPrice() float32 {
+	if x != nil {
+		return x.MinPrice
+	}
+	return 0
 }
 
 type ResponseBuilderPC struct {
@@ -146,9 +162,11 @@ var File_builder_proto protoreflect.FileDescriptor
 const file_builder_proto_rawDesc = "" +
 	"\n" +
 	"\rbuilder.proto\x12\abuilder\x1a\n" +
-	"game.proto\x1a\x0fhardwares.proto\"7\n" +
+	"game.proto\x1a\x0fhardwares.proto\"q\n" +
 	"\x10RequestBuilderPC\x12#\n" +
-	"\x05games\x18\x01 \x03(\v2\r.builder.GameR\x05games\"\xdd\x01\n" +
+	"\x05games\x18\x01 \x03(\v2\r.builder.GameR\x05games\x12\x1b\n" +
+	"\tmax_price\x18\x02 \x01(\x02R\bmaxPrice\x12\x1b\n" +
+	"\tmin_price\x18\x03 \x01(\x02R\bminPrice\"\xdd\x01\n" +
 	"\x11ResponseBuilderPC\x12\x1e\n" +
 	"\x03cpu\x18\x01 \x01(\v2\f.builder.CPUR\x03cpu\x12\x1e\n" +
 	"\x03gpu\x18\x02 \x01(\v2\f.builder.GPUR\x03gpu\x12%\n" +
