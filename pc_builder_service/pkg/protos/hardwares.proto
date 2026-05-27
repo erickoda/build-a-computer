@@ -23,6 +23,7 @@ message CPU {
   google.protobuf.Timestamp release_date = 14;
   optional bytes img = 15;
   google.protobuf.Timestamp created_at = 16;
+  optional google.protobuf.Timestamp updated_at = 17;
 }
 
 message GPU {
@@ -38,6 +39,7 @@ message GPU {
   google.protobuf.Timestamp release_date = 10;
   optional bytes img = 11;
   google.protobuf.Timestamp created_at = 12;
+  optional google.protobuf.Timestamp updated_at = 13;
 }
 
 message RAMMemory {
@@ -49,6 +51,7 @@ message RAMMemory {
   string series = 6;
   optional bytes img = 7;
   google.protobuf.Timestamp created_at = 8;
+  optional google.protobuf.Timestamp updated_at = 9;
 }
 
 message MotherBoard {
@@ -60,6 +63,7 @@ message MotherBoard {
   float avg_price = 6;
   optional bytes img = 7;
   google.protobuf.Timestamp created_at = 8;
+  optional google.protobuf.Timestamp updated_at = 9;
 }
 
 message PowerSource {
@@ -71,4 +75,5 @@ message PowerSource {
   float avg_price = 6;
   optional bytes img = 7;
   google.protobuf.Timestamp created_at = 8;
+  optional google.protobuf.Timestamp updated_at = 9;
 }

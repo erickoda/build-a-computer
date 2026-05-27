@@ -89,6 +89,7 @@ type Benchmark struct {
 	GameId          string                 `protobuf:"bytes,11,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
 	UserId          string                 `protobuf:"bytes,12,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	CreatedAt       *timestamp.Timestamp   `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt       *timestamp.Timestamp   `protobuf:"bytes,14,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -214,11 +215,18 @@ func (x *Benchmark) GetCreatedAt() *timestamp.Timestamp {
 	return nil
 }
 
+func (x *Benchmark) GetUpdatedAt() *timestamp.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
 var File_benchmark_proto protoreflect.FileDescriptor
 
 const file_benchmark_proto_rawDesc = "" +
 	"\n" +
-	"\x0fbenchmark.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x93\x03\n" +
+	"\x0fbenchmark.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe2\x03\n" +
 	"\tBenchmark\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1e\n" +
@@ -236,7 +244,10 @@ const file_benchmark_proto_rawDesc = "" +
 	"\agame_id\x18\v \x01(\tR\x06gameId\x12\x17\n" +
 	"\auser_id\x18\f \x01(\tR\x06userId\x129\n" +
 	"\n" +
-	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt*\x8b\x01\n" +
+	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
+	"\n" +
+	"updated_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tupdatedAt\x88\x01\x01B\r\n" +
+	"\v_updated_at*\x8b\x01\n" +
 	"\x0fGraphicsQuality\x12$\n" +
 	" GRAPHICS_QUALITY_LOW_UNSPECIFIED\x10\x00\x12\x1b\n" +
 	"\x17GRAPHICS_QUALITY_MEDIUM\x10\x01\x12\x19\n" +
@@ -265,11 +276,12 @@ var file_benchmark_proto_goTypes = []any{
 var file_benchmark_proto_depIdxs = []int32{
 	0, // 0: pkg.proto.Benchmark.graphics_quality:type_name -> pkg.proto.GraphicsQuality
 	2, // 1: pkg.proto.Benchmark.created_at:type_name -> google.protobuf.Timestamp
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2, // 2: pkg.proto.Benchmark.updated_at:type_name -> google.protobuf.Timestamp
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_benchmark_proto_init() }
@@ -277,6 +289,7 @@ func file_benchmark_proto_init() {
 	if File_benchmark_proto != nil {
 		return
 	}
+	file_benchmark_proto_msgTypes[0].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

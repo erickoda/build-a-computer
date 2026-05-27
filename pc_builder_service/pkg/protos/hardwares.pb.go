@@ -40,6 +40,7 @@ type CPU struct {
 	ReleaseDate      *timestamp.Timestamp   `protobuf:"bytes,14,opt,name=release_date,json=releaseDate,proto3" json:"release_date,omitempty"`
 	Img              []byte                 `protobuf:"bytes,15,opt,name=img,proto3,oneof" json:"img,omitempty"`
 	CreatedAt        *timestamp.Timestamp   `protobuf:"bytes,16,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt        *timestamp.Timestamp   `protobuf:"bytes,17,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -186,6 +187,13 @@ func (x *CPU) GetCreatedAt() *timestamp.Timestamp {
 	return nil
 }
 
+func (x *CPU) GetUpdatedAt() *timestamp.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
 type GPU struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
 	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -200,6 +208,7 @@ type GPU struct {
 	ReleaseDate      *timestamp.Timestamp   `protobuf:"bytes,10,opt,name=release_date,json=releaseDate,proto3" json:"release_date,omitempty"`
 	Img              []byte                 `protobuf:"bytes,11,opt,name=img,proto3,oneof" json:"img,omitempty"`
 	CreatedAt        *timestamp.Timestamp   `protobuf:"bytes,12,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt        *timestamp.Timestamp   `protobuf:"bytes,13,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -318,6 +327,13 @@ func (x *GPU) GetCreatedAt() *timestamp.Timestamp {
 	return nil
 }
 
+func (x *GPU) GetUpdatedAt() *timestamp.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
 type RAMMemory struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -328,6 +344,7 @@ type RAMMemory struct {
 	Series        string                 `protobuf:"bytes,6,opt,name=series,proto3" json:"series,omitempty"`
 	Img           []byte                 `protobuf:"bytes,7,opt,name=img,proto3,oneof" json:"img,omitempty"`
 	CreatedAt     *timestamp.Timestamp   `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamp.Timestamp   `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -418,6 +435,13 @@ func (x *RAMMemory) GetCreatedAt() *timestamp.Timestamp {
 	return nil
 }
 
+func (x *RAMMemory) GetUpdatedAt() *timestamp.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
 type MotherBoard struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -428,6 +452,7 @@ type MotherBoard struct {
 	AvgPrice      float32                `protobuf:"fixed32,6,opt,name=avg_price,json=avgPrice,proto3" json:"avg_price,omitempty"`
 	Img           []byte                 `protobuf:"bytes,7,opt,name=img,proto3,oneof" json:"img,omitempty"`
 	CreatedAt     *timestamp.Timestamp   `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamp.Timestamp   `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -518,6 +543,13 @@ func (x *MotherBoard) GetCreatedAt() *timestamp.Timestamp {
 	return nil
 }
 
+func (x *MotherBoard) GetUpdatedAt() *timestamp.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
 type PowerSource struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -528,6 +560,7 @@ type PowerSource struct {
 	AvgPrice       float32                `protobuf:"fixed32,6,opt,name=avg_price,json=avgPrice,proto3" json:"avg_price,omitempty"`
 	Img            []byte                 `protobuf:"bytes,7,opt,name=img,proto3,oneof" json:"img,omitempty"`
 	CreatedAt      *timestamp.Timestamp   `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt      *timestamp.Timestamp   `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -618,11 +651,18 @@ func (x *PowerSource) GetCreatedAt() *timestamp.Timestamp {
 	return nil
 }
 
+func (x *PowerSource) GetUpdatedAt() *timestamp.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
 var File_hardwares_proto protoreflect.FileDescriptor
 
 const file_hardwares_proto_rawDesc = "" +
 	"\n" +
-	"\x0fhardwares.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe6\x03\n" +
+	"\x0fhardwares.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xb5\x04\n" +
 	"\x03CPU\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05brand\x18\x02 \x01(\tR\x05brand\x12\x10\n" +
@@ -642,8 +682,11 @@ const file_hardwares_proto_rawDesc = "" +
 	"\frelease_date\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\vreleaseDate\x12\x15\n" +
 	"\x03img\x18\x0f \x01(\fH\x00R\x03img\x88\x01\x01\x129\n" +
 	"\n" +
-	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x06\n" +
-	"\x04_img\"\x98\x03\n" +
+	"created_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
+	"\n" +
+	"updated_at\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tupdatedAt\x88\x01\x01B\x06\n" +
+	"\x04_imgB\r\n" +
+	"\v_updated_at\"\xe7\x03\n" +
 	"\x03GPU\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05brand\x18\x02 \x01(\tR\x05brand\x12\x16\n" +
@@ -659,8 +702,11 @@ const file_hardwares_proto_rawDesc = "" +
 	" \x01(\v2\x1a.google.protobuf.TimestampR\vreleaseDate\x12\x15\n" +
 	"\x03img\x18\v \x01(\fH\x00R\x03img\x88\x01\x01\x129\n" +
 	"\n" +
-	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x06\n" +
-	"\x04_img\"\x8e\x02\n" +
+	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
+	"\n" +
+	"updated_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tupdatedAt\x88\x01\x01B\x06\n" +
+	"\x04_imgB\r\n" +
+	"\v_updated_at\"\xdd\x02\n" +
 	"\tRAMMemory\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05brand\x18\x02 \x01(\tR\x05brand\x12\x1f\n" +
@@ -671,8 +717,11 @@ const file_hardwares_proto_rawDesc = "" +
 	"\x06series\x18\x06 \x01(\tR\x06series\x12\x15\n" +
 	"\x03img\x18\a \x01(\fH\x00R\x03img\x88\x01\x01\x129\n" +
 	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x06\n" +
-	"\x04_img\"\xf5\x01\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
+	"\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tupdatedAt\x88\x01\x01B\x06\n" +
+	"\x04_imgB\r\n" +
+	"\v_updated_at\"\xc4\x02\n" +
 	"\vMotherBoard\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05brand\x18\x02 \x01(\tR\x05brand\x12\x16\n" +
@@ -683,8 +732,11 @@ const file_hardwares_proto_rawDesc = "" +
 	"\tavg_price\x18\x06 \x01(\x02R\bavgPrice\x12\x15\n" +
 	"\x03img\x18\a \x01(\fH\x00R\x03img\x88\x01\x01\x129\n" +
 	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x06\n" +
-	"\x04_img\"\x91\x02\n" +
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
+	"\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tupdatedAt\x88\x01\x01B\x06\n" +
+	"\x04_imgB\r\n" +
+	"\v_updated_at\"\xe0\x02\n" +
 	"\vPowerSource\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05brand\x18\x02 \x01(\tR\x05brand\x12!\n" +
@@ -694,8 +746,11 @@ const file_hardwares_proto_rawDesc = "" +
 	"\tavg_price\x18\x06 \x01(\x02R\bavgPrice\x12\x15\n" +
 	"\x03img\x18\a \x01(\fH\x00R\x03img\x88\x01\x01\x129\n" +
 	"\n" +
-	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x06\n" +
-	"\x04_imgBDZBgithub.com/erickoda/build-a-computer/pc_builder_service/pkg/protosb\x06proto3"
+	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
+	"\n" +
+	"updated_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tupdatedAt\x88\x01\x01B\x06\n" +
+	"\x04_imgB\r\n" +
+	"\v_updated_atBDZBgithub.com/erickoda/build-a-computer/pc_builder_service/pkg/protosb\x06proto3"
 
 var (
 	file_hardwares_proto_rawDescOnce sync.Once
@@ -719,18 +774,23 @@ var file_hardwares_proto_goTypes = []any{
 	(*timestamp.Timestamp)(nil), // 5: google.protobuf.Timestamp
 }
 var file_hardwares_proto_depIdxs = []int32{
-	5, // 0: pkg.proto.CPU.release_date:type_name -> google.protobuf.Timestamp
-	5, // 1: pkg.proto.CPU.created_at:type_name -> google.protobuf.Timestamp
-	5, // 2: pkg.proto.GPU.release_date:type_name -> google.protobuf.Timestamp
-	5, // 3: pkg.proto.GPU.created_at:type_name -> google.protobuf.Timestamp
-	5, // 4: pkg.proto.RAMMemory.created_at:type_name -> google.protobuf.Timestamp
-	5, // 5: pkg.proto.MotherBoard.created_at:type_name -> google.protobuf.Timestamp
-	5, // 6: pkg.proto.PowerSource.created_at:type_name -> google.protobuf.Timestamp
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	5,  // 0: pkg.proto.CPU.release_date:type_name -> google.protobuf.Timestamp
+	5,  // 1: pkg.proto.CPU.created_at:type_name -> google.protobuf.Timestamp
+	5,  // 2: pkg.proto.CPU.updated_at:type_name -> google.protobuf.Timestamp
+	5,  // 3: pkg.proto.GPU.release_date:type_name -> google.protobuf.Timestamp
+	5,  // 4: pkg.proto.GPU.created_at:type_name -> google.protobuf.Timestamp
+	5,  // 5: pkg.proto.GPU.updated_at:type_name -> google.protobuf.Timestamp
+	5,  // 6: pkg.proto.RAMMemory.created_at:type_name -> google.protobuf.Timestamp
+	5,  // 7: pkg.proto.RAMMemory.updated_at:type_name -> google.protobuf.Timestamp
+	5,  // 8: pkg.proto.MotherBoard.created_at:type_name -> google.protobuf.Timestamp
+	5,  // 9: pkg.proto.MotherBoard.updated_at:type_name -> google.protobuf.Timestamp
+	5,  // 10: pkg.proto.PowerSource.created_at:type_name -> google.protobuf.Timestamp
+	5,  // 11: pkg.proto.PowerSource.updated_at:type_name -> google.protobuf.Timestamp
+	12, // [12:12] is the sub-list for method output_type
+	12, // [12:12] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_hardwares_proto_init() }

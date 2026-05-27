@@ -27,7 +27,9 @@ type Game struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Img           []byte                 `protobuf:"bytes,3,opt,name=img,proto3,oneof" json:"img,omitempty"`
-	CreatedAt     *timestamp.Timestamp   `protobuf:"bytes,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	NecessaryDisk int32                  `protobuf:"varint,4,opt,name=necessary_disk,json=necessaryDisk,proto3" json:"necessary_disk,omitempty"`
+	CreatedAt     *timestamp.Timestamp   `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamp.Timestamp   `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -83,9 +85,23 @@ func (x *Game) GetImg() []byte {
 	return nil
 }
 
+func (x *Game) GetNecessaryDisk() int32 {
+	if x != nil {
+		return x.NecessaryDisk
+	}
+	return 0
+}
+
 func (x *Game) GetCreatedAt() *timestamp.Timestamp {
 	if x != nil {
 		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Game) GetUpdatedAt() *timestamp.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
 	}
 	return nil
 }
@@ -95,14 +111,18 @@ var File_game_proto protoreflect.FileDescriptor
 const file_game_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"game.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x84\x01\n" +
+	"game.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfa\x01\n" +
 	"\x04Game\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x15\n" +
-	"\x03img\x18\x03 \x01(\fH\x00R\x03img\x88\x01\x01\x129\n" +
+	"\x03img\x18\x03 \x01(\fH\x00R\x03img\x88\x01\x01\x12%\n" +
+	"\x0enecessary_disk\x18\x04 \x01(\x05R\rnecessaryDisk\x129\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x06\n" +
-	"\x04_imgBDZBgithub.com/erickoda/build-a-computer/pc_builder_service/pkg/protosb\x06proto3"
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
+	"\n" +
+	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tupdatedAt\x88\x01\x01B\x06\n" +
+	"\x04_imgB\r\n" +
+	"\v_updated_atBDZBgithub.com/erickoda/build-a-computer/pc_builder_service/pkg/protosb\x06proto3"
 
 var (
 	file_game_proto_rawDescOnce sync.Once
@@ -123,11 +143,12 @@ var file_game_proto_goTypes = []any{
 }
 var file_game_proto_depIdxs = []int32{
 	1, // 0: pkg.proto.Game.created_at:type_name -> google.protobuf.Timestamp
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1, // 1: pkg.proto.Game.updated_at:type_name -> google.protobuf.Timestamp
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_game_proto_init() }

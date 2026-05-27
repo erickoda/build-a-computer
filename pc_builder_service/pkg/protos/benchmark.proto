@@ -31,4 +31,5 @@ message Benchmark {
     string user_id = 12;
 
     google.protobuf.Timestamp created_at = 13;
+    optional google.protobuf.Timestamp updated_at = 14;
 }
