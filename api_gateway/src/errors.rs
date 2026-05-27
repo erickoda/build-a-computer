@@ -1,14 +1,14 @@
 use axum::{
+    Json,
     http::StatusCode,
     response::{IntoResponse, Response},
-    Json,
 };
 use serde_json::json;
 use tonic::Status;
 
 pub enum AppError {
     Grpc(Status),
-    IntenalError(String),
+    InternalError(String),
     Unauthorized(String),
 }
 
@@ -43,7 +43,7 @@ impl IntoResponse for AppError {
                 };
                 (http_code, status.message().to_string())
             }
-            AppError::IntenalError(error_msg) => (StatusCode::INTERNAL_SERVER_ERROR, error_msg),
+            AppError::InternalError(error_msg) => (StatusCode::INTERNAL_SERVER_ERROR, error_msg),
             AppError::Unauthorized(error_msg) => (StatusCode::UNAUTHORIZED, error_msg),
         };
 

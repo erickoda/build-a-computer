@@ -43,12 +43,14 @@ impl TryFrom<users_grpc::User> for UserDto {
             user_grpc.username,
             user_grpc.email,
             UserRole::from(
-                users_grpc::Role::try_from(user_grpc.role)
-                    .map_err(|_| AppError::IntenalError("Internal conversion error".to_string()))?,
+                users_grpc::Role::try_from(user_grpc.role).map_err(|_| {
+                    AppError::InternalError("Internal conversion error".to_string())
+                })?,
             ),
             UserStatus::from(
-                users_grpc::Status::try_from(user_grpc.status)
-                    .map_err(|_| AppError::IntenalError("Internal conversion error".to_string()))?,
+                users_grpc::Status::try_from(user_grpc.status).map_err(|_| {
+                    AppError::InternalError("Internal conversion error".to_string())
+                })?,
             ),
         ))
     }

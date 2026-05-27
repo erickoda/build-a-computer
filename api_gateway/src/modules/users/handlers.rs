@@ -6,9 +6,10 @@ use axum::{
 use uuid::Uuid;
 
 use crate::{
+    clients::metadata::with_auth_metadata,
     errors::AppError,
-    extractor::auth::{with_auth_metadata, AuthenticatedUser},
     modules::users::dtos::{request::create_user::CreateUserRequestDto, response::user::UserDto},
+    security::token::AuthenticatedUser,
     users_grpc, AppState,
 };
 
