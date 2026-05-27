@@ -1,74 +1,74 @@
 syntax = "proto3";
 
-package builder;
-
-option go_package = "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos";
+package pkg.proto;
 
 import "google/protobuf/timestamp.proto";
 
+option go_package = "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos";
+
 message CPU {
-    string id = 1;
-    string brand = 2;
-    string gen = 3;
-    int32 cores = 4;
-    int32 threads = 5;
-    float base_clock = 6;
-    float max_clock = 7;
-    int32 cache = 8;
-    string socket = 9;
-    bool graphics = 10;
-    bool oc = 11;
-    int32 recommended_power = 12;
-    float avg_price = 13;
-    google.protobuf.Timestamp release_date = 14;
-    optional bytes img = 15;
-    google.protobuf.Timestamp created_at = 16; 
+  string id = 1;
+  string brand = 2;
+  string gen = 3;
+  int32 cores = 4;
+  int32 threads = 5;
+  float base_clock = 6;
+  float max_clock = 7;
+  int32 cache = 8;
+  string socket = 9;
+  bool graphics = 10;
+  bool oc = 11;
+  int32 recommended_power = 12;
+  float avg_price = 13;
+  google.protobuf.Timestamp release_date = 14;
+  optional bytes img = 15;
+  google.protobuf.Timestamp created_at = 16;
 }
 
 message GPU {
-    string id = 1;
-    string brand = 2;
-    string family = 3;
-    string series = 4;
-    int32 memory_amount = 5;
-    string memory_gen = 6;
-    int32 cores = 7;
-    int32 recommended_power = 8;
-    float avg_price = 9;
-    google.protobuf.Timestamp release_date = 10;
-    optional bytes img = 11;
-    google.protobuf.Timestamp created_at = 12; 
+  string id = 1;
+  string brand = 2;
+  string family = 3;
+  string series = 4;
+  int32 memory_amount = 5;
+  string memory_gen = 6;
+  int32 cores = 7;
+  int32 recommended_power = 8;
+  float avg_price = 9;
+  google.protobuf.Timestamp release_date = 10;
+  optional bytes img = 11;
+  google.protobuf.Timestamp created_at = 12;
 }
 
-message RAM_Memory {
-    string id = 1;
-    string brand = 2;
-    string type_memory = 3;
-    int32 memory_amount = 4;
-    int32 frequency_mhz = 5;
-    string series = 6;
-    optional bytes img = 7;
-    google.protobuf.Timestamp created_at = 8; 
+message RAMMemory {
+  string id = 1;
+  string brand = 2;
+  string type_memory = 3;
+  int32 memory_amount = 4;
+  int32 frequency_mhz = 5;
+  string series = 6;
+  optional bytes img = 7;
+  google.protobuf.Timestamp created_at = 8;
 }
 
-message Mother_Board {
-    string id = 1;
-    string brand = 2;
-    string series = 3;
-    string lga = 4;
-    int32 pci_express = 5;
-    float avg_price = 6;
-    optional bytes img = 7;
-    google.protobuf.Timestamp created_at = 8; 
+message MotherBoard {
+  string id = 1;
+  string brand = 2;
+  string series = 3;
+  string lga = 4;
+  int32 pci_express = 5;
+  float avg_price = 6;
+  optional bytes img = 7;
+  google.protobuf.Timestamp created_at = 8;
 }
 
-message Power_Source {
-    string id = 1;
-    string brand = 2;
-    int32 power_amount = 3;
-    string ranking = 4;
-    bool eighty_plus_cert = 5;
-    float avg_price = 6;
-    optional bytes img = 7;
-    google.protobuf.Timestamp created_at = 8; 
+message PowerSource {
+  string id = 1;
+  string brand = 2;
+  int32 power_amount = 3;
+  string ranking = 4;
+  bool eighty_plus_cert = 5;
+  float avg_price = 6;
+  optional bytes img = 7;
+  google.protobuf.Timestamp created_at = 8;
 }

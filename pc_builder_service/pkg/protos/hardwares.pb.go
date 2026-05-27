@@ -318,7 +318,7 @@ func (x *GPU) GetCreatedAt() *timestamp.Timestamp {
 	return nil
 }
 
-type RAM_Memory struct {
+type RAMMemory struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Brand         string                 `protobuf:"bytes,2,opt,name=brand,proto3" json:"brand,omitempty"`
@@ -332,20 +332,20 @@ type RAM_Memory struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *RAM_Memory) Reset() {
-	*x = RAM_Memory{}
+func (x *RAMMemory) Reset() {
+	*x = RAMMemory{}
 	mi := &file_hardwares_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *RAM_Memory) String() string {
+func (x *RAMMemory) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*RAM_Memory) ProtoMessage() {}
+func (*RAMMemory) ProtoMessage() {}
 
-func (x *RAM_Memory) ProtoReflect() protoreflect.Message {
+func (x *RAMMemory) ProtoReflect() protoreflect.Message {
 	mi := &file_hardwares_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -357,68 +357,68 @@ func (x *RAM_Memory) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use RAM_Memory.ProtoReflect.Descriptor instead.
-func (*RAM_Memory) Descriptor() ([]byte, []int) {
+// Deprecated: Use RAMMemory.ProtoReflect.Descriptor instead.
+func (*RAMMemory) Descriptor() ([]byte, []int) {
 	return file_hardwares_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *RAM_Memory) GetId() string {
+func (x *RAMMemory) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *RAM_Memory) GetBrand() string {
+func (x *RAMMemory) GetBrand() string {
 	if x != nil {
 		return x.Brand
 	}
 	return ""
 }
 
-func (x *RAM_Memory) GetTypeMemory() string {
+func (x *RAMMemory) GetTypeMemory() string {
 	if x != nil {
 		return x.TypeMemory
 	}
 	return ""
 }
 
-func (x *RAM_Memory) GetMemoryAmount() int32 {
+func (x *RAMMemory) GetMemoryAmount() int32 {
 	if x != nil {
 		return x.MemoryAmount
 	}
 	return 0
 }
 
-func (x *RAM_Memory) GetFrequencyMhz() int32 {
+func (x *RAMMemory) GetFrequencyMhz() int32 {
 	if x != nil {
 		return x.FrequencyMhz
 	}
 	return 0
 }
 
-func (x *RAM_Memory) GetSeries() string {
+func (x *RAMMemory) GetSeries() string {
 	if x != nil {
 		return x.Series
 	}
 	return ""
 }
 
-func (x *RAM_Memory) GetImg() []byte {
+func (x *RAMMemory) GetImg() []byte {
 	if x != nil {
 		return x.Img
 	}
 	return nil
 }
 
-func (x *RAM_Memory) GetCreatedAt() *timestamp.Timestamp {
+func (x *RAMMemory) GetCreatedAt() *timestamp.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-type Mother_Board struct {
+type MotherBoard struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Brand         string                 `protobuf:"bytes,2,opt,name=brand,proto3" json:"brand,omitempty"`
@@ -432,20 +432,20 @@ type Mother_Board struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Mother_Board) Reset() {
-	*x = Mother_Board{}
+func (x *MotherBoard) Reset() {
+	*x = MotherBoard{}
 	mi := &file_hardwares_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Mother_Board) String() string {
+func (x *MotherBoard) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Mother_Board) ProtoMessage() {}
+func (*MotherBoard) ProtoMessage() {}
 
-func (x *Mother_Board) ProtoReflect() protoreflect.Message {
+func (x *MotherBoard) ProtoReflect() protoreflect.Message {
 	mi := &file_hardwares_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -457,68 +457,68 @@ func (x *Mother_Board) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Mother_Board.ProtoReflect.Descriptor instead.
-func (*Mother_Board) Descriptor() ([]byte, []int) {
+// Deprecated: Use MotherBoard.ProtoReflect.Descriptor instead.
+func (*MotherBoard) Descriptor() ([]byte, []int) {
 	return file_hardwares_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *Mother_Board) GetId() string {
+func (x *MotherBoard) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *Mother_Board) GetBrand() string {
+func (x *MotherBoard) GetBrand() string {
 	if x != nil {
 		return x.Brand
 	}
 	return ""
 }
 
-func (x *Mother_Board) GetSeries() string {
+func (x *MotherBoard) GetSeries() string {
 	if x != nil {
 		return x.Series
 	}
 	return ""
 }
 
-func (x *Mother_Board) GetLga() string {
+func (x *MotherBoard) GetLga() string {
 	if x != nil {
 		return x.Lga
 	}
 	return ""
 }
 
-func (x *Mother_Board) GetPciExpress() int32 {
+func (x *MotherBoard) GetPciExpress() int32 {
 	if x != nil {
 		return x.PciExpress
 	}
 	return 0
 }
 
-func (x *Mother_Board) GetAvgPrice() float32 {
+func (x *MotherBoard) GetAvgPrice() float32 {
 	if x != nil {
 		return x.AvgPrice
 	}
 	return 0
 }
 
-func (x *Mother_Board) GetImg() []byte {
+func (x *MotherBoard) GetImg() []byte {
 	if x != nil {
 		return x.Img
 	}
 	return nil
 }
 
-func (x *Mother_Board) GetCreatedAt() *timestamp.Timestamp {
+func (x *MotherBoard) GetCreatedAt() *timestamp.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
 	return nil
 }
 
-type Power_Source struct {
+type PowerSource struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Brand          string                 `protobuf:"bytes,2,opt,name=brand,proto3" json:"brand,omitempty"`
@@ -532,20 +532,20 @@ type Power_Source struct {
 	sizeCache      protoimpl.SizeCache
 }
 
-func (x *Power_Source) Reset() {
-	*x = Power_Source{}
+func (x *PowerSource) Reset() {
+	*x = PowerSource{}
 	mi := &file_hardwares_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Power_Source) String() string {
+func (x *PowerSource) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Power_Source) ProtoMessage() {}
+func (*PowerSource) ProtoMessage() {}
 
-func (x *Power_Source) ProtoReflect() protoreflect.Message {
+func (x *PowerSource) ProtoReflect() protoreflect.Message {
 	mi := &file_hardwares_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -557,61 +557,61 @@ func (x *Power_Source) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Power_Source.ProtoReflect.Descriptor instead.
-func (*Power_Source) Descriptor() ([]byte, []int) {
+// Deprecated: Use PowerSource.ProtoReflect.Descriptor instead.
+func (*PowerSource) Descriptor() ([]byte, []int) {
 	return file_hardwares_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *Power_Source) GetId() string {
+func (x *PowerSource) GetId() string {
 	if x != nil {
 		return x.Id
 	}
 	return ""
 }
 
-func (x *Power_Source) GetBrand() string {
+func (x *PowerSource) GetBrand() string {
 	if x != nil {
 		return x.Brand
 	}
 	return ""
 }
 
-func (x *Power_Source) GetPowerAmount() int32 {
+func (x *PowerSource) GetPowerAmount() int32 {
 	if x != nil {
 		return x.PowerAmount
 	}
 	return 0
 }
 
-func (x *Power_Source) GetRanking() string {
+func (x *PowerSource) GetRanking() string {
 	if x != nil {
 		return x.Ranking
 	}
 	return ""
 }
 
-func (x *Power_Source) GetEightyPlusCert() bool {
+func (x *PowerSource) GetEightyPlusCert() bool {
 	if x != nil {
 		return x.EightyPlusCert
 	}
 	return false
 }
 
-func (x *Power_Source) GetAvgPrice() float32 {
+func (x *PowerSource) GetAvgPrice() float32 {
 	if x != nil {
 		return x.AvgPrice
 	}
 	return 0
 }
 
-func (x *Power_Source) GetImg() []byte {
+func (x *PowerSource) GetImg() []byte {
 	if x != nil {
 		return x.Img
 	}
 	return nil
 }
 
-func (x *Power_Source) GetCreatedAt() *timestamp.Timestamp {
+func (x *PowerSource) GetCreatedAt() *timestamp.Timestamp {
 	if x != nil {
 		return x.CreatedAt
 	}
@@ -622,7 +622,7 @@ var File_hardwares_proto protoreflect.FileDescriptor
 
 const file_hardwares_proto_rawDesc = "" +
 	"\n" +
-	"\x0fhardwares.proto\x12\abuilder\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe6\x03\n" +
+	"\x0fhardwares.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe6\x03\n" +
 	"\x03CPU\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05brand\x18\x02 \x01(\tR\x05brand\x12\x10\n" +
@@ -660,9 +660,8 @@ const file_hardwares_proto_rawDesc = "" +
 	"\x03img\x18\v \x01(\fH\x00R\x03img\x88\x01\x01\x129\n" +
 	"\n" +
 	"created_at\x18\f \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x06\n" +
-	"\x04_img\"\x8f\x02\n" +
-	"\n" +
-	"RAM_Memory\x12\x0e\n" +
+	"\x04_img\"\x8e\x02\n" +
+	"\tRAMMemory\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05brand\x18\x02 \x01(\tR\x05brand\x12\x1f\n" +
 	"\vtype_memory\x18\x03 \x01(\tR\n" +
@@ -673,8 +672,8 @@ const file_hardwares_proto_rawDesc = "" +
 	"\x03img\x18\a \x01(\fH\x00R\x03img\x88\x01\x01\x129\n" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x06\n" +
-	"\x04_img\"\xf6\x01\n" +
-	"\fMother_Board\x12\x0e\n" +
+	"\x04_img\"\xf5\x01\n" +
+	"\vMotherBoard\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05brand\x18\x02 \x01(\tR\x05brand\x12\x16\n" +
 	"\x06series\x18\x03 \x01(\tR\x06series\x12\x10\n" +
@@ -685,8 +684,8 @@ const file_hardwares_proto_rawDesc = "" +
 	"\x03img\x18\a \x01(\fH\x00R\x03img\x88\x01\x01\x129\n" +
 	"\n" +
 	"created_at\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAtB\x06\n" +
-	"\x04_img\"\x92\x02\n" +
-	"\fPower_Source\x12\x0e\n" +
+	"\x04_img\"\x91\x02\n" +
+	"\vPowerSource\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05brand\x18\x02 \x01(\tR\x05brand\x12!\n" +
 	"\fpower_amount\x18\x03 \x01(\x05R\vpowerAmount\x12\x18\n" +
@@ -712,21 +711,21 @@ func file_hardwares_proto_rawDescGZIP() []byte {
 
 var file_hardwares_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_hardwares_proto_goTypes = []any{
-	(*CPU)(nil),                 // 0: builder.CPU
-	(*GPU)(nil),                 // 1: builder.GPU
-	(*RAM_Memory)(nil),          // 2: builder.RAM_Memory
-	(*Mother_Board)(nil),        // 3: builder.Mother_Board
-	(*Power_Source)(nil),        // 4: builder.Power_Source
+	(*CPU)(nil),                 // 0: pkg.proto.CPU
+	(*GPU)(nil),                 // 1: pkg.proto.GPU
+	(*RAMMemory)(nil),           // 2: pkg.proto.RAMMemory
+	(*MotherBoard)(nil),         // 3: pkg.proto.MotherBoard
+	(*PowerSource)(nil),         // 4: pkg.proto.PowerSource
 	(*timestamp.Timestamp)(nil), // 5: google.protobuf.Timestamp
 }
 var file_hardwares_proto_depIdxs = []int32{
-	5, // 0: builder.CPU.release_date:type_name -> google.protobuf.Timestamp
-	5, // 1: builder.CPU.created_at:type_name -> google.protobuf.Timestamp
-	5, // 2: builder.GPU.release_date:type_name -> google.protobuf.Timestamp
-	5, // 3: builder.GPU.created_at:type_name -> google.protobuf.Timestamp
-	5, // 4: builder.RAM_Memory.created_at:type_name -> google.protobuf.Timestamp
-	5, // 5: builder.Mother_Board.created_at:type_name -> google.protobuf.Timestamp
-	5, // 6: builder.Power_Source.created_at:type_name -> google.protobuf.Timestamp
+	5, // 0: pkg.proto.CPU.release_date:type_name -> google.protobuf.Timestamp
+	5, // 1: pkg.proto.CPU.created_at:type_name -> google.protobuf.Timestamp
+	5, // 2: pkg.proto.GPU.release_date:type_name -> google.protobuf.Timestamp
+	5, // 3: pkg.proto.GPU.created_at:type_name -> google.protobuf.Timestamp
+	5, // 4: pkg.proto.RAMMemory.created_at:type_name -> google.protobuf.Timestamp
+	5, // 5: pkg.proto.MotherBoard.created_at:type_name -> google.protobuf.Timestamp
+	5, // 6: pkg.proto.PowerSource.created_at:type_name -> google.protobuf.Timestamp
 	7, // [7:7] is the sub-list for method output_type
 	7, // [7:7] is the sub-list for method input_type
 	7, // [7:7] is the sub-list for extension type_name

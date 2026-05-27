@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BuilderService_BuildPC_FullMethodName = "/builder.BuilderService/BuildPC"
+	BuilderService_BuildPC_FullMethodName = "/pkg.proto.BuilderService/BuildPC"
 )
 
 // BuilderServiceClient is the client API for BuilderService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type BuilderServiceClient interface {
-	BuildPC(ctx context.Context, in *RequestBuilderPC, opts ...grpc.CallOption) (*ResponseBuilderPC, error)
+	BuildPC(ctx context.Context, in *BuildPCRequest, opts ...grpc.CallOption) (*BuildPCResponse, error)
 }
 
 type builderServiceClient struct {
@@ -37,9 +37,9 @@ func NewBuilderServiceClient(cc grpc.ClientConnInterface) BuilderServiceClient {
 	return &builderServiceClient{cc}
 }
 
-func (c *builderServiceClient) BuildPC(ctx context.Context, in *RequestBuilderPC, opts ...grpc.CallOption) (*ResponseBuilderPC, error) {
+func (c *builderServiceClient) BuildPC(ctx context.Context, in *BuildPCRequest, opts ...grpc.CallOption) (*BuildPCResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ResponseBuilderPC)
+	out := new(BuildPCResponse)
 	err := c.cc.Invoke(ctx, BuilderService_BuildPC_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (c *builderServiceClient) BuildPC(ctx context.Context, in *RequestBuilderPC
 // All implementations must embed UnimplementedBuilderServiceServer
 // for forward compatibility.
 type BuilderServiceServer interface {
-	BuildPC(context.Context, *RequestBuilderPC) (*ResponseBuilderPC, error)
+	BuildPC(context.Context, *BuildPCRequest) (*BuildPCResponse, error)
 	mustEmbedUnimplementedBuilderServiceServer()
 }
 
@@ -62,7 +62,7 @@ type BuilderServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedBuilderServiceServer struct{}
 
-func (UnimplementedBuilderServiceServer) BuildPC(context.Context, *RequestBuilderPC) (*ResponseBuilderPC, error) {
+func (UnimplementedBuilderServiceServer) BuildPC(context.Context, *BuildPCRequest) (*BuildPCResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method BuildPC not implemented")
 }
 func (UnimplementedBuilderServiceServer) mustEmbedUnimplementedBuilderServiceServer() {}
@@ -87,7 +87,7 @@ func RegisterBuilderServiceServer(s grpc.ServiceRegistrar, srv BuilderServiceSer
 }
 
 func _BuilderService_BuildPC_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RequestBuilderPC)
+	in := new(BuildPCRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func _BuilderService_BuildPC_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: BuilderService_BuildPC_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BuilderServiceServer).BuildPC(ctx, req.(*RequestBuilderPC))
+		return srv.(BuilderServiceServer).BuildPC(ctx, req.(*BuildPCRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -108,7 +108,7 @@ func _BuilderService_BuildPC_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var BuilderService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "builder.BuilderService",
+	ServiceName: "pkg.proto.BuilderService",
 	HandlerType: (*BuilderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
