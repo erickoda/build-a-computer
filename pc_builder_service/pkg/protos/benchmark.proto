@@ -29,7 +29,8 @@ message Benchmark {
 
     string game_id = 11;
     string user_id = 12;
+    optional float score = 13;
 
-    google.protobuf.Timestamp created_at = 13;
-    optional google.protobuf.Timestamp updated_at = 14;
+    google.protobuf.Timestamp created_at = 14;
+    optional google.protobuf.Timestamp updated_at = 15;
 }

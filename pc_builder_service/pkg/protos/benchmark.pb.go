@@ -88,8 +88,9 @@ type Benchmark struct {
 	MaxFps          int32                  `protobuf:"varint,10,opt,name=max_fps,json=maxFps,proto3" json:"max_fps,omitempty"`
 	GameId          string                 `protobuf:"bytes,11,opt,name=game_id,json=gameId,proto3" json:"game_id,omitempty"`
 	UserId          string                 `protobuf:"bytes,12,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	CreatedAt       *timestamp.Timestamp   `protobuf:"bytes,13,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt       *timestamp.Timestamp   `protobuf:"bytes,14,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
+	Score           *float32               `protobuf:"fixed32,13,opt,name=score,proto3,oneof" json:"score,omitempty"`
+	CreatedAt       *timestamp.Timestamp   `protobuf:"bytes,14,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt       *timestamp.Timestamp   `protobuf:"bytes,15,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -208,6 +209,13 @@ func (x *Benchmark) GetUserId() string {
 	return ""
 }
 
+func (x *Benchmark) GetScore() float32 {
+	if x != nil && x.Score != nil {
+		return *x.Score
+	}
+	return 0
+}
+
 func (x *Benchmark) GetCreatedAt() *timestamp.Timestamp {
 	if x != nil {
 		return x.CreatedAt
@@ -226,7 +234,7 @@ var File_benchmark_proto protoreflect.FileDescriptor
 
 const file_benchmark_proto_rawDesc = "" +
 	"\n" +
-	"\x0fbenchmark.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe2\x03\n" +
+	"\x0fbenchmark.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x87\x04\n" +
 	"\tBenchmark\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1e\n" +
@@ -242,11 +250,13 @@ const file_benchmark_proto_rawDesc = "" +
 	"\amax_fps\x18\n" +
 	" \x01(\x05R\x06maxFps\x12\x17\n" +
 	"\agame_id\x18\v \x01(\tR\x06gameId\x12\x17\n" +
-	"\auser_id\x18\f \x01(\tR\x06userId\x129\n" +
+	"\auser_id\x18\f \x01(\tR\x06userId\x12\x19\n" +
+	"\x05score\x18\r \x01(\x02H\x00R\x05score\x88\x01\x01\x129\n" +
 	"\n" +
-	"created_at\x18\r \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
+	"created_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampH\x00R\tupdatedAt\x88\x01\x01B\r\n" +
+	"updated_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tupdatedAt\x88\x01\x01B\b\n" +
+	"\x06_scoreB\r\n" +
 	"\v_updated_at*\x8b\x01\n" +
 	"\x0fGraphicsQuality\x12$\n" +
 	" GRAPHICS_QUALITY_LOW_UNSPECIFIED\x10\x00\x12\x1b\n" +

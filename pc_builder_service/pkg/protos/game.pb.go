@@ -28,8 +28,9 @@ type Game struct {
 	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	Img           []byte                 `protobuf:"bytes,3,opt,name=img,proto3,oneof" json:"img,omitempty"`
 	NecessaryDisk int32                  `protobuf:"varint,4,opt,name=necessary_disk,json=necessaryDisk,proto3" json:"necessary_disk,omitempty"`
-	CreatedAt     *timestamp.Timestamp   `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	UpdatedAt     *timestamp.Timestamp   `protobuf:"bytes,6,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
+	AvgFps        int32                  `protobuf:"varint,5,opt,name=avg_fps,json=avgFps,proto3" json:"avg_fps,omitempty"`
+	CreatedAt     *timestamp.Timestamp   `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     *timestamp.Timestamp   `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3,oneof" json:"updated_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -92,6 +93,13 @@ func (x *Game) GetNecessaryDisk() int32 {
 	return 0
 }
 
+func (x *Game) GetAvgFps() int32 {
+	if x != nil {
+		return x.AvgFps
+	}
+	return 0
+}
+
 func (x *Game) GetCreatedAt() *timestamp.Timestamp {
 	if x != nil {
 		return x.CreatedAt
@@ -111,16 +119,17 @@ var File_game_proto protoreflect.FileDescriptor
 const file_game_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"game.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xfa\x01\n" +
+	"game.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x93\x02\n" +
 	"\x04Game\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x15\n" +
 	"\x03img\x18\x03 \x01(\fH\x00R\x03img\x88\x01\x01\x12%\n" +
-	"\x0enecessary_disk\x18\x04 \x01(\x05R\rnecessaryDisk\x129\n" +
+	"\x0enecessary_disk\x18\x04 \x01(\x05R\rnecessaryDisk\x12\x17\n" +
+	"\aavg_fps\x18\x05 \x01(\x05R\x06avgFps\x129\n" +
 	"\n" +
-	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
+	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12>\n" +
 	"\n" +
-	"updated_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tupdatedAt\x88\x01\x01B\x06\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampH\x01R\tupdatedAt\x88\x01\x01B\x06\n" +
 	"\x04_imgB\r\n" +
 	"\v_updated_atBDZBgithub.com/erickoda/build-a-computer/pc_builder_service/pkg/protosb\x06proto3"
 
