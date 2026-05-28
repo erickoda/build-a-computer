@@ -18,12 +18,10 @@ use tonic::transport::Server;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("Initializing Users Microservice...");
-
     let config: AppConfig = AppConfig::from_env();
 
     let pool: Pool<Postgres> = PgPoolOptions::new()
-        .max_connections(1)
+        .max_connections(16)
         .connect(&config.database_url)
         .await
         .expect("Failed to connect to DATABASE_URL");
@@ -43,7 +41,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let user_service: UsersService = UsersService::new(user_use_case);
     let auth_service: AuthService = AuthService::new(auth_use_case);
 
-    let addr: SocketAddr = "0.0.0.0:50051".parse()?;
+    let addr: SocketAddr = format!("{}:{}", config.host, config.port).parse()?;
+
+    println!("Running gRPC Auth Microservice in {}", addr);
 
     Server::builder()
         .add_service(AuthServer::new(auth_service))

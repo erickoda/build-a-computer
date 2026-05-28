@@ -39,7 +39,7 @@ async fn main() -> std::io::Result<()> {
     let auth_service_data: web::Data<AuthUseCase<SqlxUserRepository, JwtGenerator, Argo2Hasher>> =
         web::Data::new(auth_service);
 
-    println!("Server running in {}:{}", config.host, config.port);
+    println!("HTTP server running in {}:{}", config.host, config.port);
 
     HttpServer::new(move || {
         App::new()
