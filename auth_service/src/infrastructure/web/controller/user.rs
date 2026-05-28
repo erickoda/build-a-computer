@@ -3,10 +3,7 @@ use uuid::Uuid;
 
 use crate::{
     application::{commands::create_user::CreateUserCommand, outputs::user::UserOutput},
-    infrastructure::{
-        AppUserUseCase,
-        web::extractors::{admin::AdminUser, authenticated::AuthenticatedUser},
-    },
+    infrastructure::{AppUserUseCase, web::extractors::authenticated::AuthenticatedUser},
 };
 
 #[utoipa::path(
@@ -26,7 +23,7 @@ use crate::{
 pub async fn create_user(
     json_command: web::Json<CreateUserCommand>,
     service: web::Data<AppUserUseCase>,
-    _: AdminUser,
+    _: AuthenticatedUser,
 ) -> Result<HttpResponse, actix_web::Error> {
     let command: CreateUserCommand = json_command.0;
 
