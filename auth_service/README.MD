@@ -12,42 +12,42 @@ cargo run --release --bin cli -- create-admin --username "admin" --email "admin@
 
 Create Supervisor User
 ```bash
-curl -i -X POST http://localhost:8080/api/v1/user \
+curl -i -X POST http://localhost:50051/api/v1/user \
     -H "Content-Type: application/json" \
     -d '{"username": "Second User", "email": "second_user@email.com", "password": "AlgumaSenha123#", "role": "supervisor"}'
 ```
 
 Authenticate Admin User
 ```bash
-curl -i -X POST http://localhost:8080/api/v1/auth \
+curl -i -X POST http://localhost:50051/api/v1/auth \
     -H "Content-Type: application/json" \
     -d '{"email": "user@email.com", "password": "AlgumaSenha123#"}'
 ```
 
 Authenticate Supervisor User
 ```bash
-curl -i -X POST http://localhost:8080/api/v1/auth \
+curl -i -X POST http://localhost:50051/api/v1/auth \
     -H "Content-Type: application/json" \
     -d '{"email": "second_user@email.com", "password": "AlgumaSenha123#"}'
 ```
 
 Get Users
 ```bash
-curl -i -X GET http://localhost:8080/api/v1/user \
+curl -i -X GET http://localhost:50051/api/v1/user \
     -H "Authorization: Bearer {{TOKEN}}" \
     -H "Content-Type: application/json"
 ```
 
 Get User
 ```bash
-curl -i -X GET http://localhost:8080/api/v1/user/{{id_usuário}} \
+curl -i -X GET http://localhost:50051/api/v1/user/{{id_usuário}} \
     -H "Authorization: Bearer {{TOKEN}}" \
     -H "Content-Type: application/json"
 ```
 
 Delete User
 ```bash
-curl -i -X DELETE http://localhost:8080/api/v1/user/{{id_usuário}} \
+curl -i -X DELETE http://localhost:50051/api/v1/user/{{id_usuário}} \
     -H "Authorization: Bearer {{TOKEN}}" \
     -H "Content-Type: application/json"
 ```
