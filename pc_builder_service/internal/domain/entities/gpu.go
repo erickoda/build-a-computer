@@ -1,13 +1,16 @@
-package domain
+package entities
 
 import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 
 type GPU struct {
+	gorm.Model
+	
 	ID 					uuid.UUID 				`gorm:"type:uuid primaryKey"`
 	Brand 				string 					`gorm:"type:varchar(50) not null"`
 	Family 				string 					`gorm:"type:varchar(10) not null"`

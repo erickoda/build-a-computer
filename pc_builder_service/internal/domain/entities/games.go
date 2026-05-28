@@ -1,12 +1,15 @@
-package domain
+package entities
 
 import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Game struct {
+	gorm.Model
+	
 	ID          	uuid.UUID   `gorm:"type:uuid primaryKey"`
 	Name          	string 		`gorm:"type:varchar(1024) not null"`
 	Img           	[]byte 		`gorm:"type:bytea"`

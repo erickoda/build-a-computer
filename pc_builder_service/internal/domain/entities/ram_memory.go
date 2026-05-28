@@ -1,12 +1,15 @@
-package domain
+package entities
 
 import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type RamMemory struct {
+	gorm.Model
+	
 	ID uuid.UUID `gorm:"type:uuid not null"`
 	Brand string `gorm:"type:varchar(255) not null"`
 	MemoryAmount int32 `gorm:"type:integer not null"`
