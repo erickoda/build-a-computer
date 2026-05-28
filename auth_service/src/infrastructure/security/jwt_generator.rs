@@ -117,14 +117,6 @@ impl Claims {
     pub fn get_role(&self) -> Role {
         self.role
     }
-
-    pub fn get_exp(&self) -> u64 {
-        self.exp
-    }
-
-    pub fn get_iat(&self) -> u64 {
-        self.iat
-    }
 }
 
 impl Into<TokenPayload> for Claims {
