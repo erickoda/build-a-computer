@@ -68,3 +68,40 @@ api-gateway/
         ├── rate_limit.rs         # Controle de tráfego por IP/Token
         └── logger.rs             # Tracing spans customizados para auditoria HTTP
 ```
+
+## Useful Commands
+Authenticate Admin User (Don't forget to create the first admin user via CLI)
+```bash
+curl -i -X POST http://localhost:3000/api/v1/authenticate \
+    -H "Content-Type: application/json" \
+    -d '{"email": "user@email.com", "password": "AlgumaSenha123#"}'
+```
+
+Create Supervisor User
+```bash
+curl -i -X POST http://localhost:3000/api/v1/users \
+    -H "Authorization: Bearer {{TOKEN}}" \
+    -H "Content-Type: application/json" \
+    -d '{"username": "Second User", "email": "second_user@email.com", "password": "AlgumaSenha123#", "role": "supervisor"}'
+```
+
+Get Users
+```bash
+curl -i -X GET http://localhost:3000/api/v1/users \
+    -H "Authorization: Bearer {{TOKEN}}" \
+    -H "Content-Type: application/json"
+```
+
+Get User
+```bash
+curl -i -X GET http://localhost:3000/api/v1/users/{{id_usuário}} \
+    -H "Authorization: Bearer {{TOKEN}}" \
+    -H "Content-Type: application/json"
+```
+
+Delete User
+```bash
+curl -i -X DELETE http://localhost:3000/api/v1/users/{{id_usuário}} \
+    -H "Authorization: Bearer {{TOKEN}}" \
+    -H "Content-Type: application/json"
+```
