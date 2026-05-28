@@ -2,16 +2,16 @@
 The main goal of this service is to provide an API Gateway that receives HTTP requests, parse it to gRPC format and send it to the suitable microservice. Then, the microservice must process the incoming request and return a gRPC message that the API Gateway will read and convert to a proper HTTP message that will be sent for the client requester.
 
 TODO List:
-- [ ] Create the proto file for auth microservice
+- [x] Create the proto file for auth microservice
 - [ ] Create the proto file for benchmark microservice
 - [ ] Create the proto file for recommendation microservice
 - [ ] Create HTTP <--> gRPC parsers
 - [ ] Create the HTTP server
 - [ ] Create the gRPC client
-- [ ] Create a middleware
-- [ ] Mapping errors correctly
+- [x] Create the auth extractor
+- [x] Mapping errors correctly
 
-## Arquitetura de Arquivos
+## File Architecture
 ```
 api-gateway/
 ├── build.rs                      # Build script that compiles the .proto files before the Rust code itself
