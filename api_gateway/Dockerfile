@@ -4,21 +4,13 @@ WORKDIR /usr/src/app
 COPY Cargo.toml Cargo.lock build.rs ./
 COPY --from=protos . ../proto
 
-COPY /.sqlx ./.sqlx
-ENV SQLX_OFFLINE=true
-
-RUN mkdir src && \
-    echo "fn main() {}" > src/grpc_server.rs && \
-    echo "fn main() {}" > src/http_server.rs && \
-    echo "fn main() {}" > src/cli.rs && \
-    echo "" > src/lib.rs
+RUN mkdir src && echo "fn main() {}" > src/main.rs
 RUN apt-get update && apt-get install -y curl && apt-get install -y protobuf-compiler
 RUN cargo build --release
-RUN rm src/grpc_server.rs
+RUN rm src/main.rs
 
 COPY src ./src
-
-RUN touch src/grpc_server.rs
+RUN touch src/main.rs
 RUN cargo build --release
 
 FROM debian:bullseye-slim
@@ -29,8 +21,8 @@ RUN apt-get update && \
     apt-get install -y libpq-dev ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /usr/src/app/target/release/grpc_server /usr/local/bin/server
+COPY --from=builder /usr/src/app/target/release/api_gateway /usr/local/bin/server
 
-EXPOSE 50051
+EXPOSE 3000
 
 CMD ["server"]

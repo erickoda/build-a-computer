@@ -1,0 +1,70 @@
+services:
+  api_gateway:
+    build:
+      context: ./api_gateway
+      additional_contexts:
+        protos: ./proto
+    deploy:
+      resources:
+        limits:
+          cpus: '0.30'
+          memory: 512M
+        reservations:
+          cpus: '0.15'
+          memory: 128M
+    ports:
+      - "3000:3000"
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-JWT_SECRET}
+      - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL:-AUTH_MICROSERVICE_URL}
+      - USERS_MICROSERVICE_URL=${USERS_MICROSERVICE_URL:-USERS_MICROSERVICE_URL}
+    depends_on:
+      authentication_microservice:
+        condition: service_healthy
+
+  authentication_microservice:
+    build:
+      context: ./auth_service
+      additional_contexts:
+        protos: ./proto
+    deploy:
+      resources:
+        limits:
+          cpus: '0.60'
+          memory: 512M
+        reservations:
+          cpus: '0.15'
+          memory: 128M
+    ports:
+      - "50051:50051"
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-JWT_EXPIRATION}
+      - DATABASE_URL=${USERS_DATABASE_URL:-USERS_DATABASE_URL}
+    healthcheck:
+      test: [ "CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/50051'" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      users_db:
+        condition: service_healthy
+
+  users_db:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U myuser -d mydatabase" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

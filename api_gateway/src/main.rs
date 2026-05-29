@@ -60,11 +60,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let addr = format!("{}:{}", app_configure.host, app_configure.port);
 
-    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(addr.clone()).await?;
 
-    println!("Running API Gateway in Port: 0.0.0.0:3000");
+    println!("Running API Gateway in address: {}", addr);
 
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, app).await?;
 
     Ok(())
 }
