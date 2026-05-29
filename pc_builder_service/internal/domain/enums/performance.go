@@ -14,7 +14,7 @@ const (
 	PerformanceUltra 	Performance = "ultra"
 )
 
-func (p *Performance) Scan(value interface{}) error {
+func (p *Performance) Scan(value any) error {
 	if value == nil{
 		return fmt.Errorf("can not scan a nil value")
 	}
