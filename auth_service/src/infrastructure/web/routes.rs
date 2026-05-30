@@ -16,9 +16,9 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
     );
     cfg.service(
         web::scope("/api/v1")
-            .service(web::scope("/auth").route("", web::post().to(auth)))
+            .service(web::scope("/authenticate").route("", web::post().to(auth)))
             .service(
-                web::scope("/user")
+                web::scope("/users")
                     .route("", web::post().to(create_user))
                     .route("", web::get().to(get_users))
                     .route("/{id}", web::get().to(get_user))

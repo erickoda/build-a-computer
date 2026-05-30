@@ -8,7 +8,7 @@ use crate::{
 
 #[utoipa::path(
     post,
-    path = "/api/v1/user",
+    path = "/api/v1/users",
     request_body = CreateUserCommand,
     responses(
         (status = 201, description = "Successfully created user", body = UserOutput),
@@ -32,7 +32,7 @@ pub async fn create_user(
 
 #[utoipa::path(
     get,
-    path = "/api/v1/user/{id}",
+    path = "/api/v1/users/{id}",
     responses(
         (status = 201, description = "Successfully got user", body = UserOutput),
         (status = 404, description = "Not Found")
@@ -54,7 +54,7 @@ pub async fn get_user(
 
 #[utoipa::path(
     get,
-    path = "/api/v1/user",
+    path = "/api/v1/users",
     responses(
         (status = 200, description = "Successfully got users", body = [UserOutput]),
     ),
@@ -79,7 +79,7 @@ pub async fn get_users(
 
 #[utoipa::path(
     delete,
-    path = "/api/v1/user/{id}",
+    path = "/api/v1/users/{id}",
     responses(
         (status = 204, description = "Successfully deleted user"),
     ),

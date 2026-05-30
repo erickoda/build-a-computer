@@ -7,7 +7,7 @@ use crate::{
 
 #[utoipa::path(
     post,
-    path = "/api/v1/auth",
+    path = "/api/v1/authenticate",
     request_body = AuthCommand,
     responses(
         (status = 200, description = "Successfully authenticate user", body = AuthOutput),
