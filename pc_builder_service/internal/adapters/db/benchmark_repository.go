@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 
 	"gorm.io/gorm"
 
@@ -31,7 +30,6 @@ func (r *BenchmarkRepository) FindBenchmarksByHavierGame(
 		Group("game_id").
 		Order("AVG(avg_fps) ASC").
 		Limit(1)
-	fmt.Println(sub_query.Statement.Vars...)
 	
 	err := r.DB.WithContext(ctx).
 		Where("game_id = (?) AND resolution = ?", sub_query, resolution).
