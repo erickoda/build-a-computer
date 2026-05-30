@@ -11,20 +11,34 @@ import (
 )
 
 type BenchmarkRpository interface {
-	FindBenchmarksByHavierGame(ctx context.Context, games []string) []models.Benchmark
+	FindBenchmarksByHavierGame(ctx context.Context, games []string) ([]models.Benchmark, error)
 }
 
 type BenchmarkRepository struct {
 	DB *gorm.DB
 }
 
-func (r *BenchmarkRepository) FindBenchmarksByHavierGame(ctx context.Context, games []uuid.UUID, resolution int32) []models.Benchmark {
-	var havier_game_id string
+func (r *BenchmarkRepository) FindBenchmarksByHavierGame(
+	ctx context.Context, games []uuid.UUID, resolution int32,
+) ([]models.Benchmark, error) {
+	
 	var benchmarks []models.Benchmark
 
-	r.DB.Select("game_id").Where("game_id IN ? AND resolution = ?", games, resolution).Group("game_id").Order("AVG(avg_fps) ASC").Table("benchmarks").Limit(1).Find(&havier_game_id)
-	fmt.Println(havier_game_id)
-	r.DB.Where("game_id = ?", havier_game_id).Find(&benchmarks)
+	sub_query := r.DB.WithContext(ctx).
+		Model(&models.Benchmark{}).
+		Select("game_id").
+		Where("game_id IN ? AND resolution = ?", games, resolution).
+		Group("game_id").
+		Order("AVG(avg_fps) ASC").
+		Limit(1)
+	fmt.Println(sub_query.Statement.Vars...)
 	
-	return benchmarks
+	err := r.DB.WithContext(ctx).
+		Where("game_id = (?) AND resolution = ?", sub_query, resolution).
+		Find(&benchmarks).Error
+	if err != nil {
+		return nil, err
+	}
+	
+	return benchmarks, nil
 }
