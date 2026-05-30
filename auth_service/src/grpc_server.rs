@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config: AppConfig = AppConfig::from_env();
 
     let pool: Pool<Postgres> = PgPoolOptions::new()
-        .max_connections(16)
+        .max_connections(64)
         .connect(&config.database_url)
         .await
         .expect("Failed to connect to DATABASE_URL");
