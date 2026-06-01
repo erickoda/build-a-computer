@@ -35,6 +35,7 @@ func (r *BenchmarkRepository) FindBenchmarksByHavierGame(
 		Where("game_id = (?) AND resolution = ?", sub_query, resolution).
 		Find(&benchmarks).Error
 	if err != nil {
+		err = HandleError(err)
 		return nil, err
 	}
 	
