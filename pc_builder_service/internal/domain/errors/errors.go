@@ -8,4 +8,7 @@ var (
 	ErrInternalDatabaseError = errors.New("internal database error")
 
 	ErrInvalidUUID = errors.New("invalid uuid format")
+
+	ErrTimedOut = errors.New("operation timed out")
+	ErrCanceled = errors.New("operation canceled")
 )
