@@ -19,11 +19,16 @@ func (p *ComputerPerformance) Scan(value any) error {
 		return fmt.Errorf("can not scan a nil value")
 	}
 
-	sv, ok := value.([]byte)
-	if !ok {
+	switch v := value.(type) {
+	case string:
+		*p = ComputerPerformance(v)
+	case []byte:
+		sv := string(v)
+		*p = ComputerPerformance(sv)
+	default:
 		return fmt.Errorf("failed to scan performance: %v", value)
 	}
-	*p = ComputerPerformance(sv)
+	
 	return nil
 }
 
