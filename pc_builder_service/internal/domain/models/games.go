@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/errors"
 )
 
 type Game struct {
@@ -22,7 +24,7 @@ func Parse_ID(ids ...string) ([]uuid.UUID, error) {
 	for _, id := range ids {
 		parsedID, err := uuid.Parse(id)
 		if err != nil {
-			return nil, err
+			return nil, domain.ErrInvalidUUID
 		}
 		parsedIDs = append(parsedIDs, parsedID)
 	}
