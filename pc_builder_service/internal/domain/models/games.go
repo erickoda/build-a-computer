@@ -15,3 +15,16 @@ type Game struct {
 	CreatedAt    	time.Time 	`gorm:"type:timestamp;not null"`
 	UpdatedAt    	time.Time 	`gorm:"type:timestamp"`
 }
+
+func Parse_ID(ids ...string) ([]uuid.UUID, error) {
+	var parsedIDs []uuid.UUID
+	
+	for _, id := range ids {
+		parsedID, err := uuid.Parse(id)
+		if err != nil {
+			return nil, err
+		}
+		parsedIDs = append(parsedIDs, parsedID)
+	}
+	return parsedIDs, nil
+}
