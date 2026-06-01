@@ -13,6 +13,14 @@ func HandleError(err error) error {
 		return nil
 	}
 
+	if errors.Is(err, domain.ErrCanceled) {
+		return domain.ErrCanceled
+	}
+
+	if errors.Is(err, domain.ErrTimedOut) {
+		return domain.ErrTimedOut
+	}
+
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		if strings.Contains(err.Error(), "benchmark") {
 			return domain.ErrBenchmarkNotFound
