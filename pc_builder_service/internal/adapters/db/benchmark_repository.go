@@ -6,18 +6,19 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
+	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/ports"
 	"github.com/google/uuid"
 )
 
-type BenchmarkRpository interface {
-	FindBenchmarksByHavierGame(ctx context.Context, games []string) ([]models.Benchmark, error)
-}
-
-type BenchmarkRepository struct {
+type BenchmarkRepositoryImpl struct {
 	DB *gorm.DB
 }
 
-func (r *BenchmarkRepository) FindBenchmarksByHavierGame(
+func NewBenchmarkRepositoryImpl(db *gorm.DB, benchmarkRepo ports.BenchmarkRepository) *BenchmarkRepositoryImpl {
+	return &BenchmarkRepositoryImpl{DB: db}
+}
+
+func (r *BenchmarkRepositoryImpl) FindBenchmarksByHavierGame(
 	ctx context.Context, games []uuid.UUID, resolution int32,
 ) ([]models.Benchmark, error) {
 	
