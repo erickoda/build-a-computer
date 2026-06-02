@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
-	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/ports"
 	"github.com/google/uuid"
 )
 
@@ -14,7 +13,7 @@ type BenchmarkRepositoryImpl struct {
 	DB *gorm.DB
 }
 
-func NewBenchmarkRepositoryImpl(db *gorm.DB, benchmarkRepo ports.BenchmarkRepository) *BenchmarkRepositoryImpl {
+func NewBenchmarkRepositoryImpl(db *gorm.DB) *BenchmarkRepositoryImpl {
 	return &BenchmarkRepositoryImpl{DB: db}
 }
 
