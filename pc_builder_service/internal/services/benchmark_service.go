@@ -3,7 +3,6 @@ package services
 import (
 	"cmp"
 	"context"
-	"fmt"
 	"math"
 	"slices"
 	"time"
@@ -168,7 +167,6 @@ func (s *BuilderService) GetBenchmarksByBestScore(
 		performanceQuartileFloor = 0.90
 
 		floorIndex := (int(math.Ceil(float64(size) * performanceQuartileFloor))) - 1
-		fmt.Println(floorIndex)
 		benchmarks = benchmarks[floorIndex:]
 
 		selectedBenchmarks = benchmarks[:NUMBER_OF_SELECTED_BENCHMARKS]
