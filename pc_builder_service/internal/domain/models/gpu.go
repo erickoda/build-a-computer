@@ -15,6 +15,7 @@ type GPU struct {
 	MemoryAmount 		int32 					`gorm:"type:integer;not null"`
 	MemoryGen 			string 					`gorm:"type:varchar(10);not null"`
 	Cores 				int32 					`gorm:"type:integer;not null"`
+	PciExpress 			int32 					`gorm:"column:pci_express;type:integer;not null"`
 	RecommendedPower 	int32 					`gorm:"type:integer;not null"`
 	ReleaseDate 		time.Time 				`gorm:"type:timestamp;not null"`
 	AvgPrice 			float32 				`gorm:"type:real;not null"`
