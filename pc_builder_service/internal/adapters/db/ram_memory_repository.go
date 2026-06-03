@@ -19,7 +19,7 @@ func NewRAMMemoryRepository(db *gorm.DB) *RAMMemoryRepositoryImpl {
 func (r *RAMMemoryRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*models.RamMemory, error) {
 	var ram models.RamMemory
 	
-	result := r.DB.First(&ram, id)
+	result := r.DB.WithContext(ctx).First(&ram, id)
 	if result.Error != nil {
 		err := HandleError(result.Error)
 		return nil, err
