@@ -25,8 +25,9 @@ func (r *MotherBoardRepositoryImpl) FindBySocketAndPCIEAndDDR(
 	var motherBoards []models.MotherBoard
 
 	result := r.DB.WithContext(ctx).
+		Model(&models.MotherBoard{}).
 		Where("socket = ?", socket).
-		Where("pcie = ?", pcie).
+		Where("pci_express = ?", pcie).
 		Where("ddr = ?", ddr).
 		Find(&motherBoards)
 	if result.Error != nil {
