@@ -6,10 +6,9 @@ import (
 )
 
 type MotherBoardRepository interface {
-	FindBySocketAndPCIEAndDDR(
+	FindBySocketAndDDR(
 		ctx context.Context, 
 		socket string, 
-		pcie int32, 
 		ddr string,
 	) ([]models.MotherBoard, error)
 }

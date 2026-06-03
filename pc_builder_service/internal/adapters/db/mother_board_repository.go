@@ -16,10 +16,9 @@ func NewMotherBoardRepository(db *gorm.DB) *MotherBoardRepositoryImpl {
 	return &MotherBoardRepositoryImpl{DB: db}
 }
 
-func (r *MotherBoardRepositoryImpl) FindBySocketAndPCIEAndDDR(
+func (r *MotherBoardRepositoryImpl) FindBySocketAndDDR(
 		ctx context.Context, 
 		socket string, 
-		pcie int32, 
 		ddr string,
 ) ([]models.MotherBoard, error) {
 	var motherBoards []models.MotherBoard
@@ -27,7 +26,6 @@ func (r *MotherBoardRepositoryImpl) FindBySocketAndPCIEAndDDR(
 	result := r.DB.WithContext(ctx).
 		Model(&models.MotherBoard{}).
 		Where("socket = ?", socket).
-		Where("pci_express = ?", pcie).
 		Where("ddr = ?", ddr).
 		Find(&motherBoards)
 	if result.Error != nil {
