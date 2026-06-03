@@ -12,8 +12,9 @@ type MotherBoard struct {
 	Series string `gorm:"type:varchar(255);not null"`
 	Socket string `gorm:"type:varchar(31);not null"`
 	PCIExpress int32 `gorm:"type:integer;not null"`
+	DDR string `gorm:"type:varchar(255);not null"`
 	AvgPrice float32 `gorm:"type:real;not null"`
-	Img []byte `gorm:"type:bytea;not null"`
+	Img []byte `gorm:"type:bytea"`
 	CreatedAt time.Time `gorm:"type:timestamp;not null"`
 	UpdatedAt time.Time `gorm:"type:timestamp"`
 }
