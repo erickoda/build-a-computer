@@ -22,5 +22,4 @@ type GPU struct {
 	Img 				[]byte 					`gorm:"type:bytea"`
 	CreatedAt 			time.Time 				`gorm:"type:timestamp;not null"`
 	UpdatedAt 			time.Time 				`gorm:"type:timestamp"`
-	
 }
