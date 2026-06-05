@@ -11,4 +11,6 @@ var (
 
 	ErrTimedOut = errors.New("operation timed out")
 	ErrCanceled = errors.New("operation canceled")
+
+	ErrInvalidSizeOfMotherBoardSettings = errors.New("socket and ddr slices must have the same length")
 )
