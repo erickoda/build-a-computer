@@ -198,8 +198,9 @@ func TestBenchmarkByBestScore(t *testing.T) {
 	gpu_repo := &persist.GPURepositoryImpl{DB: db.DB}
 	ram_repo := &persist.RAMMemoryRepositoryImpl{DB: db.DB}
 	mother_board_repo := &persist.MotherBoardRepositoryImpl{DB: db.DB}
+	powerSourceRepo := &persist.PowerSourceRepositoryImpl{DB: db.DB}
 	
-	svc := services.NewBuilderService(*benchmark_repo, *cpu_repo, *gpu_repo, *ram_repo, *mother_board_repo)
+	svc := services.NewBuilderService(*benchmark_repo, *cpu_repo, *gpu_repo, *ram_repo, *mother_board_repo, *powerSourceRepo)
 		
 	selectedBenchmarks, err := svc.GetBenchmarksByBestScore(ctx, benchmarks, e.ComputerPerformanceMedium)
 	if err != nil{
