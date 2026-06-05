@@ -21,6 +21,7 @@ type BuilderService struct {
 	GPURepo repository.GPURepositoryImpl
 	RAMRepo repository.RAMMemoryRepositoryImpl
 	MotherBoardRepo repository.MotherBoardRepositoryImpl
+	PowerSourceRepo repository.PowerSourceRepositoryImpl
 }
 
 func NewBuilderService(
@@ -29,6 +30,7 @@ func NewBuilderService(
 	gpuRepoImpl repository.GPURepositoryImpl,
 	ramRepoImpl repository.RAMMemoryRepositoryImpl,
 	motherBoardRepoImpl repository.MotherBoardRepositoryImpl,
+	powerSourceRepoImpl repository.PowerSourceRepositoryImpl,
 )  ports.BuilderPort {
 	
 	return &BuilderService{
@@ -37,6 +39,7 @@ func NewBuilderService(
 		GPURepo: gpuRepoImpl,
 		RAMRepo: ramRepoImpl,
 		MotherBoardRepo: motherBoardRepoImpl,
+		PowerSourceRepo: powerSourceRepoImpl,
 	}
 }
 
@@ -189,7 +192,7 @@ func (s *BuilderService) GetBenchmarksByBestScore(
 }
 
 func (s *BuilderService) GetBenchmarksSockets(ctx context.Context, benchmarks []models.Benchmark) ([]string, error) {
-	ctx, cancel := context.WithTimeout(ctx, 500*time.Millisecond)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	var sockets []string
@@ -205,6 +208,9 @@ func (s *BuilderService) GetBenchmarksSockets(ctx context.Context, benchmarks []
 }
 
 func (s *BuilderService) GetBenchmarksPCIExpress(ctx context.Context, benchmarks []models.Benchmark) ([]int32, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	
 	var pcie []int32
 	for _, benchmark := range benchmarks {
 		GPU, err := s.GPURepo.FindByID(ctx, benchmark.GPUId)
@@ -218,6 +224,9 @@ func (s *BuilderService) GetBenchmarksPCIExpress(ctx context.Context, benchmarks
 }
 
 func (s *BuilderService) GetBenchmarksDDRs(ctx context.Context, benchmarks []models.Benchmark) ([]string, error) {
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	
 	var ddr []string
 	for _, benchmark := range benchmarks {
 		RAM, err := s.RAMRepo.FindByID(ctx, benchmark.RAMId)
@@ -281,12 +290,11 @@ func (s *BuilderService) GetMotherBoardsByScore(
 					continue
 				}
 
-				motherBoardsMappedBySocketAndDDR[key][benchmarkID][i].Score, err = calculateMotherBoardScore(motherBoardsMappedBySocketAndDDR[key][benchmarkID][i])
+				motherBoardsMappedBySocketAndDDR[key][benchmarkID][i].Score, 
+					err = calculateMotherBoardScore(motherBoardsMappedBySocketAndDDR[key][benchmarkID][i])
 				if err != nil {
 					return nil, err
 				}
-
-				fmt.Println(motherBoardsMappedBySocketAndDDR[key][benchmarkID][i].Score)
 			}
 		}
 	}
@@ -341,6 +349,81 @@ func (s *BuilderService) GetMotherBoardsByScore(
 	return motherBoardsByScore, nil
 }
 
+func (s *BuilderService) GetPowerSourcesByRecommendedPower(
+		ctx context.Context,
+		selectedBenchmarks []models.Benchmark,
+) (map[uuid.UUID][]models.PowerSource, error) {
+
+	powerSourcesByBenchmark := make(map[uuid.UUID][]models.PowerSource)
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	
+	for _, benchmark := range selectedBenchmarks {
+		cpu, err := s.CPURepo.FindByID(ctx, benchmark.CPUId)
+		if err != nil {
+			return nil, err
+		}
+
+		gpu, err := s.GPURepo.FindByID(ctx, benchmark.GPUId)
+		if err != nil {
+			return nil, err
+		}
+
+		var power []int32
+		higherPower := int32(math.Max(float64(cpu.RecommendedPower), float64(gpu.RecommendedPower)))
+
+		power = append(power, higherPower)
+		power = append(power, higherPower+100)
+
+		powerSources, err := s.PowerSourceRepo.FindByRecommendedPowerSource(ctx, power)
+		if err != nil {
+			return nil, err
+		}
+		
+		powerSourcesByBenchmark[benchmark.ID] = powerSources
+	}
+
+	return powerSourcesByBenchmark, nil
+}
+
+func (s *BuilderService) GetPowerSourcesByScore(
+		ctx context.Context,
+		powerSourcesMappedByBenchmark map[uuid.UUID][]models.PowerSource,
+) (map[uuid.UUID]models.PowerSource, error) {
+	
+	powerSourcesByScore := make(map[uuid.UUID]models.PowerSource)
+	var err error
+
+	for benchmarkID := range powerSourcesMappedByBenchmark {
+		for i := range powerSourcesMappedByBenchmark[benchmarkID] {
+			
+			powerSourcesMappedByBenchmark[benchmarkID][i].Score, 
+				err = calculatePowerSourceScore(powerSourcesMappedByBenchmark[benchmarkID][i])
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	for benchmarkID := range powerSourcesMappedByBenchmark {
+		slices.SortFunc(powerSourcesMappedByBenchmark[benchmarkID], func(i, j models.PowerSource) int {
+			return cmp.Compare(i.Score, j.Score)
+		})
+	}
+
+	for benchmarkID := range powerSourcesMappedByBenchmark {
+		size := len(powerSourcesMappedByBenchmark[benchmarkID])
+		if size == 0 {
+			continue
+		}
+		
+		powerSourcesByScore[benchmarkID] = powerSourcesMappedByBenchmark[benchmarkID][size-1]
+	}
+
+	return powerSourcesByScore, nil
+}
+
 func calculatePerformanceScore(
 	ctx context.Context,
 	benchmark models.Benchmark,
@@ -393,6 +476,67 @@ func calculateMotherBoardScore(motherBoard models.MotherBoard) (int32, error) {
 	normalizedScore := float32(score) / motherBoard.AvgPrice
 
 	finalScore := normalizedScore * 100
+
+	return int32(finalScore), nil
+}
+
+func calculatePowerSourceScore(powerSource models.PowerSource) (int32, error) {
+	const EIGHTY_PLUS_CERT_COEFICIENT float64 = 2.0
+
+	var score float64 = 0.0
+
+	switch powerSource.Ranking {
+		case e.PowerSourceRankingWhite:
+			if !powerSource.EightyPlusCert {
+				score = 1
+				break
+			}
+
+			score = 1 * EIGHTY_PLUS_CERT_COEFICIENT
+			
+		case e.PowerSourceRankingBronze:
+			if !powerSource.EightyPlusCert {
+				score = 2
+				break
+			}
+
+			score = 2 * EIGHTY_PLUS_CERT_COEFICIENT
+
+		case e.PowerSourceRankingSilver:
+			if !powerSource.EightyPlusCert {
+				score = 3
+				break
+			}
+
+			score = 3 * EIGHTY_PLUS_CERT_COEFICIENT
+
+		case e.PowerSourceRankingGold:
+			if !powerSource.EightyPlusCert {
+				score = 4
+				break
+			}
+
+			score = 4 * EIGHTY_PLUS_CERT_COEFICIENT
+
+		case e.PowerSourceRankingPlatinum:
+			if !powerSource.EightyPlusCert {
+				score = 5
+				break
+			}
+
+			score = 5 * EIGHTY_PLUS_CERT_COEFICIENT
+
+		case e.PowerSourceRankingTitanium:
+			if !powerSource.EightyPlusCert {
+				score = 6
+				break
+			}
+
+			score = 6 * EIGHTY_PLUS_CERT_COEFICIENT
+	}
+
+	normalizedScore := score / float64(powerSource.AvgPrice)
+	finalScore := normalizedScore * 10000
 	fmt.Println(finalScore)
 
 	return int32(finalScore), nil

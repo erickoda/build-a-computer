@@ -33,4 +33,14 @@ type BuilderPort interface {
 	GetBenchmarksSockets(ctx context.Context, benchmarks []models.Benchmark) ([]string, error)
 	GetBenchmarksPCIExpress(ctx context.Context, benchmarks []models.Benchmark) ([]int32, error)
 	GetBenchmarksDDRs(ctx context.Context, benchmarks []models.Benchmark) ([]string, error)
+
+	GetPowerSourcesByRecommendedPower(
+		ctx context.Context,
+		selectedBenchmarks []models.Benchmark,
+	) (map[uuid.UUID][]models.PowerSource, error)
+
+	GetPowerSourcesByScore(
+		ctx context.Context,
+		powerSourcesMappedByBenchmark map[uuid.UUID][]models.PowerSource,
+	) (map[uuid.UUID]models.PowerSource, error)
 }
