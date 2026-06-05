@@ -84,7 +84,7 @@ const AuthPage = () => {
           </div>
 
           <Button type="submit" variant="outline" className="w-full font-medium" size="lg" >
-            Sign Up
+            Sign In
           </Button>
         </form>
 
