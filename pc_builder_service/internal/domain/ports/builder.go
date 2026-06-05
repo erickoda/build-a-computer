@@ -3,24 +3,34 @@ package ports
 import (
 	"context"
 
-	model "github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
 	e "github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/enums"
+	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
+	"github.com/google/uuid"
 )
 
 type BuilderPort interface {
-	GetBenchmarksByHavierGame(ctx context.Context, games []string, resolution int32) ([]model.Benchmark, error)
+	GetBenchmarksByHavierGame(ctx context.Context, games []string, resolution int32) ([]models.Benchmark, error)
 	
 	GetBenchmarksByBestScore(
 		ctx context.Context, 
-		benchmarks []model.Benchmark,
+		benchmarks []models.Benchmark,
 		requestedPerformance e.ComputerPerformance,
-	) ([]model.Benchmark, error)
+	) ([]models.Benchmark, error)
+
+	GetMotherBoardBySocketAndDDR(
+		ctx context.Context,
+		socket []string,
+		ddr []string,
+		selectedBenchmarks []models.Benchmark,
+	) (map[string]map[uuid.UUID][]models.MotherBoard, error)
 	
-	GetMotherBoardBySocketAndPCIEAndDDRAndPrice(
-		ctx context.Context, 
-		socket string, 
-		pcie string, 
-		ddr string, 
-		price float32,
-	) ([]model.MotherBoard, error)
+	GetMotherBoardsByScore(
+		ctx context.Context,
+		motherBoardsMappedBySocketAndDDR map[string]map[uuid.UUID][]models.MotherBoard,
+		requestedPerformance e.ComputerPerformance,
+	) (map[uuid.UUID]models.MotherBoard, error)
+
+	GetBenchmarksSockets(ctx context.Context, benchmarks []models.Benchmark) ([]string, error)
+	GetBenchmarksPCIExpress(ctx context.Context, benchmarks []models.Benchmark) ([]int32, error)
+	GetBenchmarksDDRs(ctx context.Context, benchmarks []models.Benchmark) ([]string, error)
 }
