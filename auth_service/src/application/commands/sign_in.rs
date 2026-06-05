@@ -2,12 +2,16 @@ use serde::Deserialize;
 use utoipa::ToSchema;
 
 #[derive(Deserialize, ToSchema)]
-pub struct AuthRequestDto {
+pub struct SignInCommand {
     email: String,
     password: String,
 }
 
-impl AuthRequestDto {
+impl SignInCommand {
+    pub fn new(email: String, password: String) -> Self {
+        Self { email, password }
+    }
+
     pub fn get_email(&self) -> &str {
         &self.email
     }
@@ -22,10 +26,10 @@ mod test {
     use super::*;
 
     #[test]
-    pub fn test_auth_request_dto_getters() {
+    pub fn test_auth_command_getters() {
         let email: &str = "user@email.com";
         let password: &str = "Senha123!";
-        let command = AuthRequestDto {
+        let command = SignInCommand {
             email: email.into(),
             password: password.into(),
         };

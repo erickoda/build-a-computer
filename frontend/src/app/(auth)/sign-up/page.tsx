@@ -1,12 +1,11 @@
 'use client';
 
 import { ApiResult } from '@/src/services/api';
+import authApi from '@/src/services/endpoints/auth';
 import {
-  CreateUserDto,
-  UserDto,
-  UserRole,
+  SignUpRequestDto,
+  TokenDto,
 } from '@/src/services/endpoints/dtos';
-import usersApi from '@/src/services/endpoints/users';
 import {
   Button,
   ErrorMessage,
@@ -45,14 +44,13 @@ const AuthPage = () => {
   } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
 
   const onSubmit = async (data: LoginFormValues) => {
-    const dto: CreateUserDto = {
+    const dto: SignUpRequestDto = {
       username: data.username,
       email: data.email,
       password: data.password,
-      role: UserRole.Common,
     };
 
-    const response: ApiResult<UserDto> = await usersApi.create(dto);
+    const response: ApiResult<TokenDto> = await authApi.signUp(dto);
 
     if (!response.ok) {
       toast.danger('An error occurred while signing up', {
@@ -61,7 +59,11 @@ const AuthPage = () => {
       return;
     }
 
-    router.push('/sign-in');
+    const token = response.data.token;
+
+    localStorage.setItem("token", token);
+
+    router.push("/benchmarks");
   };
 
   return (

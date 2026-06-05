@@ -1,6 +1,6 @@
 use crate::{
     application::{
-        commands::auth::AuthCommand,
+        commands::{sign_in::SignInCommand, sign_up::SignUpCommand},
         errors::AuthServiceError,
         outputs::auth::AuthOutput,
         ports::{
@@ -8,7 +8,7 @@ use crate::{
             user_repository::UserRepository,
         },
     },
-    domain::{entities::user::UserEntity, value_objects::email::Email},
+    domain::{entities::user::UserEntity, value_objects::{email::Email, hashed_password::HashedPassword, plain_password::PlainPassword, role::Role, username::Username}},
 };
 
 pub struct AuthUseCase<R: UserRepository, T: TokenGenerator, P: PasswordHasher> {
@@ -26,7 +26,7 @@ impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher> AuthUseCase<R, T, 
         }
     }
 
-    pub async fn authenticate(&self, command: AuthCommand) -> Result<AuthOutput, AuthServiceError> {
+    pub async fn sign_in(&self, command: SignInCommand) -> Result<AuthOutput, AuthServiceError> {
         let email: Email = Email::try_from(command.get_email().to_string())?;
         let password: String = command.get_password().to_string();
 
@@ -45,6 +45,29 @@ impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher> AuthUseCase<R, T, 
             .map_err(|_| {
                 AuthServiceError::InternalError("Failed to generate jwt token".to_string())
             })?;
+
+        Ok(AuthOutput::new(token))
+    }
+
+    pub async fn sign_up(&self, command: SignUpCommand) -> Result<AuthOutput, AuthServiceError> {
+        let username: Username = Username::try_from(command.get_username().to_string())?;
+        let email: Email = Email::try_from(command.get_email().to_string())?;
+        let plain_password: PlainPassword =
+            PlainPassword::try_from(command.get_password().to_string())?;
+
+        let hashed_password: HashedPassword = self
+            .password_hasher
+            .hash_password(plain_password)
+            .map_err(|_| AuthServiceError::InternalError("Failed to hash password".into()))?;
+
+        let new_user_entity: UserEntity = UserEntity::new(username, email, hashed_password, Role::Common);
+
+        let created_entity: UserEntity = self.repository.insert_user(new_user_entity).await?;
+        
+        let token: String = self
+            .token_generator
+            .generate_token(&created_entity)
+            .map_err(|_| AuthServiceError::InternalError("Failed to generate token".to_string()))?;
 
         Ok(AuthOutput::new(token))
     }
@@ -115,7 +138,7 @@ mod test {
         let auth_service =
             AuthUseCase::new(mock_repository, mock_token_generator, mock_password_hasher);
 
-        let command = AuthCommand::new("user@email.com".into(), "senha_correta_123".into());
+        let command = SignInCommand::new("user@email.com".into(), "senha_correta_123".into());
 
         let result = auth_service.authenticate(command).await;
 
@@ -146,7 +169,7 @@ mod test {
             .times(1)
             .returning(|_, _| Ok(false));
 
-        let command = AuthCommand::new("user@email.com".into(), "wrong_password".into());
+        let command = SignInCommand::new("user@email.com".into(), "wrong_password".into());
 
         let auth_service =
             AuthUseCase::new(mock_repository, mock_token_generator, mock_password_hasher);
@@ -174,7 +197,7 @@ mod test {
             .times(1)
             .returning(|_| Err(RepositoryError::NotFound));
 
-        let command = AuthCommand::new("user_not_found@email.com".into(), "any_password".into());
+        let command = SignInCommand::new("user_not_found@email.com".into(), "any_password".into());
 
         let auth_service =
             AuthUseCase::new(mock_repository, mock_token_generator, mock_password_hasher);

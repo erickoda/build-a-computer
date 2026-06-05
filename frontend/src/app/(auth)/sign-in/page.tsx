@@ -6,14 +6,14 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import authApi from '@/src/services/endpoints/auth';
-import { SignInRequestDto, SignInResponseDto } from '@/src/services/endpoints/dtos';
+import { SignInRequestDto, TokenDto } from '@/src/services/endpoints/dtos';
 import { ApiResult } from '@/src/services/api';
 
 const signInSchema = z.object({
   email: z.email("Please enter a valid email"),
   password: z
     .string()
-})
+});
 
 type SignInFormValues = z.infer<typeof signInSchema>;
 
@@ -28,7 +28,7 @@ const AuthPage = () => {
       password: data.password
     };
 
-    const response: ApiResult<SignInResponseDto> = await authApi.signIn(dto);
+    const response: ApiResult<TokenDto> = await authApi.signIn(dto);
 
     if (!response.ok) {
       toast.danger("An error occurred while signing in", {
@@ -43,7 +43,7 @@ const AuthPage = () => {
 
     localStorage.setItem("token", token);
 
-    router.push("/benchmarks")
+    router.push("/benchmarks");
   }
 
   return (

@@ -6,8 +6,9 @@ use crate::{
     modules::{auth::routes::auth_routes, users::routes::user_routes},
     security::{jwt_adapter::JwtValidator, token::TokenValidator},
 };
-use axum::{Router, extract::FromRef};
+use axum::{Router, extract::FromRef, http::{HeaderValue, header::{AUTHORIZATION, CONTENT_TYPE}}};
 use std::sync::Arc;
+use tower_http::cors::{Any, CorsLayer};
 
 pub mod auth_grpc {
     tonic::include_proto!("auth");
@@ -53,9 +54,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         token_validator: Arc::new(jwt_validator),
     };
 
+    let cors_layer = CorsLayer::new()
+        .allow_methods(Any)
+        .allow_origin("*".parse::<HeaderValue>().unwrap())
+        .allow_headers([AUTHORIZATION, CONTENT_TYPE]);
+
     let app = Router::new()
         .nest("/api/v1/users", user_routes())
         .nest("/api/v1/authenticate", auth_routes())
+        .layer(cors_layer)
         .with_state(state);
 
     let addr = format!("{}:{}", app_configure.host, app_configure.port);

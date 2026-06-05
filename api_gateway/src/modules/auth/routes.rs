@@ -1,7 +1,9 @@
 use axum::{routing::post, Router};
 
-use crate::{modules::auth::handlers::authenticate, AppState};
+use crate::{AppState, modules::auth::handlers::{sign_in, sign_up}};
 
 pub fn auth_routes() -> Router<AppState> {
-    Router::new().route("/", post(authenticate))
+    Router::new()
+        .route("/sign-in", post(sign_in))
+        .route("/sign-up", post(sign_up))
 }

@@ -1,8 +1,8 @@
 use tonic::{Request, Response, Status};
 
 use crate::{
-    application::{commands::auth::AuthCommand, outputs::auth::AuthOutput},
-    auth_grpc::{AuthReply, AuthRequest, auth_server::Auth},
+    application::{commands::{sign_in::SignInCommand, sign_up::SignUpCommand}, outputs::auth::AuthOutput},
+    auth_grpc::{AuthReply, SignInRequest, SignUpRequest, auth_server::Auth},
     infrastructure::AppAuthUseCase,
 };
 
@@ -18,21 +18,39 @@ impl AuthService {
 
 #[tonic::async_trait]
 impl Auth for AuthService {
-    async fn authenticate_user(
+    async fn sign_in(
         &self,
-        request: Request<AuthRequest>,
+        request: Request<SignInRequest>,
     ) -> Result<Response<AuthReply>, Status> {
         let auth = request.into_inner();
 
         Ok(Response::from(AuthReply::from(
-            self.auth_use_case.authenticate(auth.into()).await?,
+            self.auth_use_case.sign_in(auth.into()).await?,
         )))
+    }
+
+    async fn sign_up(
+        &self,
+        request: Request<SignUpRequest>,
+    ) -> Result<Response<AuthReply>, Status> {
+        Ok(Response::from(AuthReply::from(
+            self.auth_use_case
+                .sign_up(request.into_inner().into())
+                .await?,
+        )))
+    }
+
+}
+
+impl Into<SignInCommand> for SignInRequest {
+    fn into(self) -> SignInCommand {
+        SignInCommand::new(self.email, self.password)
     }
 }
 
-impl Into<AuthCommand> for AuthRequest {
-    fn into(self) -> AuthCommand {
-        AuthCommand::new(self.email, self.password)
+impl Into<SignUpCommand> for SignUpRequest {
+    fn into(self) -> SignUpCommand {
+        SignUpCommand::new(self.username, self.email, self.password)
     }
 }
 

@@ -4,7 +4,7 @@ use utoipa_swagger_ui::SwaggerUi;
 
 use crate::infrastructure::web::{
     controller::{
-        auth::auth,
+        auth::{sign_in, sign_up},
         user::{create_user, delete_user, get_user, get_users},
     },
     swagger::ApiDoc,
@@ -16,7 +16,11 @@ pub fn configure_routes(cfg: &mut web::ServiceConfig) {
     );
     cfg.service(
         web::scope("/api/v1")
-            .service(web::scope("/authenticate").route("", web::post().to(auth)))
+            .service(
+                web::scope("/authenticate")
+                    .route("/sign-in", web::post().to(sign_in))
+                    .route("/sign-up", web::post().to(sign_up)),
+            )
             .service(
                 web::scope("/users")
                     .route("", web::post().to(create_user))

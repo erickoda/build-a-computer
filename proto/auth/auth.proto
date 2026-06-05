@@ -2,15 +2,22 @@ syntax = "proto3";
 
 package auth;
 
-message AuthRequest {
+service Auth {
+    rpc SignIn(SignInRequest) returns (AuthReply);
+    rpc SignUp(SignUpRequest) returns (AuthReply);
+}
+
+message SignInRequest {
     string email = 1;
     string password = 2;
 }
 
-message AuthReply {
-    string token = 1;
+message SignUpRequest {
+    string username = 1;
+    string email = 2;
+    string password = 3;
 }
 
-service Auth {
-    rpc AuthenticateUser (AuthRequest) returns (AuthReply);
+message AuthReply {
+    string token = 1;
 }

@@ -1,8 +1,13 @@
 import api, { ApiResult } from "../api";
-import { SignInRequestDto, SignInResponseDto } from "./dtos";
+import { SignInRequestDto, TokenDto, SignUpRequestDto } from "./dtos";
 
 const authApi = {
-  signIn: async (dto: SignInRequestDto): Promise<ApiResult<SignInResponseDto>> => api<SignInResponseDto, SignInRequestDto>("authenticate", {
+  signIn: async (dto: SignInRequestDto): Promise<ApiResult<TokenDto>> => api<TokenDto, SignInRequestDto>("authenticate/sign-in", {
+    method: 'POST',
+    payload: dto
+  }),
+
+  signUp: async (dto: SignUpRequestDto): Promise<ApiResult<TokenDto>> => api<TokenDto, SignInRequestDto>("authenticate/sign-up", {
     method: 'POST',
     payload: dto
   }),

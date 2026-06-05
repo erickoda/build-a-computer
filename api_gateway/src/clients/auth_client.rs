@@ -17,15 +17,29 @@ impl AuthClientWrapper {
         }
     }
 
-    pub async fn authenticate_user(&self, email: &str, password: &str) -> Result<String, AppError> {
+    pub async fn sign_in(&self, email: &str, password: &str) -> Result<String, AppError> {
         let mut client = self.inner_client.clone();
 
-        let grpc_request = tonic::Request::new(auth_grpc::AuthRequest {
+        let grpc_request = tonic::Request::new(auth_grpc::SignInRequest {
             email: email.to_string(),
             password: password.to_string(),
         });
 
-        let grpc_response = client.authenticate_user(grpc_request).await?.into_inner();
+        let grpc_response = client.sign_in(grpc_request).await?.into_inner();
+
+        Ok(grpc_response.token)
+    }
+
+    pub async fn sign_up(&self, email: &str, password: &str, username: &str) -> Result<String, AppError> {
+        let mut client = self.inner_client.clone();
+
+        let grpc_request = tonic::Request::new(auth_grpc::SignUpRequest {
+            email: email.to_string(),
+            password: password.to_string(),
+            username: username.to_string()
+        });
+
+        let grpc_response = client.sign_up(grpc_request).await?.into_inner();
 
         Ok(grpc_response.token)
     }

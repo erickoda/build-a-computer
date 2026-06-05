@@ -2,11 +2,11 @@ use serde::Serialize;
 use utoipa::ToSchema;
 
 #[derive(Serialize, Debug, ToSchema)]
-pub struct AuthResponse {
+pub struct AuthResponseDto {
     token: String,
 }
 
-impl AuthResponse {
+impl AuthResponseDto {
     pub fn new(token: String) -> Self {
         Self { token }
     }
@@ -19,7 +19,7 @@ mod test {
     #[test]
     pub fn test_auth_output_creation() {
         let token: &str = "MyToken";
-        let auth_output = AuthResponse::new(token.into());
+        let auth_output = AuthResponseDto::new(token.into());
 
         assert_eq!(token, auth_output.token);
     }

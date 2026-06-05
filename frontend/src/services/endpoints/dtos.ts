@@ -3,7 +3,13 @@ export type SignInRequestDto = {
   password: string
 }
 
-export type SignInResponseDto = {
+export type SignUpRequestDto = {
+  username: string,
+  email: string,
+  password: string,
+}
+
+export type TokenDto = {
   token: string
 }
 

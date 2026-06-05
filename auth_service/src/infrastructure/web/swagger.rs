@@ -16,7 +16,8 @@ use crate::infrastructure::web::controller::user;
         user::get_user,
         user::get_users,
         user::delete_user,
-        auth::auth
+        auth::sign_in,
+        auth::sign_up
     ),
     components(
         schemas(CreateUserCommand, UserOutput)
