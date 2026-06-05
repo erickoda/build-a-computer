@@ -90,7 +90,7 @@ const AuthPage = () => {
 
         <p className="text-center text-sm text-default-500">
           Don't have an account?{' '}
-          <Link onClick={() => router.push("/auth/sign-up")} className="font-semibold">
+          <Link onClick={() => router.push("/sign-up")} className="font-semibold">
             Sign up
           </Link>
         </p>
