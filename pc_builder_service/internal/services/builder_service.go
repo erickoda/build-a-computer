@@ -22,6 +22,7 @@ type BuilderService struct {
 	RAMRepo repository.RAMMemoryRepositoryImpl
 	MotherBoardRepo repository.MotherBoardRepositoryImpl
 	PowerSourceRepo repository.PowerSourceRepositoryImpl
+	SSDRepo repository.SSDRepositoryImpl
 }
 
 func NewBuilderService(
@@ -31,6 +32,7 @@ func NewBuilderService(
 	ramRepoImpl repository.RAMMemoryRepositoryImpl,
 	motherBoardRepoImpl repository.MotherBoardRepositoryImpl,
 	powerSourceRepoImpl repository.PowerSourceRepositoryImpl,
+	ssdRepoImpl repository.SSDRepositoryImpl,
 )  ports.BuilderPort {
 	
 	return &BuilderService{
@@ -40,6 +42,7 @@ func NewBuilderService(
 		RAMRepo: ramRepoImpl,
 		MotherBoardRepo: motherBoardRepoImpl,
 		PowerSourceRepo: powerSourceRepoImpl,
+		SSDRepo: ssdRepoImpl,
 	}
 }
 
@@ -397,6 +400,9 @@ func (s *BuilderService) GetPowerSourcesByScore(
 
 	for benchmarkID := range powerSourcesMappedByBenchmark {
 		for i := range powerSourcesMappedByBenchmark[benchmarkID] {
+			if powerSourcesMappedByBenchmark[benchmarkID][i].Score > 0 {
+				continue
+			}
 			
 			powerSourcesMappedByBenchmark[benchmarkID][i].Score, 
 				err = calculatePowerSourceScore(powerSourcesMappedByBenchmark[benchmarkID][i])
@@ -422,6 +428,95 @@ func (s *BuilderService) GetPowerSourcesByScore(
 	}
 
 	return powerSourcesByScore, nil
+}
+
+func (s *BuilderService) GetSSDByMinimumPowerAmount(
+	ctx context.Context,
+	games []models.Game,
+	benchmarks []models.Benchmark,
+) (map[uuid.UUID][]models.SSD, error) {
+	
+	ssdsMappedByBenchmark := make(map[uuid.UUID][]models.SSD)
+
+	var gamesNecessaryDisk int32 = 0
+	
+	for _, game := range games {
+		gamesNecessaryDisk += game.NecessaryDisk
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	for _, benchmark := range benchmarks {
+		ssds, err := s.SSDRepo.FindByMinimumAmount(ctx, gamesNecessaryDisk)
+		if err != nil {
+			return nil, err
+		}
+		
+		ssdsMappedByBenchmark[benchmark.ID] = ssds
+	}
+
+	return ssdsMappedByBenchmark, nil
+}
+
+func (s *BuilderService) GetSSDByScore(
+	ctx context.Context,
+	ssdsMappedByBenchmark map[uuid.UUID][]models.SSD,
+	requestedPerformance e.ComputerPerformance,
+) (map[uuid.UUID]models.SSD, error) {
+
+	ssdMappedByBenchmark := make(map[uuid.UUID]models.SSD)
+	
+	var err error
+	
+	for benchmarkID := range ssdsMappedByBenchmark {
+		for i := range ssdsMappedByBenchmark[benchmarkID] {
+			
+			if ssdsMappedByBenchmark[benchmarkID][i].Score > 0 {
+				continue
+			}
+			
+			ssdsMappedByBenchmark[benchmarkID][i].Score, err = calculateSDDScore(ssdsMappedByBenchmark[benchmarkID][i])
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	for benchmarkID := range ssdsMappedByBenchmark {
+		slices.SortFunc(ssdsMappedByBenchmark[benchmarkID], func(i, j models.SSD) int {
+			return cmp.Compare(i.Score, j.Score)
+		})
+	}
+
+	for benchmarkID := range ssdsMappedByBenchmark {
+		size := len(ssdsMappedByBenchmark[benchmarkID])
+		
+		switch requestedPerformance {
+			case e.ComputerPerformanceLow:
+				ssdQuartile := 0.3
+	
+				index := int(math.Floor(float64(size) * ssdQuartile))
+				ssdMappedByBenchmark[benchmarkID] = ssdsMappedByBenchmark[benchmarkID][index]
+				
+			case e.ComputerPerformanceMedium:
+				ssdQuartile := 0.6
+				
+				index := int(math.Floor(float64(size) * ssdQuartile))
+				ssdMappedByBenchmark[benchmarkID] = ssdsMappedByBenchmark[benchmarkID][index]
+	
+			case e.ComputerPerformanceHigh:
+				ssdQuartile := 0.9
+				
+				index := int(math.Floor(float64(size) * ssdQuartile))
+				ssdMappedByBenchmark[benchmarkID] = ssdsMappedByBenchmark[benchmarkID][index]
+
+			case e.ComputerPerformanceUltra:
+				ssdMappedByBenchmark[benchmarkID] = ssdsMappedByBenchmark[benchmarkID][size-1]
+		}
+	}
+	
+	return ssdMappedByBenchmark, nil
 }
 
 func calculatePerformanceScore(
@@ -463,7 +558,7 @@ func calculateMotherBoardScore(motherBoard models.MotherBoard) (int32, error) {
 	const PCI_EXPRESS_COEFICIENT float64 = 0.5
 	const MAX_RAM_MEMORY_FREQUENCY_MHZ float64 = 0.001
 	const MAX_RAM_COEFICIENT float64 = 0.1
-	const VRM_COEFICIENT float64 = 1.2
+	const VRM_COEFICIENT float64 = 1.5
 	
 	var score float64
 
@@ -537,6 +632,40 @@ func calculatePowerSourceScore(powerSource models.PowerSource) (int32, error) {
 
 	normalizedScore := score / float64(powerSource.AvgPrice)
 	finalScore := normalizedScore * 10000
+	fmt.Println(finalScore)
+
+	return int32(finalScore), nil
+}
+
+func calculateSDDScore(ssd models.SSD) (int32, error) {
+	const READING_COEFICIENT float64 = 0.001
+	const WRITING_COEFICIENT float64 = 0.001
+	const AMOUNT_COEFICIENT float64 = 0.01
+
+	var score float64 = 0.0
+
+	switch ssd.Type {
+		case e.SDDTypeSATA:
+			score = float64(ssd.Reading) * READING_COEFICIENT + 
+				float64(ssd.Writing) * WRITING_COEFICIENT *
+				float64(ssd.Amount) * AMOUNT_COEFICIENT *
+				1.15
+			
+		case e.SDDTypeM2SATA:
+			score = float64(ssd.Reading) * READING_COEFICIENT + 
+				float64(ssd.Writing) * WRITING_COEFICIENT *
+				float64(ssd.Amount) * AMOUNT_COEFICIENT *
+				1.30
+
+		case e.SDDTypeM2NVMe:
+			score = float64(ssd.Reading) * READING_COEFICIENT + 
+				float64(ssd.Writing) * WRITING_COEFICIENT *
+				float64(ssd.Amount) * AMOUNT_COEFICIENT *
+				1.50			
+	}
+
+	normalizedScore := score / float64(ssd.AvgPrice)
+	finalScore := normalizedScore * 1000
 	fmt.Println(finalScore)
 
 	return int32(finalScore), nil

@@ -43,4 +43,16 @@ type BuilderPort interface {
 		ctx context.Context,
 		powerSourcesMappedByBenchmark map[uuid.UUID][]models.PowerSource,
 	) (map[uuid.UUID]models.PowerSource, error)
+
+	GetSSDByMinimumPowerAmount(
+		ctx context.Context,
+		games []models.Game,
+		benchmarks []models.Benchmark,
+	) (map[uuid.UUID][]models.SSD, error)
+
+	GetSSDByScore(
+		ctx context.Context,
+		ssdsMappedByBenchmark map[uuid.UUID][]models.SSD,
+		requestedPerformance e.ComputerPerformance,
+	) (map[uuid.UUID]models.SSD, error)
 }
