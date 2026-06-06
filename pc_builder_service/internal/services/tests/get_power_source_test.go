@@ -125,8 +125,9 @@ func TestGetPowerSourceByRecommendedPower(t *testing.T) {
 	ram_repo := &persist.RAMMemoryRepositoryImpl{DB: db.DB}
 	mother_board_repo := &persist.MotherBoardRepositoryImpl{DB: db.DB}
 	powerSourceRepo := &persist.PowerSourceRepositoryImpl{DB: db.DB}
+	ssdRepo := &persist.SSDRepositoryImpl{DB: db.DB}
 	
-	svc := services.NewBuilderService(*benchmark_repo, *cpu_repo, *gpu_repo, *ram_repo, *mother_board_repo, *powerSourceRepo)
+	svc := services.NewBuilderService(*benchmark_repo, *cpu_repo, *gpu_repo, *ram_repo, *mother_board_repo, *powerSourceRepo, *ssdRepo)
 		
 	selectedBenchmarks, err := svc.GetBenchmarksByBestScore(ctx, benchmarks, performance)
 	if err != nil{
@@ -256,8 +257,9 @@ func TestGetPowerSourceByScore(t *testing.T) {
 	ram_repo := &persist.RAMMemoryRepositoryImpl{DB: db.DB}
 	mother_board_repo := &persist.MotherBoardRepositoryImpl{DB: db.DB}
 	powerSourceRepo := &persist.PowerSourceRepositoryImpl{DB: db.DB}
+	ssdRepo := &persist.SSDRepositoryImpl{DB: db.DB}
 	
-	svc := services.NewBuilderService(*benchmark_repo, *cpu_repo, *gpu_repo, *ram_repo, *mother_board_repo, *powerSourceRepo)
+	svc := services.NewBuilderService(*benchmark_repo, *cpu_repo, *gpu_repo, *ram_repo, *mother_board_repo, *powerSourceRepo, *ssdRepo)
 		
 	selectedBenchmarks, err := svc.GetBenchmarksByBestScore(ctx, benchmarks, performance)
 	if err != nil{
