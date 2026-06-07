@@ -4,21 +4,20 @@ import (
 	"context"
 
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
-	"gorm.io/gorm"
 )
 
 type SSDRepositoryImpl struct {
-	DB *gorm.DB
+	DB *DB
 }
 
-func NewSSDRepositoryImpl(db *gorm.DB) *SSDRepositoryImpl {
+func NewSSDRepositoryImpl(db *DB) *SSDRepositoryImpl {
 	return &SSDRepositoryImpl{DB: db}
 }
 
 func (r *SSDRepositoryImpl) FindByMinimumAmount(ctx context.Context, amount int32) ([]models.SSD, error) {
 	var ssds []models.SSD
 	
-	err := r.DB.WithContext(ctx).Model(&models.SSD{}).Where("amount >= ?", amount).Find(&ssds).Error
+	err := r.DB.Gorm.WithContext(ctx).Model(&models.SSD{}).Where("amount >= ?", amount).Find(&ssds).Error
 	if err != nil {
 		err = HandleError(err)
 		return nil, err

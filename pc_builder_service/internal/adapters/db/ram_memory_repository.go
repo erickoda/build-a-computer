@@ -5,21 +5,20 @@ import (
 
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type RAMMemoryRepositoryImpl struct {
-	DB *gorm.DB
+	DB *DB
 }
 
-func NewRAMMemoryRepositoryImpl(db *gorm.DB) *RAMMemoryRepositoryImpl {
+func NewRAMMemoryRepositoryImpl(db *DB) *RAMMemoryRepositoryImpl {
 	return &RAMMemoryRepositoryImpl{DB: db}
 }
 
 func (r *RAMMemoryRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*models.RamMemory, error) {
 	var ram models.RamMemory
 	
-	result := r.DB.WithContext(ctx).First(&ram, id)
+	result := r.DB.Gorm.WithContext(ctx).First(&ram, id)
 	if result.Error != nil {
 		err := HandleError(result.Error)
 		return nil, err

@@ -3,16 +3,14 @@ package db
 import (
 	"context"
 
-	"gorm.io/gorm"
-
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
 )
 
 type PowerSourceRepositoryImpl struct {
-	DB *gorm.DB
+	DB *DB
 }
 
-func NewPowerSourceRepositoryImpl(db *gorm.DB) *PowerSourceRepositoryImpl {
+func NewPowerSourceRepositoryImpl(db *DB) *PowerSourceRepositoryImpl {
 	return &PowerSourceRepositoryImpl{DB: db}
 }
 
@@ -23,7 +21,7 @@ func (r *PowerSourceRepositoryImpl) FindByRecommendedPowerSource(
 	
 	var powerSources []models.PowerSource
 	
-	err := r.DB.WithContext(ctx).
+	err := r.DB.Gorm.WithContext(ctx).
 		Model(&models.PowerSource{}).
 		Where("power_amount IN ?", recommendedPowerSource).
 		Find(&powerSources).

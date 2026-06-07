@@ -17,12 +17,12 @@ func TestBenchmarkRepositoryFindBenchmarksByHavierGame(t *testing.T) {
 	var resolution int32 = 1080
 	ctx := context.Background()
 
-	db := &DB{}
-	if err := db.NewDataBase(); err != nil {
+	db, err := NewDataBase()
+	if err != nil {
 		t.Fatalf("failed to run migrate: %v", err)
 	}
 
-	benchmarkRepo := &BenchmarkRepositoryImpl{DB: db.DB}
+	benchmarkRepo := &BenchmarkRepositoryImpl{DB: db}
 	benchmarks, err := benchmarkRepo.FindBenchmarksByHavierGame(ctx, games, resolution)
 	if err != nil {
 		t.Fatalf("failed to find benchmarks: %v", err)
@@ -46,12 +46,12 @@ func TestMotherBoardRepositoryFindBySocketAndPCIEAndDDR(t *testing.T) {
 	ddr := "ddr4"
 	ctx := context.Background()
 
-	db := &DB{}
-	if err := db.NewDataBase(); err != nil {
+	db, err := NewDataBase()
+	if err != nil {
 		t.Fatalf("failed to run migrate: %v", err)
 	}
 
-	motherBoardRepo := &MotherBoardRepositoryImpl{DB: db.DB}
+	motherBoardRepo := &MotherBoardRepositoryImpl{DB: db}
 	motherBoards, err := motherBoardRepo.FindBySocketAndDDR(ctx, socket, ddr)
 	if err != nil {
 		t.Fatalf("failed to find mother boards: %v", err)
@@ -71,12 +71,12 @@ func TestMotherBoardRepositoryFindBySocketAndPCIEAndDDR(t *testing.T) {
 
 func TestPowerSourceRepositoryFindByRecommendedPower(t *testing.T) {
 	ctx := context.Background()
-	db := &DB{}
-	if err := db.NewDataBase(); err != nil {
+	db, err := NewDataBase()
+	if err != nil {
 		t.Fatalf("failed to run migrate: %v", err)
 	}
 
-	powerSourceRepo := &PowerSourceRepositoryImpl{DB: db.DB}
+	powerSourceRepo := &PowerSourceRepositoryImpl{DB: db}
 	powerSources, err := powerSourceRepo.FindByRecommendedPowerSource(ctx, []int32{650, 750})
 	if err != nil {
 		t.Fatalf("failed to find power sources: %v", err)
@@ -93,12 +93,12 @@ func TestPowerSourceRepositoryFindByRecommendedPower(t *testing.T) {
 func TestSDDRepositoryFindByMinimumAmount(t *testing.T) {
 	ctx := context.Background()
 	
-	db := &DB{}
-	if err := db.NewDataBase(); err != nil {
+	db, err := NewDataBase()
+	if err != nil {
 		t.Fatalf("failed to run migrate: %v", err)
 	}
 
-	ssdRepo := &SSDRepositoryImpl{DB: db.DB}
+	ssdRepo := &SSDRepositoryImpl{DB: db}
 	
 	ssds, err := ssdRepo.FindByMinimumAmount(ctx, 356)
 	if err != nil {
