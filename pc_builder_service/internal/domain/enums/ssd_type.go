@@ -2,7 +2,8 @@ package enums
 
 import (
 	"database/sql/driver"
-	"fmt"
+
+	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/errors"
 )
 
 type SSDType string
@@ -13,9 +14,22 @@ const (
 	SDDTypeM2NVMe 	SSDType = "M2 NVMe"
 )
 
+var ValidSSDType = map[string]SSDType{
+	"sata": SDDTypeSATA,
+	"m2 sata": SDDTypeM2SATA,
+	"m2 nvme": SDDTypeM2NVMe,
+}
+
+func ParseSSDType(ssdType string) (SSDType, error) {
+	if _, ok := ValidSSDType[ssdType]; !ok {
+		return "", domain.ErrSSDTypeParseError
+	}
+	return ValidSSDType[ssdType], nil
+}
+
 func (st *SSDType) Scan(value any) error {
 	if value == nil{
-		return fmt.Errorf("can not scan a nil value")
+		return domain.ErrScanNilValue
 	}
 
 	switch v := value.(type) {
@@ -25,7 +39,7 @@ func (st *SSDType) Scan(value any) error {
 		sv := string(v)
 		*st = SSDType(sv)
 	default:
-		return fmt.Errorf("failed to scan ssd type: %v", value)
+		return domain.ErrInvalidSSDTypeScan
 	}
 	
 	return nil

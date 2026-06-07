@@ -2,7 +2,8 @@ package enums
 
 import (
 	"database/sql/driver"
-	"fmt"
+
+	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/errors"
 )
 
 type ComputerPerformance string
@@ -14,9 +15,23 @@ const (
 	ComputerPerformanceUltra 	ComputerPerformance = "ultra"
 )
 
+var validComputerPerformances = map[string]ComputerPerformance{
+	"low":  ComputerPerformanceLow,
+	"medium": ComputerPerformanceMedium,
+	"high":  ComputerPerformanceHigh,
+	"ultra": ComputerPerformanceUltra,
+}
+
+func ParseComputerPerformance(s string) (ComputerPerformance, error) {
+	if p, ok := validComputerPerformances[s]; ok {
+		return p, nil
+	}
+	return "", domain.ErrPerformanceParseError
+}
+
 func (p *ComputerPerformance) Scan(value any) error {
 	if value == nil{
-		return fmt.Errorf("can not scan a nil value")
+		return domain.ErrScanNilValue
 	}
 
 	switch v := value.(type) {
@@ -26,7 +41,7 @@ func (p *ComputerPerformance) Scan(value any) error {
 		sv := string(v)
 		*p = ComputerPerformance(sv)
 	default:
-		return fmt.Errorf("failed to scan performance: %v", value)
+		return domain.ErrInvalidPerformanceScan
 	}
 	
 	return nil

@@ -2,7 +2,8 @@ package enums
 
 import (
 	"database/sql/driver"
-	"fmt"
+
+	domain "github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/errors"
 )
 
 type PowerSourceRanking string
@@ -16,9 +17,25 @@ const (
 	PowerSourceRankingTitanium 		PowerSourceRanking = "titanium"
 )
 
+var ValidPowerSourceRanking = map[string]PowerSourceRanking{
+	"white": PowerSourceRankingWhite,
+	"bronze": PowerSourceRankingBronze,
+	"silver": PowerSourceRankingSilver,
+	"gold": PowerSourceRankingGold,
+	"platinum": PowerSourceRankingPlatinum,
+	"titanium": PowerSourceRankingTitanium,
+}
+
+func ParsePowerSourceRanking(ranking string) (PowerSourceRanking, error) {
+	if _, ok := ValidPowerSourceRanking[ranking]; !ok {
+		return "", domain.ErrPowerSourceRankingParseError
+	}
+	return ValidPowerSourceRanking[ranking], nil
+}
+
 func (psur *PowerSourceRanking) Scan(value any) error {
 	if value == nil{
-		return fmt.Errorf("can not scan a nil value")
+		return domain.ErrScanNilValue
 	}
 
 	switch v := value.(type) {
@@ -28,7 +45,7 @@ func (psur *PowerSourceRanking) Scan(value any) error {
 		sv := string(v)
 		*psur = PowerSourceRanking(sv)
 	default:
-		return fmt.Errorf("failed to scan psu ranking: %v", value)
+		return domain.ErrInvalidPowerSourceScan
 	}
 	
 	return nil
