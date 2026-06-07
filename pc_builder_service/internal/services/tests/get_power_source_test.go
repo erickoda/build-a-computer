@@ -15,7 +15,7 @@ import (
 )
 
 func TestGetPowerSourceByRecommendedPower(t *testing.T) {
-	performance := e.ComputerPerformanceHigh
+	performance := "High"
 	benchTime, err := time.Parse(time.DateTime, "2026-05-29 20:55:49.821314")
 	if err != nil {
 		t.Fatalf("failed to parse time: %v", err)
@@ -126,9 +126,18 @@ func TestGetPowerSourceByRecommendedPower(t *testing.T) {
 	mother_board_repo := &persist.MotherBoardRepositoryImpl{DB: db.DB}
 	powerSourceRepo := &persist.PowerSourceRepositoryImpl{DB: db.DB}
 	ssdRepo := &persist.SSDRepositoryImpl{DB: db.DB}
+	gameRepo := &persist.GameRepositoryImpl{DB: db.DB}
 	
-	svc := services.NewBuilderService(*benchmark_repo, *cpu_repo, *gpu_repo, *ram_repo, *mother_board_repo, *powerSourceRepo, *ssdRepo)
-		
+	svc := services.NewBuilderService(*benchmark_repo, 
+		*cpu_repo, 
+		*gpu_repo, 
+		*ram_repo, 
+		*mother_board_repo, 
+		*powerSourceRepo, 
+		*ssdRepo, 
+		*gameRepo,
+	)
+	
 	selectedBenchmarks, err := svc.GetBenchmarksByBestScore(ctx, benchmarks, performance)
 	if err != nil{
 		t.Fatalf("failed to get benchmarks by best score: %v", err)
@@ -147,7 +156,7 @@ func TestGetPowerSourceByRecommendedPower(t *testing.T) {
 }
 
 func TestGetPowerSourceByScore(t *testing.T) {
-	performance := e.ComputerPerformanceHigh
+	performance := "High"
 	benchTime, err := time.Parse(time.DateTime, "2026-05-29 20:55:49.821314")
 	if err != nil {
 		t.Fatalf("failed to parse time: %v", err)
@@ -259,8 +268,18 @@ func TestGetPowerSourceByScore(t *testing.T) {
 	powerSourceRepo := &persist.PowerSourceRepositoryImpl{DB: db.DB}
 	ssdRepo := &persist.SSDRepositoryImpl{DB: db.DB}
 	
-	svc := services.NewBuilderService(*benchmark_repo, *cpu_repo, *gpu_repo, *ram_repo, *mother_board_repo, *powerSourceRepo, *ssdRepo)
-		
+	gameRepo := &persist.GameRepositoryImpl{DB: db.DB}
+	
+	svc := services.NewBuilderService(*benchmark_repo, 
+		*cpu_repo, 
+		*gpu_repo, 
+		*ram_repo, 
+		*mother_board_repo, 
+		*powerSourceRepo, 
+		*ssdRepo, 
+		*gameRepo,
+	)
+	
 	selectedBenchmarks, err := svc.GetBenchmarksByBestScore(ctx, benchmarks, performance)
 	if err != nil{
 		t.Fatalf("failed to get benchmarks by best score: %v", err)

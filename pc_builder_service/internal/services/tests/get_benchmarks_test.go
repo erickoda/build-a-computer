@@ -200,10 +200,19 @@ func TestBenchmarkByBestScore(t *testing.T) {
 	mother_board_repo := &persist.MotherBoardRepositoryImpl{DB: db.DB}
 	powerSourceRepo := &persist.PowerSourceRepositoryImpl{DB: db.DB}
 	ssdRepo := &persist.SSDRepositoryImpl{DB: db.DB}
+	gameRepo := &persist.GameRepositoryImpl{DB: db.DB}
 	
-	svc := services.NewBuilderService(*benchmark_repo, *cpu_repo, *gpu_repo, *ram_repo, *mother_board_repo, *powerSourceRepo, *ssdRepo)
+	svc := services.NewBuilderService(*benchmark_repo, 
+		*cpu_repo, 
+		*gpu_repo, 
+		*ram_repo, 
+		*mother_board_repo, 
+		*powerSourceRepo, 
+		*ssdRepo, 
+		*gameRepo,
+	)
 		
-	selectedBenchmarks, err := svc.GetBenchmarksByBestScore(ctx, benchmarks, e.ComputerPerformanceMedium)
+	selectedBenchmarks, err := svc.GetBenchmarksByBestScore(ctx, benchmarks, "high")
 	if err != nil{
 		t.Fatalf("failed to get benchmarks by best score: %v", err)
 	}
