@@ -42,7 +42,7 @@ func main() {
 	defer recoverServer()
 
 	db := &persist.DB{}
-	if err := db.New_data_base(); err != nil {
+	if err := db.NewDataBase(); err != nil {
 		log.Fatal(err)
 	}
 	

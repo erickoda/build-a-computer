@@ -151,7 +151,7 @@ func TestGetSSDByMinimumPowerAmount(t *testing.T) {
 	ctx := context.Background()
 
 	db := &persist.DB{}
-	if err := db.New_data_base(); err != nil {
+	if err := db.NewDataBase(); err != nil {
 		t.Fatalf("failed to run migrate: %v", err)
 	}
 	defer db.Close()
@@ -325,7 +325,7 @@ func TestGetSSDByScore(t *testing.T) {
 	ctx := context.Background()
 
 	db := &persist.DB{}
-	if err := db.New_data_base(); err != nil {
+	if err := db.NewDataBase(); err != nil {
 		t.Fatalf("failed to run migrate: %v", err)
 	}
 	defer db.Close()

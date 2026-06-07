@@ -13,7 +13,7 @@ import (
 	_ "embed"
 )
 
-type DB_config struct {
+type DBConfig struct {
 	Host     string
 	Port     int32
 	Username string
@@ -26,7 +26,7 @@ type DB struct {
 	DB *gorm.DB
 }
 
-func (bd *DB) New_data_base()  error {
+func (bd *DB) NewDataBase()  error {
 	gorm_config := &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 		SkipDefaultTransaction: true,
@@ -72,7 +72,7 @@ func load_DB_config() (string, error) {
 	db_name := os.Getenv("PGDATABASE")
 	ssl_mode := os.Getenv("PGSSLMODE")
 	
-	config := DB_config{
+	config := DBConfig{
 		Host:     host,
 		Port:     int32(port),
 		Username: username,

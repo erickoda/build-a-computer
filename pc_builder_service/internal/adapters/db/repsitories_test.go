@@ -18,7 +18,7 @@ func TestBenchmarkRepositoryFindBenchmarksByHavierGame(t *testing.T) {
 	ctx := context.Background()
 
 	db := &DB{}
-	if err := db.New_data_base(); err != nil {
+	if err := db.NewDataBase(); err != nil {
 		t.Fatalf("failed to run migrate: %v", err)
 	}
 
@@ -47,7 +47,7 @@ func TestMotherBoardRepositoryFindBySocketAndPCIEAndDDR(t *testing.T) {
 	ctx := context.Background()
 
 	db := &DB{}
-	if err := db.New_data_base(); err != nil {
+	if err := db.NewDataBase(); err != nil {
 		t.Fatalf("failed to run migrate: %v", err)
 	}
 
@@ -72,7 +72,7 @@ func TestMotherBoardRepositoryFindBySocketAndPCIEAndDDR(t *testing.T) {
 func TestPowerSourceRepositoryFindByRecommendedPower(t *testing.T) {
 	ctx := context.Background()
 	db := &DB{}
-	if err := db.New_data_base(); err != nil {
+	if err := db.NewDataBase(); err != nil {
 		t.Fatalf("failed to run migrate: %v", err)
 	}
 
@@ -94,7 +94,7 @@ func TestSDDRepositoryFindByMinimumAmount(t *testing.T) {
 	ctx := context.Background()
 	
 	db := &DB{}
-	if err := db.New_data_base(); err != nil {
+	if err := db.NewDataBase(); err != nil {
 		t.Fatalf("failed to run migrate: %v", err)
 	}
 
