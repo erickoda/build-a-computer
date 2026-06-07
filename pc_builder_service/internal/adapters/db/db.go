@@ -18,37 +18,36 @@ type DBConfig struct {
 	Port     int32
 	Username string
 	Password string
-	DB_name   string
-	SSL_mode string
+	DBName   string
+	SSLMode string
 }
 
 type DB struct {
-	DB *gorm.DB
+	Gorm *gorm.DB
 }
 
-func (bd *DB) NewDataBase()  error {
+func NewDataBase() (*DB, error) {
 	gorm_config := &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 		SkipDefaultTransaction: true,
 		PrepareStmt: true,
 	}
 
-	dns, err := load_DB_config()
+	dns, err := loadDBConfig()
 	if err != nil {
-		return fmt.Errorf("failed to load DB config: %w", err)
+		return nil, fmt.Errorf("failed to load DB config: %w", err)
 	}
 
 	db, err := gorm.Open(postgres.Open(dns), gorm_config)
 	if err != nil{
-		return fmt.Errorf("failed to connect to database: %w", err)
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	bd.DB = db
-	return nil
+	return &DB{Gorm: db}, nil
 }
 
 func (db *DB) Close() {
-	sqlDB, err := db.DB.DB()
+	sqlDB, err := db.Gorm.DB()
 	if err != nil {
 		return
 	}
@@ -56,10 +55,10 @@ func (db *DB) Close() {
 }
 
 func (db *DB) Get() *gorm.DB {
-	return db.DB
+	return db.Gorm
 }
 
-func load_DB_config() (string, error) {
+func loadDBConfig() (string, error) {
 	err := godotenv.Load()
 	if err != nil {
 		return "", fmt.Errorf("failed to load .env file: %w", err)
@@ -77,8 +76,8 @@ func load_DB_config() (string, error) {
 		Port:     int32(port),
 		Username: username,
 		Password: password,
-		DB_name:  db_name,
-		SSL_mode: ssl_mode,
+		DBName:   db_name,
+		SSLMode:  ssl_mode,
 	}
 
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
@@ -86,7 +85,7 @@ func load_DB_config() (string, error) {
 		config.Port, 
 		config.Username, 
 		config.Password, 
-		config.DB_name, 
-		config.SSL_mode,
+		config.DBName, 
+		config.SSLMode,
 	), nil
 }
