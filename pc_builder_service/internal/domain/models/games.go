@@ -18,7 +18,7 @@ type Game struct {
 	UpdatedAt 					time.Time 					`gorm:"type:timestamp"`
 }
 
-func Parse_ID(ids ...string) ([]uuid.UUID, error) {
+func ParseID(ids ...string) ([]uuid.UUID, error) {
 	var parsedIDs []uuid.UUID
 	
 	for _, id := range ids {
