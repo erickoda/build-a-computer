@@ -3,18 +3,37 @@ package ports
 import (
 	"context"
 
-	e "github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/enums"
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
 	"github.com/google/uuid"
 )
 
 type BuilderPort interface {
+	GetCPUsByID(
+		ctx context.Context, 
+		benchmarks []models.Benchmark,
+	) (map[uuid.UUID]models.CPU, error)
+	
+	GetGPUsByID(
+		ctx context.Context,
+		benchmarks []models.Benchmark,
+	) (map[uuid.UUID]models.GPU, error)
+	
+	GetRAMsByID(
+		ctx context.Context,
+		benchmarks []models.Benchmark,
+	) (map[uuid.UUID]models.RamMemory, error)
+
+	GetGameByID(
+		ctx context.Context,
+		gamesIDs []string,
+	) ([]models.Game, error)
+	
 	GetBenchmarksByHavierGame(ctx context.Context, games []string, resolution int32) ([]models.Benchmark, error)
 	
 	GetBenchmarksByBestScore(
 		ctx context.Context, 
 		benchmarks []models.Benchmark,
-		requestedPerformance e.ComputerPerformance,
+		performance string,
 	) ([]models.Benchmark, error)
 
 	GetMotherBoardBySocketAndDDR(
@@ -27,11 +46,10 @@ type BuilderPort interface {
 	GetMotherBoardsByScore(
 		ctx context.Context,
 		motherBoardsMappedBySocketAndDDR map[string]map[uuid.UUID][]models.MotherBoard,
-		requestedPerformance e.ComputerPerformance,
+		performance string,
 	) (map[uuid.UUID]models.MotherBoard, error)
 
 	GetBenchmarksSockets(ctx context.Context, benchmarks []models.Benchmark) ([]string, error)
-	GetBenchmarksPCIExpress(ctx context.Context, benchmarks []models.Benchmark) ([]int32, error)
 	GetBenchmarksDDRs(ctx context.Context, benchmarks []models.Benchmark) ([]string, error)
 
 	GetPowerSourcesByRecommendedPower(
@@ -53,6 +71,15 @@ type BuilderPort interface {
 	GetSSDByScore(
 		ctx context.Context,
 		ssdsMappedByBenchmark map[uuid.UUID][]models.SSD,
-		requestedPerformance e.ComputerPerformance,
+		performance string,
 	) (map[uuid.UUID]models.SSD, error)
+
+	CreatePCs(
+		cpu map[uuid.UUID]models.CPU,
+		gpu map[uuid.UUID]models.GPU,
+		ram map[uuid.UUID]models.RamMemory,
+		motherBoard map[uuid.UUID]models.MotherBoard,
+		powerSource map[uuid.UUID]models.PowerSource,
+		ssd map[uuid.UUID]models.SSD,
+	) []models.PC
 }
