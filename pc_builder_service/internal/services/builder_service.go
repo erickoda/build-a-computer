@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"slices"
+	"strings"
 	"time"
 
 	repository "github.com/erickoda/build-a-computer/pc_builder_service/internal/adapters/db"
@@ -23,6 +24,7 @@ type BuilderService struct {
 	MotherBoardRepo repository.MotherBoardRepositoryImpl
 	PowerSourceRepo repository.PowerSourceRepositoryImpl
 	SSDRepo repository.SSDRepositoryImpl
+	GameRepo repository.GameRepositoryImpl
 }
 
 func NewBuilderService(
@@ -33,6 +35,7 @@ func NewBuilderService(
 	motherBoardRepoImpl repository.MotherBoardRepositoryImpl,
 	powerSourceRepoImpl repository.PowerSourceRepositoryImpl,
 	ssdRepoImpl repository.SSDRepositoryImpl,
+	gameRepoImpl repository.GameRepositoryImpl,
 )  ports.BuilderPort {
 	
 	return &BuilderService{
@@ -43,7 +46,88 @@ func NewBuilderService(
 		MotherBoardRepo: motherBoardRepoImpl,
 		PowerSourceRepo: powerSourceRepoImpl,
 		SSDRepo: ssdRepoImpl,
+		GameRepo: gameRepoImpl,
 	}
+}
+
+func (s *BuilderService) GetCPUsByID(
+	ctx context.Context,
+	benchmarks []models.Benchmark,
+) (map[uuid.UUID]models.CPU, error) {
+	
+	cpuMappedByBenchmark := make(map[uuid.UUID]models.CPU)
+	
+	for _, benchmark := range benchmarks {
+		CPU, err := s.CPURepo.FindByID(ctx, benchmark.CPUId)
+		if err != nil {
+			return nil, err
+		}
+		
+		cpuMappedByBenchmark[benchmark.ID] = *CPU
+	}
+	
+	return cpuMappedByBenchmark, nil
+}
+
+func (s *BuilderService) GetGPUsByID(
+	ctx context.Context,
+	benchmarks []models.Benchmark,
+) (map[uuid.UUID]models.GPU, error) {
+	
+	gpuMappedByBenchmark := make(map[uuid.UUID]models.GPU)
+	
+	for _, benchmark := range benchmarks {
+		GPU, err := s.GPURepo.FindByID(ctx, benchmark.GPUId)
+		if err != nil {
+			return nil, err
+		}
+		
+		gpuMappedByBenchmark[benchmark.ID] = *GPU
+	}
+	
+	return gpuMappedByBenchmark, nil
+}
+
+func (s *BuilderService) GetRAMsByID(
+	ctx context.Context,
+	benchmarks []models.Benchmark,
+) (map[uuid.UUID]models.RamMemory, error) {
+	
+	ramMappedByBenchmark := make(map[uuid.UUID]models.RamMemory)
+	
+	for _, benchmark := range benchmarks {
+		RAM, err := s.RAMRepo.FindByID(ctx, benchmark.RAMId)
+		if err != nil {
+			return nil, err
+		}
+		
+		ramMappedByBenchmark[benchmark.ID] = *RAM
+	}
+	
+	return ramMappedByBenchmark, nil
+}
+
+func (s *BuilderService) GetGameByID(
+	ctx context.Context,
+	gamesIDs []string,
+) ([]models.Game, error) {
+	
+	gamesParsed, err := models.ParseID(gamesIDs...)
+	if err != nil {
+		return nil, err
+	}
+	
+	games := make([]models.Game, 0, len(gamesParsed))
+	
+	for _, gameId := range gamesParsed {
+		game, err := s.GameRepo.FindByID(ctx, gameId)
+		if err != nil {
+			return nil, err
+		}
+		games = append(games, *game)
+	}
+	
+	return games, nil
 }
 
 func (s *BuilderService) GetBenchmarksByHavierGame(
@@ -52,7 +136,7 @@ func (s *BuilderService) GetBenchmarksByHavierGame(
 	resolution int32,
 ) ([]models.Benchmark, error) {
 		
-	gamesParsed, err := models.Parse_ID(games...)
+	gamesParsed, err := models.ParseID(games...)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +155,7 @@ func (s *BuilderService) GetBenchmarksByHavierGame(
 func (s *BuilderService) GetBenchmarksByBestScore(
 	ctx context.Context, 
 	benchmarks []models.Benchmark,
-	requestedPerformance e.ComputerPerformance,
+	performance string,
 ) ([]models.Benchmark, error) {
 
 	const NUMBER_OF_SELECTED_BENCHMARKS = 1
@@ -81,6 +165,12 @@ func (s *BuilderService) GetBenchmarksByBestScore(
 	var performanceQuartileCeil float64
 	var size = len(benchmarks)
 	var selectedBenchmarks []models.Benchmark
+
+	requestedPerformance, err := e.ParseComputerPerformance(strings.ToLower(performance))
+	if err != nil {
+		return nil, err
+	}
+	
 
 	for i := range benchmarks {
 		if benchmarks[i].Score > 0 {
@@ -133,50 +223,54 @@ func (s *BuilderService) GetBenchmarksByBestScore(
 	switch requestedPerformance {
 	case e.ComputerPerformanceLow:
 		performanceQuartileCeil = 0.30
+		
+		if len(benchmarks) <= NUMBER_OF_SELECTED_BENCHMARKS {
+			return benchmarks, nil
+		}
 
 		ceilIndex := (int(math.Floor(float64(size) * performanceQuartileCeil)))
 		benchmarks = benchmarks[:ceilIndex]
 
 		selectedBenchmarks = benchmarks[:NUMBER_OF_SELECTED_BENCHMARKS]
-
-		if len(benchmarks) < NUMBER_OF_SELECTED_BENCHMARKS {
-			return benchmarks, nil
-		}
 		
 	case e.ComputerPerformanceMedium:
 		performanceQuartileFloor = 0.30
 		performanceQuartileCeil = 0.60
 
-		floorIndex := (int(math.Ceil(float64(size) * performanceQuartileFloor)))
+		if len(benchmarks) <= NUMBER_OF_SELECTED_BENCHMARKS {
+			return benchmarks, nil
+		}
+
+		floorIndex := (int(math.Floor(float64(size) * performanceQuartileFloor)))
 		ceilIndex := (int(math.Floor(float64(size) * performanceQuartileCeil)))
 		
 		benchmarks = benchmarks[floorIndex:ceilIndex]
 
 		selectedBenchmarks = benchmarks[:NUMBER_OF_SELECTED_BENCHMARKS]
-
-		if len(benchmarks) < NUMBER_OF_SELECTED_BENCHMARKS {
-			return benchmarks, nil
-		}
 		
 	case e.ComputerPerformanceHigh:
 		performanceQuartileFloor = 0.60
 		performanceQuartileCeil = 0.90
 
-		floorIndex := int(math.Ceil(float64(size) * performanceQuartileFloor))
+		if len(benchmarks) <= NUMBER_OF_SELECTED_BENCHMARKS {
+			return benchmarks, nil
+		}
+
+		floorIndex := int(math.Floor(float64(size) * performanceQuartileFloor))
 		ceilIndex := int(math.Floor(float64(size) * performanceQuartileCeil))
 		
 		benchmarks = benchmarks[floorIndex:ceilIndex]
-
+		
 		selectedBenchmarks = benchmarks[:NUMBER_OF_SELECTED_BENCHMARKS]
-
-		if len(benchmarks) < NUMBER_OF_SELECTED_BENCHMARKS {
-			return benchmarks, nil
-		}
 		
 	case e.ComputerPerformanceUltra:
 		performanceQuartileFloor = 0.90
 
-		floorIndex := (int(math.Ceil(float64(size) * performanceQuartileFloor)))
+		if len(benchmarks) <= NUMBER_OF_SELECTED_BENCHMARKS {
+			return benchmarks, nil
+		}
+
+		floorIndex := (int(math.Floor(float64(size) * performanceQuartileFloor)))
 		if floorIndex == size {
 			selectedBenchmarks = append(selectedBenchmarks, benchmarks[size-1])
 			break
@@ -186,9 +280,6 @@ func (s *BuilderService) GetBenchmarksByBestScore(
 
 		selectedBenchmarks = benchmarks[:NUMBER_OF_SELECTED_BENCHMARKS]
 		
-		if len(benchmarks) < NUMBER_OF_SELECTED_BENCHMARKS {
-			return benchmarks, nil
-		}
 	}
 
 	return selectedBenchmarks, nil
@@ -208,22 +299,6 @@ func (s *BuilderService) GetBenchmarksSockets(ctx context.Context, benchmarks []
 	}
 
 	return sockets, nil
-}
-
-func (s *BuilderService) GetBenchmarksPCIExpress(ctx context.Context, benchmarks []models.Benchmark) ([]int32, error) {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-	
-	var pcie []int32
-	for _, benchmark := range benchmarks {
-		GPU, err := s.GPURepo.FindByID(ctx, benchmark.GPUId)
-		if err != nil {
-			return nil, err
-		}
-		pcie = append(pcie, GPU.PciExpress)
-	}
-
-	return pcie, nil
 }
 
 func (s *BuilderService) GetBenchmarksDDRs(ctx context.Context, benchmarks []models.Benchmark) ([]string, error) {
@@ -250,8 +325,12 @@ func (s *BuilderService) GetMotherBoardBySocketAndDDR(
 ) (map[string]map[uuid.UUID][]models.MotherBoard, error) {
 
 	var size int = len(selectedBenchmarks)
-	motherBoardsMapedBySocketAndDDR := make(map[string]map[uuid.UUID][]models.MotherBoard)
-	
+	motherBoardsMappedBySocketAndDDR := make(map[string]map[uuid.UUID][]models.MotherBoard)
+
+	if size != len(sockets) {
+		return nil, fmt.Errorf("sockets and benchmarks slices must have the same length")
+	}
+
 	if size != len(ddr) {
 		return nil, fmt.Errorf("socket and ddr slices must have the same length")
 	}
@@ -266,25 +345,30 @@ func (s *BuilderService) GetMotherBoardBySocketAndDDR(
 		}
 
 		key := sockets[i] + "-" + ddr[i]
-		if _, ok := motherBoardsMapedBySocketAndDDR[key]; !ok {
-			motherBoardsMapedBySocketAndDDR[key] = make(map[uuid.UUID][]models.MotherBoard)
+		if _, ok := motherBoardsMappedBySocketAndDDR[key]; !ok {
+			motherBoardsMappedBySocketAndDDR[key] = make(map[uuid.UUID][]models.MotherBoard)
 		}
-		motherBoardsMapedBySocketAndDDR[key][selectedBenchmarks[i].ID] = mbs
+		motherBoardsMappedBySocketAndDDR[key][selectedBenchmarks[i].ID] = mbs
 	}
 
-	return motherBoardsMapedBySocketAndDDR, nil
+	return motherBoardsMappedBySocketAndDDR, nil
 }
 
 func (s *BuilderService) GetMotherBoardsByScore(
 	ctx context.Context,
 	motherBoardsMappedBySocketAndDDR map[string]map[uuid.UUID][]models.MotherBoard,
-	requestedPerformance e.ComputerPerformance, 
+	performance string, 
 ) (map[uuid.UUID]models.MotherBoard, error) {
 
 	var motherBoardQuartile float64
 
 	var motherBoardsByScore map[uuid.UUID]models.MotherBoard = make(map[uuid.UUID]models.MotherBoard)
 	var err error
+
+	requestedPerformance, err := e.ParseComputerPerformance(strings.ToLower(performance))
+	if err != nil {
+		return nil, err
+	}
 	
 	for key := range motherBoardsMappedBySocketAndDDR {
 		for benchmarkID := range motherBoardsMappedBySocketAndDDR[key] {
@@ -301,6 +385,7 @@ func (s *BuilderService) GetMotherBoardsByScore(
 			}
 		}
 	}
+	
 
 	for key := range motherBoardsMappedBySocketAndDDR {
 		for benchmarkID := range motherBoardsMappedBySocketAndDDR[key] {
@@ -462,12 +547,14 @@ func (s *BuilderService) GetSSDByMinimumPowerAmount(
 func (s *BuilderService) GetSSDByScore(
 	ctx context.Context,
 	ssdsMappedByBenchmark map[uuid.UUID][]models.SSD,
-	requestedPerformance e.ComputerPerformance,
+	performance string,
 ) (map[uuid.UUID]models.SSD, error) {
 
 	ssdMappedByBenchmark := make(map[uuid.UUID]models.SSD)
-	
-	var err error
+	requestedPerformance, err := e.ParseComputerPerformance(strings.ToLower(performance))
+	if err != nil {
+		return nil, err
+	}
 	
 	for benchmarkID := range ssdsMappedByBenchmark {
 		for i := range ssdsMappedByBenchmark[benchmarkID] {
@@ -519,6 +606,32 @@ func (s *BuilderService) GetSSDByScore(
 	return ssdMappedByBenchmark, nil
 }
 
+func (s *BuilderService) CreatePCs(
+	cpu map[uuid.UUID]models.CPU,
+	gpu map[uuid.UUID]models.GPU,
+	ram map[uuid.UUID]models.RamMemory,
+	motherBoard map[uuid.UUID]models.MotherBoard,
+	powerSource map[uuid.UUID]models.PowerSource,
+	ssd map[uuid.UUID]models.SSD,
+) []models.PC {
+	
+	var PCs []models.PC
+
+	for id := range cpu {
+		PC := models.PC {
+			CPU:         		cpu[id],
+			GPU:         		gpu[id],
+			RAMMemory:         	ram[id],
+			MotherBoard: 		motherBoard[id],
+			PowerSource: 		powerSource[id],
+			SSD:         		ssd[id],
+		}
+		PCs = append(PCs, PC)
+	}
+	
+	return PCs
+}
+
 func calculatePerformanceScore(
 	ctx context.Context,
 	benchmark models.Benchmark,
@@ -527,7 +640,7 @@ func calculatePerformanceScore(
 ) (int32, error) {
 	
 	var score int32 = int32(benchmark.AvgFps) * performanceWeight
-	ctx, cancel := context.WithTimeout(ctx, 500*time.Millisecond)
+	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
 	CPU, err := s.CPURepo.FindByID(ctx, benchmark.CPUId)
@@ -666,7 +779,6 @@ func calculateSDDScore(ssd models.SSD) (int32, error) {
 
 	normalizedScore := score / float64(ssd.AvgPrice)
 	finalScore := normalizedScore * 1000
-	fmt.Println(finalScore)
 
 	return int32(finalScore), nil
 }
