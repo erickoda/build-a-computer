@@ -28,25 +28,25 @@ type BuilderService struct {
 }
 
 func NewBuilderService(
-	benchmarkRepoImpl repository.BenchmarkRepositoryImpl, 
-	cpuRepoImpl repository.CPURepositoryImpl,
-	gpuRepoImpl repository.GPURepositoryImpl,
-	ramRepoImpl repository.RAMMemoryRepositoryImpl,
-	motherBoardRepoImpl repository.MotherBoardRepositoryImpl,
-	powerSourceRepoImpl repository.PowerSourceRepositoryImpl,
-	ssdRepoImpl repository.SSDRepositoryImpl,
-	gameRepoImpl repository.GameRepositoryImpl,
+	benchmarkRepoImpl *repository.BenchmarkRepositoryImpl, 
+	cpuRepoImpl *repository.CPURepositoryImpl,
+	gpuRepoImpl *repository.GPURepositoryImpl,
+	ramRepoImpl *repository.RAMMemoryRepositoryImpl,
+	motherBoardRepoImpl *repository.MotherBoardRepositoryImpl,
+	powerSourceRepoImpl *repository.PowerSourceRepositoryImpl,
+	ssdRepoImpl *repository.SSDRepositoryImpl,
+	gameRepoImpl *repository.GameRepositoryImpl,
 )  ports.BuilderPort {
 	
 	return &BuilderService{
-		BenchmarkRepo: benchmarkRepoImpl,
-		CPURepo: cpuRepoImpl,
-		GPURepo: gpuRepoImpl,
-		RAMRepo: ramRepoImpl,
-		MotherBoardRepo: motherBoardRepoImpl,
-		PowerSourceRepo: powerSourceRepoImpl,
-		SSDRepo: ssdRepoImpl,
-		GameRepo: gameRepoImpl,
+		BenchmarkRepo: *benchmarkRepoImpl,
+		CPURepo: *cpuRepoImpl,
+		GPURepo: *gpuRepoImpl,
+		RAMRepo: *ramRepoImpl,
+		MotherBoardRepo: *motherBoardRepoImpl,
+		PowerSourceRepo: *powerSourceRepoImpl,
+		SSDRepo: *ssdRepoImpl,
+		GameRepo: *gameRepoImpl,
 	}
 }
 

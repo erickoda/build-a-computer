@@ -113,29 +113,30 @@ func TestGetMotherBoardBySocketAndPCIEAndDDR(t *testing.T) {
 
 	ctx := context.Background()
 
-	db := &persist.DB{}
-	if err := db.NewDataBase(); err != nil {
+	db, err := persist.NewDataBase()
+	if err != nil {
 		t.Fatalf("failed to run migrate: %v", err)
 	}
 	defer db.Close()
 
-	benchmark_repo := &persist.BenchmarkRepositoryImpl{DB: db.DB}
-	cpu_repo := &persist.CPURepositoryImpl{DB: db.DB}
-	gpu_repo := &persist.GPURepositoryImpl{DB: db.DB}
-	ram_repo := &persist.RAMMemoryRepositoryImpl{DB: db.DB}
-	mother_board_repo := &persist.MotherBoardRepositoryImpl{DB: db.DB}
-	powerSourceRepo := &persist.PowerSourceRepositoryImpl{DB: db.DB}
-	ssdRepo := &persist.SSDRepositoryImpl{DB: db.DB}
-	gameRepo := &persist.GameRepositoryImpl{DB: db.DB}
+	benchmark_repo := &persist.BenchmarkRepositoryImpl{DB: db}
+	cpu_repo := &persist.CPURepositoryImpl{DB: db}
+	gpu_repo := &persist.GPURepositoryImpl{DB: db}
+	ram_repo := &persist.RAMMemoryRepositoryImpl{DB: db}
+	mother_board_repo := &persist.MotherBoardRepositoryImpl{DB: db}
+	powerSourceRepo := &persist.PowerSourceRepositoryImpl{DB: db}
+	ssdRepo := &persist.SSDRepositoryImpl{DB: db}
+	gameRepo := &persist.GameRepositoryImpl{DB: db}
 	
-	svc := services.NewBuilderService(*benchmark_repo, 
-		*cpu_repo, 
-		*gpu_repo, 
-		*ram_repo, 
-		*mother_board_repo, 
-		*powerSourceRepo, 
-		*ssdRepo, 
-		*gameRepo,
+	svc := services.NewBuilderService(
+		benchmark_repo, 
+		cpu_repo, 
+		gpu_repo, 
+		ram_repo, 
+		mother_board_repo, 
+		powerSourceRepo, 
+		ssdRepo, 
+		gameRepo,
 	)
 	
 	motherBoards, err := svc.GetMotherBoardBySocketAndDDR(ctx, []string{"LGA1700"}, []string{"ddr4"}, benchmarks)
@@ -249,29 +250,30 @@ func TestGetMotherBoardByScore(t *testing.T) {
 
 	ctx := context.Background()
 
-	db := &persist.DB{}
-	if err := db.NewDataBase(); err != nil {
+	db, err := persist.NewDataBase()
+	if err != nil {
 		t.Fatalf("failed to run migrate: %v", err)
 	}
 	defer db.Close()
 	
-	benchmark_repo := &persist.BenchmarkRepositoryImpl{DB: db.DB}
-	cpu_repo := &persist.CPURepositoryImpl{DB: db.DB}
-	gpu_repo := &persist.GPURepositoryImpl{DB: db.DB}
-	ram_repo := &persist.RAMMemoryRepositoryImpl{DB: db.DB}
-	mother_board_repo := &persist.MotherBoardRepositoryImpl{DB: db.DB}
-	powerSourceRepo := &persist.PowerSourceRepositoryImpl{DB: db.DB}
-	ssdRepo := &persist.SSDRepositoryImpl{DB: db.DB}
-	gameRepo := &persist.GameRepositoryImpl{DB: db.DB}
+	benchmark_repo := &persist.BenchmarkRepositoryImpl{DB: db}
+	cpu_repo := &persist.CPURepositoryImpl{DB: db}
+	gpu_repo := &persist.GPURepositoryImpl{DB: db}
+	ram_repo := &persist.RAMMemoryRepositoryImpl{DB: db}
+	mother_board_repo := &persist.MotherBoardRepositoryImpl{DB: db}
+	powerSourceRepo := &persist.PowerSourceRepositoryImpl{DB: db}
+	ssdRepo := &persist.SSDRepositoryImpl{DB: db}
+	gameRepo := &persist.GameRepositoryImpl{DB: db}
 	
-	svc := services.NewBuilderService(*benchmark_repo, 
-		*cpu_repo, 
-		*gpu_repo, 
-		*ram_repo, 
-		*mother_board_repo, 
-		*powerSourceRepo, 
-		*ssdRepo, 
-		*gameRepo,
+	svc := services.NewBuilderService(
+		benchmark_repo, 
+		cpu_repo, 
+		gpu_repo, 
+		ram_repo, 
+		mother_board_repo, 
+		powerSourceRepo, 
+		ssdRepo, 
+		gameRepo,
 	)
 	
 	selectedBenchmarks, err := svc.GetBenchmarksByBestScore(ctx, benchmarks, performance)
