@@ -21,61 +21,12 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type ComputerPerformance int32
-
-const (
-	ComputerPerformance_COMPUTER_PERFORMANCE_LOW_UNSPECIFIED ComputerPerformance = 0
-	ComputerPerformance_COMPUTER_PERFORMANCE_MEDIUM          ComputerPerformance = 1
-	ComputerPerformance_COMPUTER_PERFORMANCE_HIGH            ComputerPerformance = 2
-)
-
-// Enum value maps for ComputerPerformance.
-var (
-	ComputerPerformance_name = map[int32]string{
-		0: "COMPUTER_PERFORMANCE_LOW_UNSPECIFIED",
-		1: "COMPUTER_PERFORMANCE_MEDIUM",
-		2: "COMPUTER_PERFORMANCE_HIGH",
-	}
-	ComputerPerformance_value = map[string]int32{
-		"COMPUTER_PERFORMANCE_LOW_UNSPECIFIED": 0,
-		"COMPUTER_PERFORMANCE_MEDIUM":          1,
-		"COMPUTER_PERFORMANCE_HIGH":            2,
-	}
-)
-
-func (x ComputerPerformance) Enum() *ComputerPerformance {
-	p := new(ComputerPerformance)
-	*p = x
-	return p
-}
-
-func (x ComputerPerformance) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (ComputerPerformance) Descriptor() protoreflect.EnumDescriptor {
-	return file_builder_proto_enumTypes[0].Descriptor()
-}
-
-func (ComputerPerformance) Type() protoreflect.EnumType {
-	return &file_builder_proto_enumTypes[0]
-}
-
-func (x ComputerPerformance) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use ComputerPerformance.Descriptor instead.
-func (ComputerPerformance) EnumDescriptor() ([]byte, []int) {
-	return file_builder_proto_rawDescGZIP(), []int{0}
-}
-
 type BuildPCRequest struct {
 	state               protoimpl.MessageState `protogen:"open.v1"`
 	Games               []string               `protobuf:"bytes,1,rep,name=games,proto3" json:"games,omitempty"`
 	MaxPrice            float32                `protobuf:"fixed32,2,opt,name=max_price,json=maxPrice,proto3" json:"max_price,omitempty"`
 	Resolution          int32                  `protobuf:"varint,3,opt,name=resolution,proto3" json:"resolution,omitempty"`
-	ComputerPerformance ComputerPerformance    `protobuf:"varint,4,opt,name=computer_performance,json=computerPerformance,proto3,enum=pkg.proto.ComputerPerformance" json:"computer_performance,omitempty"`
+	ComputerPerformance string                 `protobuf:"bytes,4,opt,name=computer_performance,json=computerPerformance,proto3" json:"computer_performance,omitempty"`
 	unknownFields       protoimpl.UnknownFields
 	sizeCache           protoimpl.SizeCache
 }
@@ -131,11 +82,11 @@ func (x *BuildPCRequest) GetResolution() int32 {
 	return 0
 }
 
-func (x *BuildPCRequest) GetComputerPerformance() ComputerPerformance {
+func (x *BuildPCRequest) GetComputerPerformance() string {
 	if x != nil {
 		return x.ComputerPerformance
 	}
-	return ComputerPerformance_COMPUTER_PERFORMANCE_LOW_UNSPECIFIED
+	return ""
 }
 
 type BuildPCResponse struct {
@@ -189,6 +140,7 @@ type PC struct {
 	Ram           *RAMMemory             `protobuf:"bytes,3,opt,name=ram,proto3" json:"ram,omitempty"`
 	MotherBoard   *MotherBoard           `protobuf:"bytes,4,opt,name=mother_board,json=motherBoard,proto3" json:"mother_board,omitempty"`
 	Psu           *PowerSource           `protobuf:"bytes,5,opt,name=psu,proto3" json:"psu,omitempty"`
+	Ssd           *SSD                   `protobuf:"bytes,6,opt,name=ssd,proto3" json:"ssd,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -258,30 +210,34 @@ func (x *PC) GetPsu() *PowerSource {
 	return nil
 }
 
+func (x *PC) GetSsd() *SSD {
+	if x != nil {
+		return x.Ssd
+	}
+	return nil
+}
+
 var File_builder_proto protoreflect.FileDescriptor
 
 const file_builder_proto_rawDesc = "" +
 	"\n" +
-	"\rbuilder.proto\x12\tpkg.proto\x1a\x0fhardwares.proto\"\xb6\x01\n" +
+	"\rbuilder.proto\x12\tpkg.proto\x1a\x0fhardwares.proto\"\x96\x01\n" +
 	"\x0eBuildPCRequest\x12\x14\n" +
 	"\x05games\x18\x01 \x03(\tR\x05games\x12\x1b\n" +
 	"\tmax_price\x18\x02 \x01(\x02R\bmaxPrice\x12\x1e\n" +
 	"\n" +
 	"resolution\x18\x03 \x01(\x05R\n" +
-	"resolution\x12Q\n" +
-	"\x14computer_performance\x18\x04 \x01(\x0e2\x1e.pkg.proto.ComputerPerformanceR\x13computerPerformance\"0\n" +
+	"resolution\x121\n" +
+	"\x14computer_performance\x18\x04 \x01(\tR\x13computerPerformance\"0\n" +
 	"\x0fBuildPCResponse\x12\x1d\n" +
-	"\x02pc\x18\x01 \x03(\v2\r.pkg.proto.PCR\x02pc\"\xd5\x01\n" +
+	"\x02pc\x18\x01 \x03(\v2\r.pkg.proto.PCR\x02pc\"\xf7\x01\n" +
 	"\x02PC\x12 \n" +
 	"\x03cpu\x18\x01 \x01(\v2\x0e.pkg.proto.CPUR\x03cpu\x12 \n" +
 	"\x03gpu\x18\x02 \x01(\v2\x0e.pkg.proto.GPUR\x03gpu\x12&\n" +
 	"\x03ram\x18\x03 \x01(\v2\x14.pkg.proto.RAMMemoryR\x03ram\x129\n" +
 	"\fmother_board\x18\x04 \x01(\v2\x16.pkg.proto.MotherBoardR\vmotherBoard\x12(\n" +
-	"\x03psu\x18\x05 \x01(\v2\x16.pkg.proto.PowerSourceR\x03psu*\x7f\n" +
-	"\x13ComputerPerformance\x12(\n" +
-	"$COMPUTER_PERFORMANCE_LOW_UNSPECIFIED\x10\x00\x12\x1f\n" +
-	"\x1bCOMPUTER_PERFORMANCE_MEDIUM\x10\x01\x12\x1d\n" +
-	"\x19COMPUTER_PERFORMANCE_HIGH\x10\x022R\n" +
+	"\x03psu\x18\x05 \x01(\v2\x16.pkg.proto.PowerSourceR\x03psu\x12 \n" +
+	"\x03ssd\x18\x06 \x01(\v2\x0e.pkg.proto.SSDR\x03ssd2R\n" +
 	"\x0eBuilderService\x12@\n" +
 	"\aBuildPC\x12\x19.pkg.proto.BuildPCRequest\x1a\x1a.pkg.proto.BuildPCResponseBDZBgithub.com/erickoda/build-a-computer/pc_builder_service/pkg/protosb\x06proto3"
 
@@ -297,29 +253,28 @@ func file_builder_proto_rawDescGZIP() []byte {
 	return file_builder_proto_rawDescData
 }
 
-var file_builder_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_builder_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_builder_proto_goTypes = []any{
-	(ComputerPerformance)(0), // 0: pkg.proto.ComputerPerformance
-	(*BuildPCRequest)(nil),   // 1: pkg.proto.BuildPCRequest
-	(*BuildPCResponse)(nil),  // 2: pkg.proto.BuildPCResponse
-	(*PC)(nil),               // 3: pkg.proto.PC
-	(*CPU)(nil),              // 4: pkg.proto.CPU
-	(*GPU)(nil),              // 5: pkg.proto.GPU
-	(*RAMMemory)(nil),        // 6: pkg.proto.RAMMemory
-	(*MotherBoard)(nil),      // 7: pkg.proto.MotherBoard
-	(*PowerSource)(nil),      // 8: pkg.proto.PowerSource
+	(*BuildPCRequest)(nil),  // 0: pkg.proto.BuildPCRequest
+	(*BuildPCResponse)(nil), // 1: pkg.proto.BuildPCResponse
+	(*PC)(nil),              // 2: pkg.proto.PC
+	(*CPU)(nil),             // 3: pkg.proto.CPU
+	(*GPU)(nil),             // 4: pkg.proto.GPU
+	(*RAMMemory)(nil),       // 5: pkg.proto.RAMMemory
+	(*MotherBoard)(nil),     // 6: pkg.proto.MotherBoard
+	(*PowerSource)(nil),     // 7: pkg.proto.PowerSource
+	(*SSD)(nil),             // 8: pkg.proto.SSD
 }
 var file_builder_proto_depIdxs = []int32{
-	0, // 0: pkg.proto.BuildPCRequest.computer_performance:type_name -> pkg.proto.ComputerPerformance
-	3, // 1: pkg.proto.BuildPCResponse.pc:type_name -> pkg.proto.PC
-	4, // 2: pkg.proto.PC.cpu:type_name -> pkg.proto.CPU
-	5, // 3: pkg.proto.PC.gpu:type_name -> pkg.proto.GPU
-	6, // 4: pkg.proto.PC.ram:type_name -> pkg.proto.RAMMemory
-	7, // 5: pkg.proto.PC.mother_board:type_name -> pkg.proto.MotherBoard
-	8, // 6: pkg.proto.PC.psu:type_name -> pkg.proto.PowerSource
-	1, // 7: pkg.proto.BuilderService.BuildPC:input_type -> pkg.proto.BuildPCRequest
-	2, // 8: pkg.proto.BuilderService.BuildPC:output_type -> pkg.proto.BuildPCResponse
+	2, // 0: pkg.proto.BuildPCResponse.pc:type_name -> pkg.proto.PC
+	3, // 1: pkg.proto.PC.cpu:type_name -> pkg.proto.CPU
+	4, // 2: pkg.proto.PC.gpu:type_name -> pkg.proto.GPU
+	5, // 3: pkg.proto.PC.ram:type_name -> pkg.proto.RAMMemory
+	6, // 4: pkg.proto.PC.mother_board:type_name -> pkg.proto.MotherBoard
+	7, // 5: pkg.proto.PC.psu:type_name -> pkg.proto.PowerSource
+	8, // 6: pkg.proto.PC.ssd:type_name -> pkg.proto.SSD
+	0, // 7: pkg.proto.BuilderService.BuildPC:input_type -> pkg.proto.BuildPCRequest
+	1, // 8: pkg.proto.BuilderService.BuildPC:output_type -> pkg.proto.BuildPCResponse
 	8, // [8:9] is the sub-list for method output_type
 	7, // [7:8] is the sub-list for method input_type
 	7, // [7:7] is the sub-list for extension type_name
@@ -338,14 +293,13 @@ func file_builder_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_builder_proto_rawDesc), len(file_builder_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      0,
 			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_builder_proto_goTypes,
 		DependencyIndexes: file_builder_proto_depIdxs,
-		EnumInfos:         file_builder_proto_enumTypes,
 		MessageInfos:      file_builder_proto_msgTypes,
 	}.Build()
 	File_builder_proto = out.File

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package pkg.proto;
+package pkg.protos.v1;
 
 option go_package = "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos";
 

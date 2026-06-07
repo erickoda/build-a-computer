@@ -1,22 +1,16 @@
 syntax = "proto3";
 
-package pkg.proto;
+package pkg.protos.v1;
 
 import "hardwares.proto";
 
 option go_package = "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos";
 
-enum ComputerPerformance {
-  COMPUTER_PERFORMANCE_LOW_UNSPECIFIED = 0;
-  COMPUTER_PERFORMANCE_MEDIUM = 1;
-  COMPUTER_PERFORMANCE_HIGH = 2;
-}
-
 message BuildPCRequest {
   repeated string games = 1;
   float max_price = 2;
   int32 resolution = 3;
-  ComputerPerformance computer_performance = 4;
+  string computer_performance = 4;
 }
 
 message BuildPCResponse {
@@ -29,6 +23,7 @@ message PC {
   RAMMemory ram = 3;
   MotherBoard mother_board = 4;
   PowerSource psu = 5;
+  SSD ssd = 6;
 }
 
 service BuilderService {
