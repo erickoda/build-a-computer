@@ -12,7 +12,7 @@ type GPURepositoryImpl struct {
 	DB *gorm.DB
 }
 
-func NewGPURepository(db *gorm.DB) *GPURepositoryImpl {
+func NewGPURepositoryImpl(db *gorm.DB) *GPURepositoryImpl {
 	return &GPURepositoryImpl{DB: db}
 }
 

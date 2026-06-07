@@ -12,7 +12,7 @@ type PowerSourceRepositoryImpl struct {
 	DB *gorm.DB
 }
 
-func NewPowerSourceRepository(db *gorm.DB) *PowerSourceRepositoryImpl {
+func NewPowerSourceRepositoryImpl(db *gorm.DB) *PowerSourceRepositoryImpl {
 	return &PowerSourceRepositoryImpl{DB: db}
 }
 

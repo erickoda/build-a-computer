@@ -12,7 +12,7 @@ type RAMMemoryRepositoryImpl struct {
 	DB *gorm.DB
 }
 
-func NewRAMMemoryRepository(db *gorm.DB) *RAMMemoryRepositoryImpl {
+func NewRAMMemoryRepositoryImpl(db *gorm.DB) *RAMMemoryRepositoryImpl {
 	return &RAMMemoryRepositoryImpl{DB: db}
 }
 

@@ -11,7 +11,7 @@ type SSDRepositoryImpl struct {
 	DB *gorm.DB
 }
 
-func NewSSDRepository(db *gorm.DB) *SSDRepositoryImpl {
+func NewSSDRepositoryImpl(db *gorm.DB) *SSDRepositoryImpl {
 	return &SSDRepositoryImpl{DB: db}
 }
 

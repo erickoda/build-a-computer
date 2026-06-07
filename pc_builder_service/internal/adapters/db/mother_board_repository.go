@@ -12,7 +12,7 @@ type MotherBoardRepositoryImpl struct {
 	DB *gorm.DB
 }
 
-func NewMotherBoardRepository(db *gorm.DB) *MotherBoardRepositoryImpl {
+func NewMotherBoardRepositoryImpl(db *gorm.DB) *MotherBoardRepositoryImpl {
 	return &MotherBoardRepositoryImpl{DB: db}
 }
 
