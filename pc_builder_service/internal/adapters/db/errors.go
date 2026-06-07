@@ -28,6 +28,22 @@ func HandleError(err error) error {
 		if strings.Contains(err.Error(), "game") {
 			return domain.ErrGameNotFound
 		}
+		if strings.Contains(err.Error(), "cpu") {
+			return domain.ErrCPUNotFound
+		}
+		if strings.Contains(err.Error(), "gpu") {
+			return domain.ErrGPUNotFound
+		}
+		if strings.Contains(err.Error(), "motherboard") {
+			return domain.ErrMotherBoardNotFound
+		}
+		if strings.Contains(err.Error(), "ram") {
+			return domain.ErrRAMNotFound
+		}
+		if strings.Contains(err.Error(), "ssd") {
+			return domain.ErrSSDNotFound
+		}
+		
 	}
 
 	return domain.ErrInternalDatabaseError
