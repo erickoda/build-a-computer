@@ -9,6 +9,8 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	_ "embed"
 )
 
 type DB_config struct {
@@ -21,10 +23,10 @@ type DB_config struct {
 }
 
 type DB struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
-func (bd *DB) New_data_base() error {
+func (bd *DB) New_data_base()  error {
 	gorm_config := &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 		SkipDefaultTransaction: true,
@@ -38,19 +40,23 @@ func (bd *DB) New_data_base() error {
 
 	db, err := gorm.Open(postgres.Open(dns), gorm_config)
 	if err != nil{
-		return  fmt.Errorf("failed to connect to database: %w", err)
+		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	bd.db = db
+	bd.DB = db
 	return nil
 }
 
 func (db *DB) Close() {
-	sqlDB, err := db.db.DB()
+	sqlDB, err := db.DB.DB()
 	if err != nil {
 		return
 	}
 	sqlDB.Close()
+}
+
+func (db *DB) Get() *gorm.DB {
+	return db.DB
 }
 
 func load_DB_config() (string, error) {
