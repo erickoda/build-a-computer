@@ -745,7 +745,6 @@ func calculatePowerSourceScore(powerSource models.PowerSource) (int32, error) {
 
 	normalizedScore := score / float64(powerSource.AvgPrice)
 	finalScore := normalizedScore * 10000
-	fmt.Println(finalScore)
 
 	return int32(finalScore), nil
 }
