@@ -1,13 +1,13 @@
-package com.bac.springboot;
+package com.buildpc.benchmark_service;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Application {
+public class BenchmarkServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(BenchmarkServiceApplication.class, args);
 	}
 
 }

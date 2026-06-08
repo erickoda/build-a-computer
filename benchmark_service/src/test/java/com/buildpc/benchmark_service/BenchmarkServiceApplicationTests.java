@@ -1,10 +1,10 @@
-package com.bac.springboot;
+package com.buildpc.benchmark_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ApplicationTests {
+class BenchmarkServiceApplicationTests {
 
 	@Test
 	void contextLoads() {
