@@ -4,6 +4,16 @@ use crate::{
     users_grpc,
 };
 
+impl From<UserStatus> for users_grpc::Status {
+    fn from(user_status: UserStatus) -> Self {
+        match user_status {
+            UserStatus::Active => Self::Active,
+            UserStatus::Inactive => Self::Inactive,
+            UserStatus::Banned => Self::Banned,
+        }
+    }
+}
+
 impl From<UserRole> for users_grpc::Role {
     fn from(user_role: UserRole) -> Self {
         match user_role {

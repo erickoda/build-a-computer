@@ -1,8 +1,14 @@
 use tonic::{Request, Response, Status};
 
 use crate::{
-    application::{commands::{sign_in::SignInCommand, sign_up::SignUpCommand}, outputs::auth::AuthOutput},
-    auth_grpc::{AuthReply, SignInRequest, SignUpRequest, auth_server::Auth},
+    application::{
+        commands::{sign_in::SignInCommand, sign_up::SignUpCommand},
+        outputs::auth::AuthOutput,
+    },
+    auth_grpc::{
+        AuthReply, Empty, ForgotPasswordRequest, ResetPasswordRequest, SignInRequest,
+        SignUpRequest, auth_server::Auth,
+    },
     infrastructure::AppAuthUseCase,
 };
 
@@ -40,6 +46,27 @@ impl Auth for AuthService {
         )))
     }
 
+    async fn forgot_password(
+        &self,
+        request: Request<ForgotPasswordRequest>,
+    ) -> Result<Response<Empty>, Status> {
+        self.auth_use_case
+            .forgot_password(request.into_inner().into())
+            .await?;
+
+        Ok(Response::from(Empty {}))
+    }
+
+    async fn reset_password(
+        &self,
+        request: Request<ResetPasswordRequest>,
+    ) -> Result<Response<Empty>, Status> {
+        self.auth_use_case
+            .reset_password(request.into_inner().into())
+            .await?;
+
+        Ok(Response::from(Empty {}))
+    }
 }
 
 impl Into<SignInCommand> for SignInRequest {

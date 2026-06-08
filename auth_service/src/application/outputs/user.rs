@@ -1,5 +1,4 @@
 use serde::Serialize;
-use utoipa::ToSchema;
 use uuid::Uuid;
 
 use crate::domain::{
@@ -7,7 +6,7 @@ use crate::domain::{
     value_objects::{role::Role, status::Status},
 };
 
-#[derive(Serialize, ToSchema)]
+#[derive(Serialize)]
 pub struct UserOutput {
     id: Uuid,
     username: String,

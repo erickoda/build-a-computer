@@ -1,5 +1,8 @@
 use crate::{
-    application::ports::{password_hasher::PasswordHasherError, user_repository::RepositoryError},
+    application::ports::{
+        email_sender::EmailSenderError, otp_store::OtpStoreError,
+        password_hasher::PasswordHasherError, user_repository::RepositoryError,
+    },
     domain::errors::UserEntityError,
 };
 
@@ -76,5 +79,24 @@ impl From<PasswordHasherError> for AuthServiceError {
                 Self::InternalError("Cryptographic hashing operation failed".to_string())
             }
         }
+    }
+}
+
+impl From<OtpStoreError> for AuthServiceError {
+    fn from(error: OtpStoreError) -> Self {
+        match error {
+            OtpStoreError::ConnectionError(msg) => {
+                AuthServiceError::InternalError(format!("OTP Store Connection: {}", msg))
+            }
+            OtpStoreError::StorageError(msg) => {
+                AuthServiceError::InternalError(format!("OTP Storage Failure: {}", msg))
+            }
+        }
+    }
+}
+
+impl From<EmailSenderError> for AuthServiceError {
+    fn from(error: EmailSenderError) -> Self {
+        AuthServiceError::InternalError(format!("Email delivery failed: {:?}", error))
     }
 }

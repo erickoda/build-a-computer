@@ -1,7 +1,6 @@
-use serde::Serialize;
-use utoipa::ToSchema;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, Serialize, ToSchema)]
+#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Status {
     Active,

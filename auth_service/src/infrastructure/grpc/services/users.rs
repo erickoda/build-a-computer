@@ -5,7 +5,9 @@ use uuid::Uuid;
 
 use crate::{
     infrastructure::{AppUserUseCase, grpc::interceptors::UserContext},
-    users_grpc::{CreateUserRequest, Empty, ListOfUsers, User, UserId, users_server::Users},
+    users_grpc::{
+        CreateUserRequest, Empty, ListOfUsers, UpdateUserRequest, User, UserId, users_server::Users,
+    },
 };
 
 pub struct UsersService {
@@ -55,6 +57,23 @@ impl Users for UsersService {
 
         self.user_use_case
             .delete_user(id, user_ctx.user_id, user_ctx.user_role)
+            .await?;
+
+        Ok(Response::new(Empty {}))
+    }
+
+    async fn update_user(
+        &self,
+        request: Request<UpdateUserRequest>,
+    ) -> Result<Response<Empty>, Status> {
+        let user_ctx = request.extensions().get::<UserContext>().unwrap().clone();
+
+        self.user_use_case
+            .update_user(
+                request.into_inner().try_into()?,
+                user_ctx.user_id,
+                user_ctx.user_role,
+            )
             .await?;
 
         Ok(Response::new(Empty {}))

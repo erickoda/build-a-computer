@@ -3,10 +3,12 @@ use auth_service::{
     auth_grpc::auth_server::AuthServer,
     config::AppConfig,
     infrastructure::{
+        email::gmail_sender::GmailSender,
         grpc::{
             interceptors::auth_interceptor,
             services::{auth::AuthService, users::UsersService},
         },
+        otp::in_memory::InMemoryOtpStore,
         persistence::sqlx_user_repository::SqlxUserRepository,
         security::{argo2_cryptography::Argo2Hasher, jwt_generator::JwtGenerator},
     },
@@ -32,11 +34,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let jwt_generator: JwtGenerator = JwtGenerator::new(config.jwt_secret, config.jwt_expiration);
 
+    let otp_store: InMemoryOtpStore = InMemoryOtpStore::new();
+
+    let email_sender: GmailSender = GmailSender::new(config.smtp_username, config.smtp_password)
+        .expect("Failed to configure Gmail Sender credentials");
+
     let user_use_case: UserUseCase<SqlxUserRepository, Argo2Hasher> =
         UserUseCase::new(sqlx_repository.clone(), password_hasher.clone());
 
-    let auth_use_case: AuthUseCase<SqlxUserRepository, JwtGenerator, Argo2Hasher> =
-        AuthUseCase::new(sqlx_repository.clone(), jwt_generator, password_hasher);
+    let auth_use_case: AuthUseCase<
+        SqlxUserRepository,
+        JwtGenerator,
+        Argo2Hasher,
+        GmailSender,
+        InMemoryOtpStore,
+    > = AuthUseCase::new(
+        sqlx_repository.clone(),
+        jwt_generator,
+        password_hasher,
+        email_sender,
+        otp_store,
+    );
 
     let user_service: UsersService = UsersService::new(user_use_case);
     let auth_service: AuthService = AuthService::new(auth_use_case);

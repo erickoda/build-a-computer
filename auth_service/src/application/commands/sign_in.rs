@@ -1,7 +1,6 @@
 use serde::Deserialize;
-use utoipa::ToSchema;
 
-#[derive(Deserialize, ToSchema)]
+#[derive(Deserialize)]
 pub struct SignInCommand {
     email: String,
     password: String,

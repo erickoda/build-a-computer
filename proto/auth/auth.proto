@@ -5,6 +5,8 @@ package auth;
 service Auth {
     rpc SignIn(SignInRequest) returns (AuthReply);
     rpc SignUp(SignUpRequest) returns (AuthReply);
+    rpc ForgotPassword(ForgotPasswordRequest) returns (Empty);
+    rpc ResetPassword(ResetPasswordRequest) returns (Empty);
 }
 
 message SignInRequest {
@@ -21,3 +23,15 @@ message SignUpRequest {
 message AuthReply {
     string token = 1;
 }
+
+message ForgotPasswordRequest {
+    string email = 1;
+}
+
+message ResetPasswordRequest {
+    string email = 1;
+    string otp = 2;
+    string new_password = 3;
+}
+
+message Empty {}

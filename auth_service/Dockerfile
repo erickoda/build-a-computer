@@ -8,11 +8,14 @@ COPY /.sqlx ./.sqlx
 ENV SQLX_OFFLINE=true
 
 RUN mkdir src && \
-    echo "fn main() {}" > src/grpc_server.rs && \
-    echo "fn main() {}" > src/http_server.rs && \
-    echo "fn main() {}" > src/cli.rs && \
-    echo "" > src/lib.rs
-RUN apt-get update && apt-get install -y curl && apt-get install -y protobuf-compiler
+  echo "fn main() {}" > src/grpc_server.rs && \
+  echo "fn main() {}" > src/cli.rs && \
+  echo "" > src/lib.rs
+RUN apt-get update && apt-get install -y \
+  curl \
+  protobuf-compiler \
+  pkg-config \
+  libssl-dev
 RUN cargo build --release
 RUN rm src/grpc_server.rs
 
@@ -26,8 +29,8 @@ FROM debian:bullseye-slim
 WORKDIR /app
 
 RUN apt-get update && \
-    apt-get install -y libpq-dev ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+  apt-get install -y libpq-dev ca-certificates openssl && \
+  rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/src/app/target/release/grpc_server /usr/local/bin/server
 

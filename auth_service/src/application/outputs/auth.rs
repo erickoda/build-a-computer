@@ -1,7 +1,6 @@
 use serde::Serialize;
-use utoipa::ToSchema;
 
-#[derive(Serialize, Debug, ToSchema)]
+#[derive(Serialize, Debug)]
 pub struct AuthOutput {
     token: String,
 }

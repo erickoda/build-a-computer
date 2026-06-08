@@ -2,7 +2,7 @@ use uuid::Uuid;
 
 use crate::{
     application::{
-        commands::create_user::CreateUserCommand,
+        commands::{create_user::CreateUserCommand, update_user::UpdateUserCommand},
         errors::UserUseCaseError,
         ports::{password_hasher::PasswordHasher, user_repository::UserRepository},
     },
@@ -55,6 +55,59 @@ impl<R: UserRepository, P: PasswordHasher> UserUseCase<R, P> {
 
     pub async fn get_users(&self) -> Result<Vec<UserEntity>, UserUseCaseError> {
         Ok(self.repository.get_users().await?)
+    }
+
+    pub async fn update_user(
+        &self,
+        command: UpdateUserCommand,
+        requester_id: Uuid,
+        requester_role: Role,
+    ) -> Result<(), UserUseCaseError> {
+        if requester_id != command.get_id() && requester_role != Role::Admin {
+            return Err(UserUseCaseError::Forbidden);
+        }
+
+        let user = self.repository.get_user(command.get_id()).await?;
+
+        let mut username = user.get_username().to_owned();
+        let mut email = user.get_email().to_owned();
+        let mut password = user.get_password().to_owned();
+        let mut role = user.get_role().to_owned();
+        let mut status = user.get_status().to_owned();
+
+        if let Some(new_username) = command.get_username() {
+            username = Username::try_from(new_username.to_owned())?;
+        }
+
+        if let Some(new_email) = command.get_email() {
+            email = Email::try_from(new_email.to_owned())?;
+        }
+
+        if let Some(new_password) = command.get_password() {
+            let plain_password: PlainPassword = PlainPassword::try_from(new_password.to_owned())?;
+
+            let hashed_password: HashedPassword = self
+                .password_hasher
+                .hash_password(plain_password)
+                .map_err(|_| UserUseCaseError::InternalError("Failed to hash password".into()))?;
+
+            password = hashed_password;
+        }
+
+        if let Some(new_role) = command.get_role() {
+            role = new_role.to_owned().into();
+        }
+
+        if let Some(new_status) = command.get_status() {
+            status = new_status.to_owned().into();
+        }
+
+        let updated_user =
+            UserEntity::new_with_status(username, email, password, role, status.to_owned());
+
+        self.repository.update_user(updated_user).await?;
+
+        Ok(())
     }
 
     pub async fn delete_user(

@@ -1,9 +1,8 @@
 use serde::Deserialize;
-use utoipa::ToSchema;
 
 use crate::domain::value_objects::role::Role;
 
-#[derive(Deserialize, ToSchema)]
+#[derive(Deserialize)]
 pub struct CreateUserCommand {
     username: String,
     email: String,

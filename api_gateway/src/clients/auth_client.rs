@@ -30,17 +30,53 @@ impl AuthClientWrapper {
         Ok(grpc_response.token)
     }
 
-    pub async fn sign_up(&self, email: &str, password: &str, username: &str) -> Result<String, AppError> {
+    pub async fn sign_up(
+        &self,
+        email: &str,
+        password: &str,
+        username: &str,
+    ) -> Result<String, AppError> {
         let mut client = self.inner_client.clone();
 
         let grpc_request = tonic::Request::new(auth_grpc::SignUpRequest {
             email: email.to_string(),
             password: password.to_string(),
-            username: username.to_string()
+            username: username.to_string(),
         });
 
         let grpc_response = client.sign_up(grpc_request).await?.into_inner();
 
         Ok(grpc_response.token)
+    }
+
+    pub async fn forgot_password(&self, email: &str) -> Result<(), AppError> {
+        let mut client = self.inner_client.clone();
+
+        let grpc_request = tonic::Request::new(auth_grpc::ForgotPasswordRequest {
+            email: email.to_string(),
+        });
+
+        client.forgot_password(grpc_request).await?;
+
+        Ok(())
+    }
+
+    pub async fn reset_password(
+        &self,
+        email: &str,
+        otp: &str,
+        new_password: &str,
+    ) -> Result<(), AppError> {
+        let mut client = self.inner_client.clone();
+
+        let grpc_request = tonic::Request::new(auth_grpc::ResetPasswordRequest {
+            email: email.to_string(),
+            otp: otp.to_string(),
+            new_password: new_password.to_string(),
+        });
+
+        client.reset_password(grpc_request).await?;
+
+        Ok(())
     }
 }

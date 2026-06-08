@@ -3,7 +3,13 @@ use axum::{Json, extract::State, http::StatusCode};
 use crate::{
     AppState,
     errors::AppError,
-    modules::auth::dtos::{request::{sign_in::SignInRequestDto, sign_up::SignUpRequestDto}, response::auth::AuthResponseDto},
+    modules::auth::dtos::{
+        request::{
+            forgot_password::ForgotPasswordDto, reset_password::ResetPasswordDto,
+            sign_in::SignInRequestDto, sign_up::SignUpRequestDto,
+        },
+        response::auth::AuthResponseDto,
+    },
 };
 
 pub async fn sign_in(
@@ -28,4 +34,28 @@ pub async fn sign_up(
         .await?;
 
     Ok((StatusCode::OK, Json(AuthResponseDto::new(token))))
+}
+
+pub async fn forgot_password(
+    State(app_state): State<AppState>,
+    Json(dto): Json<ForgotPasswordDto>,
+) -> Result<StatusCode, AppError> {
+    app_state
+        .auth_client
+        .forgot_password(dto.get_email())
+        .await?;
+
+    Ok(StatusCode::NO_CONTENT)
+}
+
+pub async fn reset_password(
+    State(app_state): State<AppState>,
+    Json(dto): Json<ResetPasswordDto>,
+) -> Result<StatusCode, AppError> {
+    app_state
+        .auth_client
+        .reset_password(dto.get_email(), dto.get_otp(), dto.get_new_password())
+        .await?;
+
+    Ok(StatusCode::NO_CONTENT)
 }

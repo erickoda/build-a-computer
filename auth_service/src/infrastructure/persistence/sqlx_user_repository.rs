@@ -3,7 +3,10 @@ use uuid::Uuid;
 
 use crate::{
     application::ports::user_repository::{RepositoryError, UserRepository},
-    domain::entities::user::UserEntity,
+    domain::{
+        entities::user::UserEntity,
+        value_objects::{email::Email, hashed_password::HashedPassword},
+    },
     infrastructure::persistence::models::user_row::{PgRole, PgStatus, UserRow},
 };
 
@@ -137,6 +140,71 @@ impl UserRepository for SqlxUserRepository {
         rows.into_iter()
             .map(|row| row.try_into())
             .collect::<Result<Vec<UserEntity>, _>>()
+    }
+
+    async fn update_user(&self, user: UserEntity) -> Result<(), RepositoryError> {
+        let uuid: Uuid = user.get_id();
+        let username: String = user.get_username().into();
+        let email: String = user.get_email().into();
+        let password: String = user.get_password().as_str().to_string();
+        let role: PgRole = user.get_role().into();
+        let status: PgStatus = user.get_status().into();
+
+        let result = sqlx::query_as!(
+            UserRow,
+            r#"
+            UPDATE users
+            SET
+                username = $1,
+                email = $2,
+                password = $3,
+                role = $4,
+                status = $5
+            WHERE id = $6
+            "#,
+            username,
+            email,
+            password,
+            role as _,
+            status as _,
+            uuid
+        )
+        .execute(&self.pool)
+        .await?;
+
+        if result.rows_affected() == 0 {
+            return Err(RepositoryError::NotFound);
+        }
+
+        Ok(())
+    }
+
+    async fn change_password_by_email(
+        &self,
+        password: &HashedPassword,
+        email: &Email,
+    ) -> Result<(), RepositoryError> {
+        let password: &str = password.as_str();
+        let email: String = email.into();
+
+        let result = sqlx::query_as!(
+            UserRow,
+            r#"
+            UPDATE users
+            SET password = $1
+            WHERE email = $2
+            "#,
+            password,
+            email
+        )
+        .execute(&self.pool)
+        .await?;
+
+        if result.rows_affected() == 0 {
+            return Err(RepositoryError::NotFound);
+        }
+
+        Ok(())
     }
 }
 

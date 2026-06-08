@@ -8,7 +8,10 @@ use uuid::Uuid;
 use crate::{
     AppState,
     errors::AppError,
-    modules::users::dtos::{request::create_user::CreateUserRequestDto, response::user::UserDto},
+    modules::users::dtos::{
+        request::{create_user::CreateUserRequestDto, update_user::UpdateUserDto},
+        response::user::UserDto,
+    },
     security::token::AuthenticatedUser,
 };
 
@@ -63,6 +66,28 @@ pub async fn delete_user(
     app_state
         .user_client
         .delete_user(id.to_string(), &user)
+        .await?;
+
+    Ok(StatusCode::NO_CONTENT)
+}
+
+pub async fn update_user(
+    State(app_state): State<AppState>,
+    user: AuthenticatedUser,
+    Path(id): Path<Uuid>,
+    Json(dto): Json<UpdateUserDto>,
+) -> Result<StatusCode, AppError> {
+    app_state
+        .user_client
+        .update_user(
+            id.to_string(),
+            dto.get_username().to_owned(),
+            dto.get_email().to_owned(),
+            dto.get_password().to_owned(),
+            dto.get_role().map(Into::into).to_owned(),
+            dto.get_status().map(Into::into).to_owned(),
+            &user,
+        )
         .await?;
 
     Ok(StatusCode::NO_CONTENT)

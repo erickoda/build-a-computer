@@ -81,4 +81,30 @@ impl UsersClientWrapper {
 
         Ok(client.delete_user(grpc_request).await?.into_inner())
     }
+
+    pub async fn update_user(
+        &self,
+        id: String,
+        username: Option<String>,
+        email: Option<String>,
+        password: Option<String>,
+        role: Option<users_grpc::Role>,
+        status: Option<users_grpc::Status>,
+        authenticated_user: &AuthenticatedUser,
+    ) -> Result<users_grpc::Empty, AppError> {
+        let grpc_payload = users_grpc::UpdateUserRequest {
+            id,
+            username,
+            email,
+            password,
+            role: role.map(Into::into),
+            status: status.map(Into::into),
+        };
+
+        let grpc_request = with_auth_metadata(grpc_payload, authenticated_user)?;
+
+        let mut client = self.inner_client.clone();
+
+        Ok(client.update_user(grpc_request).await?.into_inner())
+    }
 }

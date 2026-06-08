@@ -7,6 +7,7 @@ service Users {
     rpc GetUser (UserId) returns (User);
     rpc GetUsers (Empty) returns (ListOfUsers);
     rpc DeleteUser (UserId) returns (Empty);
+    rpc UpdateUser (UpdateUserRequest) returns (Empty);
 }
 
 message CreateUserRequest {
@@ -14,6 +15,15 @@ message CreateUserRequest {
     string email = 2;
     string password = 3;
     Role role = 4;
+}
+
+message UpdateUserRequest {
+    string id = 1;
+    optional string username = 2;
+    optional string email = 3;
+    optional string password = 4;
+    optional Role role = 5;
+    optional Status status = 6;
 }
 
 message User {

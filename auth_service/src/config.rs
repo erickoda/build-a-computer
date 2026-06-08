@@ -6,6 +6,8 @@ pub struct AppConfig {
     pub jwt_expiration: u64,
     pub host: String,
     pub port: u16,
+    pub smtp_username: String,
+    pub smtp_password: String,
 }
 
 impl AppConfig {
@@ -24,6 +26,8 @@ impl AppConfig {
                 .unwrap_or_else(|_| "50051".to_string())
                 .parse()
                 .expect("INVALID TYPE FOR PORT"),
+            smtp_username: env::var("SMTP_USERNAME").expect("SMTP_USERNAME not defined"),
+            smtp_password: env::var("SMTP_PASSWORD").expect("SMTP_PASSWORD not defined"),
         }
     }
 }
