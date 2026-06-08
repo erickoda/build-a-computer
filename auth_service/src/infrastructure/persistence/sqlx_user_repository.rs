@@ -192,10 +192,11 @@ impl UserRepository for SqlxUserRepository {
             r#"
             UPDATE users
             SET password = $1
-            WHERE email = $2
+            WHERE email = $2 and status = $3::user_status
             "#,
             password,
-            email
+            email,
+            PgStatus::Active as _
         )
         .execute(&self.pool)
         .await?;
