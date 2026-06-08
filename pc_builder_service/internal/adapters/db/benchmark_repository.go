@@ -3,17 +3,15 @@ package db
 import (
 	"context"
 
-	"gorm.io/gorm"
-
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
 	"github.com/google/uuid"
 )
 
 type BenchmarkRepositoryImpl struct {
-	DB *gorm.DB
+	DB *DB
 }
 
-func NewBenchmarkRepositoryImpl(db *gorm.DB) *BenchmarkRepositoryImpl {
+func NewBenchmarkRepositoryImpl(db *DB) *BenchmarkRepositoryImpl {
 	return &BenchmarkRepositoryImpl{DB: db}
 }
 
@@ -23,7 +21,7 @@ func (r *BenchmarkRepositoryImpl) FindBenchmarksByHavierGame(
 	
 	var benchmarks []models.Benchmark
 
-	sub_query := r.DB.WithContext(ctx).
+	sub_query := r.DB.Gorm.WithContext(ctx).
 		Model(&models.Benchmark{}).
 		Select("game_id").
 		Where("game_id IN ? AND resolution = ?", games, resolution).
@@ -31,7 +29,7 @@ func (r *BenchmarkRepositoryImpl) FindBenchmarksByHavierGame(
 		Order("AVG(avg_fps) ASC").
 		Limit(1)
 	
-	err := r.DB.WithContext(ctx).
+	err := r.DB.Gorm.WithContext(ctx).
 		Where("game_id = (?) AND resolution = ?", sub_query, resolution).
 		Find(&benchmarks).Error
 	if err != nil {

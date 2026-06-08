@@ -5,21 +5,20 @@ import (
 
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type GPURepositoryImpl struct {
-	DB *gorm.DB
+	DB *DB
 }
 
-func NewGPURepositoryImpl(db *gorm.DB) *GPURepositoryImpl {
+func NewGPURepositoryImpl(db *DB) *GPURepositoryImpl {
 	return &GPURepositoryImpl{DB: db}
 }
 
 func (r *GPURepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*models.GPU, error) {
 	var gpu models.GPU
 
-	result := r.DB.WithContext(ctx).First(&gpu, id)
+	result := r.DB.Gorm.WithContext(ctx).First(&gpu, id)
 	if result.Error != nil {
 		err := HandleError(result.Error)
 		return nil, err

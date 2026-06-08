@@ -3,27 +3,25 @@ package db
 import (
 	"context"
 
-	"gorm.io/gorm"
-
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
 )
 
 type MotherBoardRepositoryImpl struct {
-	DB *gorm.DB
+	DB *DB
 }
 
-func NewMotherBoardRepositoryImpl(db *gorm.DB) *MotherBoardRepositoryImpl {
+func NewMotherBoardRepositoryImpl(db *DB) *MotherBoardRepositoryImpl {
 	return &MotherBoardRepositoryImpl{DB: db}
 }
 
 func (r *MotherBoardRepositoryImpl) FindBySocketAndDDR(
-		ctx context.Context, 
-		socket string, 
-		ddr string,
+	ctx context.Context,
+	socket string,
+	ddr string,
 ) ([]models.MotherBoard, error) {
 	var motherBoards []models.MotherBoard
 
-	result := r.DB.WithContext(ctx).
+	result := r.DB.Gorm.WithContext(ctx).
 		Model(&models.MotherBoard{}).
 		Where("socket = ?", socket).
 		Where("ddr = ?", ddr).
