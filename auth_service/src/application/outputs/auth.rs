@@ -1,6 +1,4 @@
-use serde::Serialize;
-
-#[derive(Serialize, Debug)]
+#[derive(Debug)]
 pub struct AuthOutput {
     token: String,
 }

@@ -1,9 +1,7 @@
-use serde::Deserialize;
 use uuid::Uuid;
 
 use crate::domain::value_objects::{role::Role, status::Status};
 
-#[derive(Deserialize)]
 pub struct UpdateUserCommand {
     id: Uuid,
     username: Option<String>,

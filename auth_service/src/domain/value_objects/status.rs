@@ -1,7 +1,4 @@
-use serde::{Deserialize, Serialize};
-
-#[derive(PartialEq, Clone, Copy, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[derive(PartialEq, Clone, Copy, Debug)]
 pub enum Status {
     Active,
     Inactive,

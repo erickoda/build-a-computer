@@ -1,8 +1,5 @@
-use serde::Deserialize;
-
 use crate::domain::value_objects::role::Role;
 
-#[derive(Deserialize)]
 pub struct CreateUserCommand {
     username: String,
     email: String,

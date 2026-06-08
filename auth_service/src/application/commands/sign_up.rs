@@ -1,6 +1,3 @@
-use serde::Deserialize;
-
-#[derive(Deserialize)]
 pub struct SignUpCommand {
     username: String,
     email: String,

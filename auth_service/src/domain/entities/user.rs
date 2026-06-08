@@ -1,11 +1,10 @@
 use uuid::Uuid;
-use validator::Validate;
 
 use crate::domain::value_objects::{
     email::Email, hashed_password::HashedPassword, role::Role, status::Status, username::Username,
 };
 
-#[derive(Clone, Validate, Debug)]
+#[derive(Clone, Debug)]
 pub struct UserEntity {
     id: Uuid,
     username: Username,
