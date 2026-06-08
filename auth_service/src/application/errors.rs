@@ -1,9 +1,12 @@
 use crate::{
-    application::ports::{password_hasher::PasswordHasherError, user_repository::RepositoryError},
+    application::ports::{
+        email_sender::EmailSenderError, otp_store::OtpStoreError,
+        password_hasher::PasswordHasherError, user_repository::RepositoryError,
+    },
     domain::errors::UserEntityError,
 };
 
-pub enum UserServiceError {
+pub enum UserUseCaseError {
     ValidationError(String),
     Conflict(String),
     NotFound,
@@ -11,21 +14,21 @@ pub enum UserServiceError {
     InternalError(String),
 }
 
-impl std::fmt::Display for UserServiceError {
+impl std::fmt::Display for UserUseCaseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            UserServiceError::Conflict(error) => write!(f, "Conflict Error: {}", error),
-            UserServiceError::InternalError(error) => write!(f, "Internal App Error: {}", error),
-            UserServiceError::ValidationError(error) => {
+            UserUseCaseError::Conflict(error) => write!(f, "Conflict Error: {}", error),
+            UserUseCaseError::InternalError(error) => write!(f, "Internal App Error: {}", error),
+            UserUseCaseError::ValidationError(error) => {
                 write!(f, "Invalid Request Format: {}", error)
             }
-            UserServiceError::NotFound => write!(f, "Resource not found"),
-            UserServiceError::Forbidden => write!(f, "Forbidden action"),
+            UserUseCaseError::NotFound => write!(f, "Resource not found"),
+            UserUseCaseError::Forbidden => write!(f, "Forbidden action"),
         }
     }
 }
 
-impl From<RepositoryError> for UserServiceError {
+impl From<RepositoryError> for UserUseCaseError {
     fn from(err: RepositoryError) -> Self {
         match err {
             RepositoryError::DuplicatedColumn => Self::Conflict("Email is already in use".into()),
@@ -37,7 +40,7 @@ impl From<RepositoryError> for UserServiceError {
     }
 }
 
-impl From<UserEntityError> for UserServiceError {
+impl From<UserEntityError> for UserUseCaseError {
     fn from(err: UserEntityError) -> Self {
         Self::ValidationError(err.get_text())
     }
@@ -76,5 +79,24 @@ impl From<PasswordHasherError> for AuthServiceError {
                 Self::InternalError("Cryptographic hashing operation failed".to_string())
             }
         }
+    }
+}
+
+impl From<OtpStoreError> for AuthServiceError {
+    fn from(error: OtpStoreError) -> Self {
+        match error {
+            OtpStoreError::ConnectionError(msg) => {
+                AuthServiceError::InternalError(format!("OTP Store Connection: {}", msg))
+            }
+            OtpStoreError::StorageError(msg) => {
+                AuthServiceError::InternalError(format!("OTP Storage Failure: {}", msg))
+            }
+        }
+    }
+}
+
+impl From<EmailSenderError> for AuthServiceError {
+    fn from(error: EmailSenderError) -> Self {
+        AuthServiceError::InternalError(format!("Email delivery failed: {:?}", error))
     }
 }

@@ -9,7 +9,6 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    Serve,
     CreateAdmin {
         #[arg(short, long)]
         username: String,

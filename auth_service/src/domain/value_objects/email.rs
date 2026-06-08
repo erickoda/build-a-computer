@@ -28,6 +28,12 @@ impl From<&Email> for String {
     }
 }
 
+impl From<Email> for String {
+    fn from(email: Email) -> Self {
+        email.clone().0
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

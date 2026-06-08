@@ -15,6 +15,24 @@ pub struct UserOutput {
     status: Status,
 }
 
+impl UserOutput {
+    pub fn get_id(&self) -> Uuid {
+        self.id
+    }
+    pub fn get_username(&self) -> &str {
+        &self.username
+    }
+    pub fn get_email(&self) -> &str {
+        &self.email
+    }
+    pub fn get_role(&self) -> Role {
+        self.role
+    }
+    pub fn get_status(&self) -> Status {
+        self.status
+    }
+}
+
 impl From<UserEntity> for UserOutput {
     fn from(user_entity: UserEntity) -> Self {
         Self {

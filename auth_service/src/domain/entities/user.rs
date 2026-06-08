@@ -27,6 +27,23 @@ impl UserEntity {
         }
     }
 
+    pub fn new_with_status(
+        username: Username,
+        email: Email,
+        password: HashedPassword,
+        role: Role,
+        status: Status,
+    ) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            username,
+            email,
+            password,
+            role,
+            status,
+        }
+    }
+
     pub fn restore(
         id: Uuid,
         username: Username,
