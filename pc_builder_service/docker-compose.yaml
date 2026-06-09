@@ -1,4 +1,34 @@
 services:
+  builder-grpc:
+    container_name: pc_builder_service
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: run-stage
+    env_file:
+      - .env
+    environment:
+      - ADDR:${ADDR}
+      - PGHOST:postgres
+      - PGUSER:${PGUSER}
+      - PGPASSWORD:${PGPASSWORD}
+      - PGDATABASE:${PGDATABASE}
+      - PGSSLMODE:${PGSSLMODE}
+    ports:
+      - "${PORT}:50051"
+    networks:
+      - grpc-service
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=:50051", "-service=builder.BuilderService"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      postgres:
+        condition: service_healthy
+    
   postgres:
      container_name: benchmarkDB
      image: postgres:18.4-alpine3.23
@@ -12,7 +42,7 @@ services:
      ports:
          - "5432:5432"
      networks:
-       - db
+       - grpc-service
      extra_hosts:
        - "host.docker.internal:host-gateway"
      restart: unless-stopped
@@ -21,8 +51,8 @@ services:
        interval: 30s
        timeout: 10s
        retries: 5
-    # volumes:
-    #  - ./data/postgres:/var/lib/postgresql/data
+     volumes:
+       - pgdata:/var/lib/postgresql/data
 
   pgadmin:
     container_name: pgadmin
@@ -36,15 +66,15 @@ services:
       - "${PGADMIN_PORT}:80"
     restart: unless-stopped
     networks:
-      - db
+      - grpc-service
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       - postgres
 
 networks:
-  db:
+  grpc-service:
     driver: bridge
 
 volumes:
-  db:
+  pgdata:
