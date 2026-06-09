@@ -10,64 +10,12 @@ Create Admin User
 cargo run --release --bin cli -- create-admin --username "admin" --email "admin@email.com
 ```
 
-Create Supervisor User
-```bash
-curl -i -X POST http://localhost:50051/api/v1/user \
-    -H "Content-Type: application/json" \
-    -d '{"username": "Second User", "email": "second_user@email.com", "password": "AlgumaSenha123#", "role": "supervisor"}'
-```
-
-Authenticate Admin User
-```bash
-curl -i -X POST http://localhost:50051/api/v1/auth \
-    -H "Content-Type: application/json" \
-    -d '{"email": "user@email.com", "password": "AlgumaSenha123#"}'
-```
-
-Authenticate Supervisor User
-```bash
-curl -i -X POST http://localhost:50051/api/v1/auth \
-    -H "Content-Type: application/json" \
-    -d '{"email": "second_user@email.com", "password": "AlgumaSenha123#"}'
-```
-
-Get Users
-```bash
-curl -i -X GET http://localhost:50051/api/v1/user \
-    -H "Authorization: Bearer {{TOKEN}}" \
-    -H "Content-Type: application/json"
-```
-
-Get User
-```bash
-curl -i -X GET http://localhost:50051/api/v1/user/{{id_usuário}} \
-    -H "Authorization: Bearer {{TOKEN}}" \
-    -H "Content-Type: application/json"
-```
-
-Delete User
-```bash
-curl -i -X DELETE http://localhost:50051/api/v1/user/{{id_usuário}} \
-    -H "Authorization: Bearer {{TOKEN}}" \
-    -H "Content-Type: application/json"
-```
-
 ## Setup database with sqlx
 ```bash
 sqlx database create   # Create the database
 cargo sqlx migrate run # Run migrations
 cargo sqlx prepare     # Create / Update .sqlx
 ```
-
-## 🛠️ Stack Tecnológica
-
-As dependências principais utilizadas são:
-
-- **Web Framework:** [actix-web](https://actix.rs/)
-- **Base de Dados:** [sqlx](https://github.com/launchbadge/sqlx) (PostgreSQL)
-- **Segurança:** [argon2](https://crates.io/crates/argon2) (Hashing), [jsonwebtoken](https://github.com/Keats/jsonwebtoken) (JWT)
-- **Serialização:** [serde](https://serde.rs/), [serde_json](https://github.com/serde-rs/json)
-- **Utilidades:** [uuid](https://crates.io/crates/uuid), [regex](https://crates.io/crates/regex), [dotenvy](https://github.com/allan2/dotenvy)
 
 ## 🏗️ File Architecture
 
@@ -76,7 +24,6 @@ src/
 ├── cli.rs                          # Ponto de entrada e configuração do binário CLI
 ├── config.rs                       # Carregamento de variáveis de ambiente
 ├── grpc_server.rs                  # Ponto de entrada e configuração do servidor gRPC
-├── http_server.rs                  # Ponto de entrada e configuração do servidor HTTP (Actix)
 ├── lib.rs                          # Exportação dos módulos principais do projeto
 ├── application/                    # Casos de Uso e Portas (Regras da aplicação)
 │   ├── mod.rs
@@ -127,36 +74,26 @@ src/
     │       ├── mod.rs
     │       ├── auth.rs             # Implementação do serviço de autenticação gRPC
     │       └── users.rs            # Implementação do serviço de gerenciamento de usuários gRPC
+    ├── email/                      # Secondary Adapters (Driven) - Envio de emails
+    │   ├── mod.rs
+    │   └── gmail_sender.rs         # Implementa a trait EmailSender, responsável por manipular e enviar emails
+    ├── otp/                        # Secondary Adapters (Driven) - OTP
+    │   ├── mod.rs
+    │   └── in_memory.rs            # Implementa a trait de manipulação e criação dos códigos OTP em memória (OtpStore)
     ├── persistence/                # Secondary Adapters (Driven) - Banco de Dados
     │   ├── mod.rs
     │   ├── sqlx_user_repository.rs # Implementa a trait UserRepository usando sqlx
     │   └── model/
     │       ├── mod.rs
     │       └── user_row.rs         # Estrutura de mapeamento direto com as tabelas do BD (sqlx)
-    ├── security/                   # Secondary Adapters (Driven) - Hash e JWT
-    │   ├── mod.rs
-    │   ├── argon2_hasher.rs        # Implementa a trait PasswordHasher
-    │   └── jwt_generator.rs        # Implementa a trait TokenGenerator
-    └── web/                        # Primary Adapters (Driving) - Servidor HTTP REST
+    └─── security/                   # Secondary Adapters (Driven) - Hash e JWT
         ├── mod.rs
-        ├── errors.rs               # Mapeamento de erros da aplicação para respostas HTTP
-        ├── routes.rs               # Configuração das rotas HTTP
-        ├── swagger.rs              # Configuração da documentação Swagger
-        ├── controllers/            # Handlers do Actix-web
-        │   ├── mod.rs
-        │   ├── auth.rs             # Recebe requisição, chama Use Case, retorna HTTP Response
-        │   └── user.rs             # Recebe requisição, chama Use Case, retorna HTTP Response
-        └── extractor/              # Extractors do Actix
-            ├── mod.rs
-            ├── admin.rs            # Extractor para proteger rotas exigindo privilégio de Admin
-            └── authenticated.rs    # Extractor para validar o JWT e proteger rotas logadas
+        ├── argon2_hasher.rs        # Implementa a trait PasswordHasher
+        └── jwt_generator.rs        # Implementa a trait TokenGenerator
 ```
 ## TODO:
-- [ ] Code unit tests
+- [x] Code unit tests
 - [ ] Code integration tests
-- [ ] Code End-to-End tests
-- [ ] Code load tests
-- [ ] Refine code quality
+- [x] Refine code quality
 - [ ] Finish README.MD
-- [ ] Create swagger
-- [ ] Separate the cli.rs into his own binary
+- [x] Separate the cli.rs into his own binary
