@@ -15,7 +15,7 @@ use auth_service::{
     users_grpc::users_server::UsersServer,
 };
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
-use std::net::SocketAddr;
+use std::{net::SocketAddr, time::Duration};
 use tonic::transport::Server;
 
 #[tokio::main]
@@ -34,7 +34,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let jwt_generator: JwtGenerator = JwtGenerator::new(config.jwt_secret, config.jwt_expiration);
 
-    let otp_store: InMemoryOtpStore = InMemoryOtpStore::new();
+    let otp_store: InMemoryOtpStore = InMemoryOtpStore::new(Duration::new(600, 0));
 
     let email_sender: GmailSender = GmailSender::new(config.smtp_username, config.smtp_password)
         .expect("Failed to configure Gmail Sender credentials");
