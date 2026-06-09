@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-		e "github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/enums"
+	e "github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/enums"
 )
 
 type PowerSource struct {

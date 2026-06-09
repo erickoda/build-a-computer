@@ -11,6 +11,8 @@ import (
 	pb "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/adapters/db"
 	grpcHandler "github.com/erickoda/build-a-computer/pc_builder_service/internal/adapters/grpc"
@@ -43,7 +45,10 @@ var Module = fx.Options(
 		
 		NewGRPCServer,
 	),
-	fx.Invoke(RegisterServer),
+	fx.Invoke(
+		db.Migrate,
+		RegisterServer,
+	),
 )
 
 func NewGRPCServer() *grpc.Server {
@@ -64,10 +69,7 @@ func RegisterServer(
 
 	pb.RegisterBuilderServiceServer(server, handler)
 
-	err := godotenv.Load()
-	if err != nil {
-		panic("failed to load .env file: " + err.Error())
-	}
+	_ = godotenv.Load()
 
 	var addr string = os.Getenv("ADDR")
 
@@ -78,8 +80,13 @@ func RegisterServer(
 				return err
 			}
 
+			healthServer := health.NewServer()
+			healthpb.RegisterHealthServer(server, healthServer)
+			healthServer.SetServingStatus("builder.BuilderService", healthpb.HealthCheckResponse_SERVING)
+
+			defer recoverServer()
+
 			go func() {
-				defer recoverServer()
 				
 				if err := server.Serve(lis); err != nil {
 					log.Fatal(err)

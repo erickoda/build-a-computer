@@ -82,4 +82,9 @@ type BuilderPort interface {
 		powerSource map[uuid.UUID]models.PowerSource,
 		ssd map[uuid.UUID]models.SSD,
 	) []models.PC
+
+	CheckIfPCCostsMoreThanRequested(
+		pcs []models.PC,
+		requestedPrice float32,
+	) bool
 }

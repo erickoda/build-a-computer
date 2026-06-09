@@ -41,6 +41,10 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 		return nil, h.handlerGRPCError(err)
 	}
 
+	if len(selectedBenchmarks) == 0 {
+		return &pb.BuildPCResponse{}, nil
+	}
+
 	log.Println("selectedBenchmarks: ", selectedBenchmarks)
 	
 	cpuSocketsOfEachBenchmark, err := h.builderSvc.GetBenchmarksSockets(ctx, selectedBenchmarks)
@@ -72,6 +76,10 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 		return nil, h.handlerGRPCError(err)
 	}
 
+	if len(motherBoards) == 0 {
+		return &pb.BuildPCResponse{}, nil
+	}
+
 	powerSourcesMappedByBenchmarks, err := h.builderSvc.GetPowerSourcesByRecommendedPower(
 		ctx, selectedBenchmarks,
 	)
@@ -85,6 +93,10 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 	)
 	if err != nil {
 		return nil, h.handlerGRPCError(err)
+	}
+
+	if len(powerSources) == 0 {
+		return &pb.BuildPCResponse{}, nil
 	}
 
 	games, err := h.builderSvc.GetGameByID(ctx, req.Games)
@@ -110,6 +122,10 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 		return nil, h.handlerGRPCError(err)
 	}
 
+	if len(SSDs) == 0 {
+		return &pb.BuildPCResponse{}, nil
+	}
+
 	CPUs, err := h.builderSvc.GetCPUsByID(ctx, selectedBenchmarks)
 	if err != nil {
 		return nil, h.handlerGRPCError(err)
@@ -133,6 +149,14 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 		powerSources,
 		SSDs,
 	)
+
+	if len(PCs) == 0 {
+		return &pb.BuildPCResponse{}, nil
+	}
+
+	if h.builderSvc.CheckIfPCCostsMoreThanRequested(PCs, req.MaxPrice) {
+		return &pb.BuildPCResponse{}, nil
+	}
 
 	return &pb.BuildPCResponse{
 		Pc: h.convertPCsToProto(PCs),

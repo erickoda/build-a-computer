@@ -10,6 +10,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
+	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
+
 	_ "embed"
 )
 
@@ -33,10 +35,7 @@ func NewDataBase() (*DB, error) {
 		PrepareStmt: true,
 	}
 
-	dns, err := loadDBConfig()
-	if err != nil {
-		return nil, fmt.Errorf("failed to load DB config: %w", err)
-	}
+	dns := loadDBConfig()
 
 	db, err := gorm.Open(postgres.Open(dns), gorm_config)
 	if err != nil{
@@ -54,15 +53,30 @@ func (db *DB) Close() {
 	sqlDB.Close()
 }
 
+func Migrate(db *DB) error {
+	err := db.Gorm.AutoMigrate(
+		&models.CPU{},
+		&models.GPU{},
+		&models.RamMemory{},
+		&models.Game{},
+		&models.Benchmark{},
+		&models.MotherBoard{},
+		&models.PowerSource{},
+		&models.SSD{},
+	)
+	if err != nil {
+		return fmt.Errorf("failed to migrate database: %w", err)
+	}
+	
+	return nil
+}
+
 func (db *DB) Get() *gorm.DB {
 	return db.Gorm
 }
 
-func loadDBConfig() (string, error) {
-	err := godotenv.Load()
-	if err != nil {
-		return "", fmt.Errorf("failed to load .env file: %w", err)
-	}
+func loadDBConfig() string {
+	_ = godotenv.Load()
 	
 	port, _ := strconv.Atoi(os.Getenv("PGPORT"))
 	host := os.Getenv("PGHOST")
@@ -87,5 +101,5 @@ func loadDBConfig() (string, error) {
 		config.Password, 
 		config.DBName, 
 		config.SSLMode,
-	), nil
+	)
 }

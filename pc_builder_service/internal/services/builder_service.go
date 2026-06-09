@@ -372,6 +372,14 @@ func (s *BuilderService) GetMotherBoardsByScore(
 	
 	for key := range motherBoardsMappedBySocketAndDDR {
 		for benchmarkID := range motherBoardsMappedBySocketAndDDR[key] {
+			if benchmarkID == uuid.Nil {
+				continue
+			}
+
+			if len(motherBoardsMappedBySocketAndDDR[key][benchmarkID]) == 0 {
+				continue
+			}
+			
 			for i := range motherBoardsMappedBySocketAndDDR[key][benchmarkID] {
 				if motherBoardsMappedBySocketAndDDR[key][benchmarkID][i].Score > 0 {
 					continue
@@ -385,7 +393,6 @@ func (s *BuilderService) GetMotherBoardsByScore(
 			}
 		}
 	}
-	
 
 	for key := range motherBoardsMappedBySocketAndDDR {
 		for benchmarkID := range motherBoardsMappedBySocketAndDDR[key] {
@@ -404,6 +411,10 @@ func (s *BuilderService) GetMotherBoardsByScore(
 			case e.ComputerPerformanceLow:
 				motherBoardQuartile = 0.3
 
+				if len(motherBoardsMappedBySocketAndDDR[key][benchmarkID]) == 0 {
+					continue
+				}
+
 				index := int(math.Floor(float64(size) * motherBoardQuartile))
 				selectedMotherBoard := motherBoardsMappedBySocketAndDDR[key][benchmarkID][index]
 
@@ -411,6 +422,10 @@ func (s *BuilderService) GetMotherBoardsByScore(
 				
 			case e.ComputerPerformanceMedium:
 				motherBoardQuartile = 0.6
+
+				if len(motherBoardsMappedBySocketAndDDR[key][benchmarkID]) == 0 {
+					continue
+				}
 
 				index := int(math.Floor(float64(size) * motherBoardQuartile))
 				selectedMotherBoard := motherBoardsMappedBySocketAndDDR[key][benchmarkID][index]
@@ -420,12 +435,20 @@ func (s *BuilderService) GetMotherBoardsByScore(
 			case e.ComputerPerformanceHigh:
 				motherBoardQuartile = 0.9
 
+				if len(motherBoardsMappedBySocketAndDDR[key][benchmarkID]) == 0 {
+					continue
+				}
+
 				index := int(math.Floor(float64(size) * motherBoardQuartile))
 				selectedMotherBoard := motherBoardsMappedBySocketAndDDR[key][benchmarkID][index]
 
 				motherBoardsByScore[benchmarkID] = selectedMotherBoard
 				
 			case e.ComputerPerformanceUltra:
+				if len(motherBoardsMappedBySocketAndDDR[key][benchmarkID]) == 0 {
+					continue
+				}
+				
 				index := int(size) - 1
 				selectedMotherBoard := motherBoardsMappedBySocketAndDDR[key][benchmarkID][index]
 
@@ -630,6 +653,25 @@ func (s *BuilderService) CreatePCs(
 	}
 	
 	return PCs
+}
+
+func (s *BuilderService) CheckIfPCCostsMoreThanRequested(
+	pcs []models.PC,
+	requestedPrice float32,
+) bool {
+	
+	var totalPrice float32
+	
+	for _, pc := range pcs {
+		totalPrice +=
+			pc.CPU.AvgPrice +
+			pc.GPU.AvgPrice +
+			pc.RAMMemory.AvgPrice +
+			pc.MotherBoard.AvgPrice +
+			pc.PowerSource.AvgPrice +
+			pc.SSD.AvgPrice
+	}
+	return totalPrice > requestedPrice
 }
 
 func calculatePerformanceScore(
