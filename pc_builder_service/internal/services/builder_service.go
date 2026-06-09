@@ -661,6 +661,7 @@ func (s *BuilderService) CheckIfPCCostsMoreThanRequested(
 ) bool {
 	
 	var totalPrice float32
+	var correctRequestedPrice float32
 	
 	for _, pc := range pcs {
 		totalPrice +=
@@ -671,6 +672,12 @@ func (s *BuilderService) CheckIfPCCostsMoreThanRequested(
 			pc.PowerSource.AvgPrice +
 			pc.SSD.AvgPrice
 	}
+
+	if requestedPrice == 0 {
+		correctRequestedPrice = 999999.99
+		return totalPrice > correctRequestedPrice
+	}
+	
 	return totalPrice > requestedPrice
 }
 
