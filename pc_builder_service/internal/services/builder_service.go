@@ -601,6 +601,10 @@ func (s *BuilderService) GetSSDByScore(
 
 	for benchmarkID := range ssdsMappedByBenchmark {
 		size := len(ssdsMappedByBenchmark[benchmarkID])
+
+		if size == 0 {
+			continue
+		}
 		
 		switch requestedPerformance {
 			case e.ComputerPerformanceLow:
