@@ -3,10 +3,18 @@ use crate::{
         auth_client::AuthClientWrapper, channel::create_channel, users_client::UsersClientWrapper,
     },
     config::AppConfig,
+    middleware::telemetry::tracing_layer,
     modules::{auth::routes::auth_routes, users::routes::user_routes},
     security::{jwt_adapter::JwtValidator, token::TokenValidator},
 };
-use axum::{Router, extract::FromRef, http::{HeaderValue, header::{AUTHORIZATION, CONTENT_TYPE}}};
+use axum::{
+    Router,
+    extract::FromRef,
+    http::{
+        HeaderValue,
+        header::{AUTHORIZATION, CONTENT_TYPE},
+    },
+};
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 
@@ -20,8 +28,10 @@ mod clients;
 mod config;
 mod errors;
 mod extractor;
+mod middleware;
 mod modules;
 mod security;
+mod telemetry;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -38,6 +48,8 @@ impl FromRef<AppState> for Arc<dyn TokenValidator> {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    telemetry::init_telemetry();
+
     let app_configure = AppConfig::from_env();
 
     let user_channel = create_channel(app_configure.auth_microservice_url).await?;
@@ -62,6 +74,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
         .nest("/api/v1/users", user_routes())
         .nest("/api/v1/authenticate", auth_routes())
+        .layer(tracing_layer())
         .layer(cors_layer)
         .with_state(state);
 

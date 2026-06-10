@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::domain::value_objects::{
     hashed_password::HashedPassword, plain_password::PlainPassword,
 };
@@ -17,4 +19,12 @@ pub trait PasswordHasher {
 
 pub enum PasswordHasherError {
     HashingFailed,
+}
+
+impl Display for PasswordHasherError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::HashingFailed => write!(f, "Failed to hash password"),
+        }
+    }
 }

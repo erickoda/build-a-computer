@@ -1,9 +1,11 @@
 use rand::RngExt;
+use tracing::instrument;
 
 use crate::{
     application::{
         commands::{
-            forgot_password::ForgotPasswordCommand, sign_in::SignInCommand, sign_up::SignUpCommand,
+            forgot_password::ForgotPasswordCommand, reset_password::ResetPasswordCommand,
+            sign_in::SignInCommand, sign_up::SignUpCommand,
         },
         errors::AuthServiceError,
         outputs::auth::AuthOutput,
@@ -12,7 +14,6 @@ use crate::{
             token_generator::TokenGenerator, user_repository::UserRepository,
         },
     },
-    auth_grpc::ResetPasswordRequest,
     domain::{
         entities::user::UserEntity,
         value_objects::{
@@ -55,6 +56,12 @@ impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher, E: EmailSender, O:
         }
     }
 
+    #[instrument(
+        name = "auth_use_case_sign_in",
+        skip(self, command),
+        fields(email = %command.get_email()),
+        err
+    )]
     pub async fn sign_in(&self, command: SignInCommand) -> Result<AuthOutput, AuthServiceError> {
         let email: Email = Email::try_from(command.get_email().to_string())?;
         let password: String = command.get_password().to_string();
@@ -78,6 +85,15 @@ impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher, E: EmailSender, O:
         Ok(AuthOutput::new(token))
     }
 
+    #[instrument(
+        name = "auth_use_case_sign_up",
+        skip(self, command),
+        fields(
+            username = %command.get_username(),
+            email = %command.get_email(),
+        ),
+        err
+    )]
     pub async fn sign_up(&self, command: SignUpCommand) -> Result<AuthOutput, AuthServiceError> {
         let username: Username = Username::try_from(command.get_username().to_string())?;
         let email: Email = Email::try_from(command.get_email().to_string())?;
@@ -102,6 +118,7 @@ impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher, E: EmailSender, O:
         Ok(AuthOutput::new(token))
     }
 
+    #[instrument(name = "auth_use_case_forgot_password", skip(self), err)]
     pub async fn forgot_password(
         &self,
         command: ForgotPasswordCommand,
@@ -124,23 +141,28 @@ impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher, E: EmailSender, O:
         Ok(())
     }
 
+    #[instrument(
+        name = "auth_use_case_reset_password",
+        skip(self, command),
+        fields(email = %command.get_email()),
+        err
+    )]
     pub async fn reset_password(
         &self,
-        command: ResetPasswordRequest,
+        command: ResetPasswordCommand,
     ) -> Result<(), AuthServiceError> {
-        let email: Email = Email::try_from(command.email.clone())?;
+        let email: Email = Email::try_from(String::from(command.get_email()))?;
 
         let stored_otp =
             self.otp_store.get_otp(&email).await?.ok_or_else(|| {
                 AuthServiceError::InternalError("OTP not found or expired".into())
             })?;
 
-        if stored_otp != command.otp {
-            println!("Aqui1");
+        if stored_otp != command.get_otp() {
             return Err(AuthServiceError::InvalidCredentials);
         }
 
-        let plain_password = PlainPassword::try_from(command.new_password)?;
+        let plain_password = PlainPassword::try_from(String::from(command.get_new_password()))?;
         let hashed_password: HashedPassword = self
             .password_hasher
             .hash_password(plain_password)

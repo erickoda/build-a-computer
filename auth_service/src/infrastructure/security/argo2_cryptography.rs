@@ -2,6 +2,7 @@ use argon2::{
     Argon2, PasswordHash, PasswordHasher as Argo2PasswordHasher, PasswordVerifier,
     password_hash::{SaltString, rand_core::OsRng},
 };
+use tracing::instrument;
 
 use crate::{
     application::ports::password_hasher::{PasswordHasher, PasswordHasherError},
@@ -12,6 +13,7 @@ use crate::{
 pub struct Argo2Hasher {}
 
 impl PasswordHasher for Argo2Hasher {
+    #[instrument(name = "argo2_hash_password", skip(self, plain_password), err)]
     fn hash_password(
         &self,
         plain_password: PlainPassword,
@@ -28,6 +30,11 @@ impl PasswordHasher for Argo2Hasher {
         Ok(HashedPassword::from_hash(password_hash))
     }
 
+    #[instrument(
+        name = "argo2_verify_password",
+        skip(self, hashed_password, unencrypted_password),
+        err
+    )]
     fn verify_password(
         &self,
         hashed_password: &str,

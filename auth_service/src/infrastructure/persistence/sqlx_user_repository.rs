@@ -1,4 +1,5 @@
 use sqlx::PgPool;
+use tracing::instrument;
 use uuid::Uuid;
 
 use crate::{
@@ -22,6 +23,18 @@ impl SqlxUserRepository {
 }
 
 impl UserRepository for SqlxUserRepository {
+    #[instrument(
+        name = "db_user_insert",
+        skip(self, user), 
+        fields(
+            id = %user.get_id().to_string(),
+            username = %String::from(user.get_username()),
+            email = %String::from(user.get_email()),
+            role = ?user.get_role(),
+            status = ?user.get_status()
+        ),
+        err
+    )]
     async fn insert_user(&self, user: UserEntity) -> Result<UserEntity, RepositoryError> {
         let uuid: Uuid = user.get_id();
         let username: String = user.get_username().into();
@@ -51,6 +64,11 @@ impl UserRepository for SqlxUserRepository {
         }
     }
 
+    #[instrument(
+        name = "db_get_user_by_id",
+        skip(self), 
+        err
+    )]
     async fn get_user(&self, id: Uuid) -> Result<UserEntity, RepositoryError> {
         let row: UserRow = sqlx::query_as!(
             UserRow,
@@ -70,6 +88,11 @@ impl UserRepository for SqlxUserRepository {
         Ok(entity)
     }
 
+    #[instrument(
+        name = "db_delete_user_by_id",
+        skip(self), 
+        err
+    )]
     async fn delete_user(&self, id: Uuid) -> Result<(), RepositoryError> {
         let result = sqlx::query!(
             r#"
@@ -90,6 +113,12 @@ impl UserRepository for SqlxUserRepository {
         Ok(())
     }
 
+    #[instrument(
+        name = "db_get_user_by_email",
+        skip(self), 
+        fields(email = % String::from(&email)),
+        err
+    )]
     async fn get_user_by_email(
         &self,
         email: crate::domain::value_objects::email::Email,
@@ -118,6 +147,11 @@ impl UserRepository for SqlxUserRepository {
         Ok(user_entity)
     }
 
+    #[instrument(
+        name = "db_get_all_users",
+        skip(self), 
+        err
+    )]
     async fn get_users(&self) -> Result<Vec<UserEntity>, RepositoryError> {
         let rows: Vec<UserRow> = sqlx::query_as!(
             UserRow,
@@ -142,6 +176,18 @@ impl UserRepository for SqlxUserRepository {
             .collect::<Result<Vec<UserEntity>, _>>()
     }
 
+    #[instrument(
+        name = "db_update_user",
+        skip(self, user), 
+        fields(
+            id = %user.get_id().to_string(),
+            username = %String::from(user.get_username()),
+            email = %String::from(user.get_email()),
+            role = ?user.get_role(),
+            status = ?user.get_status()
+        ),
+        err
+    )]
     async fn update_user(&self, user: UserEntity) -> Result<(), RepositoryError> {
         let uuid: Uuid = user.get_id();
         let username: String = user.get_username().into();
@@ -179,6 +225,11 @@ impl UserRepository for SqlxUserRepository {
         Ok(())
     }
 
+    #[instrument(
+        name = "db_update_user",
+        skip(self, password), 
+        err
+    )]
     async fn change_password_by_email(
         &self,
         password: &HashedPassword,

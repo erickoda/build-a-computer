@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[derive(Debug, Deserialize)]
-struct TokenClaims {
+pub struct TokenClaims {
     pub sub: String,
     pub role: String,
 }

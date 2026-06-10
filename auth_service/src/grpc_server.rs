@@ -12,14 +12,18 @@ use auth_service::{
         persistence::sqlx_user_repository::SqlxUserRepository,
         security::{argo2_cryptography::Argo2Hasher, jwt_generator::JwtGenerator},
     },
+    telemetry,
     users_grpc::users_server::UsersServer,
 };
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 use std::{net::SocketAddr, time::Duration};
 use tonic::transport::Server;
+use tower_http::trace::TraceLayer;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    telemetry::init_telemetry();
+
     let config: AppConfig = AppConfig::from_env();
 
     let pool: Pool<Postgres> = PgPoolOptions::new()
@@ -61,9 +65,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let addr: SocketAddr = format!("{}:{}", config.host, config.port).parse()?;
 
-    println!("Running gRPC Auth Microservice in {}", addr);
+    tracing::info!("Running gRPC Auth Microservice in {}", addr);
 
     Server::builder()
+        .layer(TraceLayer::new_for_grpc())
         .add_service(AuthServer::new(auth_service))
         .add_service(UsersServer::with_interceptor(
             user_service,

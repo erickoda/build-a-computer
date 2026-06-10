@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::domain::{
     entities::user::UserEntity,
     value_objects::{email::Email, hashed_password::HashedPassword},
@@ -25,4 +27,14 @@ pub enum RepositoryError {
     NotFound,
     DuplicatedColumn,
     Unexpected(String),
+}
+
+impl Display for RepositoryError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::NotFound => write!(f, "User not found"),
+            Self::DuplicatedColumn => write!(f, "Email already exists"),
+            Self::Unexpected(msg) => write!(f, "Unexpected repository error: {}", msg),
+        }
+    }
 }

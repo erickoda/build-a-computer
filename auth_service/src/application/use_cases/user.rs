@@ -1,3 +1,4 @@
+use tracing::instrument;
 use uuid::Uuid;
 
 use crate::{
@@ -28,6 +29,16 @@ impl<R: UserRepository, P: PasswordHasher> UserUseCase<R, P> {
         }
     }
 
+    #[instrument(
+        name = "user_use_case_create_user",
+        skip(self, command),
+        fields(
+            username = %command.get_username(),
+            email = %command.get_email(),
+            role = ?command.get_role(),
+        ),
+        err
+    )]
     pub async fn create_user(
         &self,
         command: CreateUserCommand,
@@ -49,14 +60,28 @@ impl<R: UserRepository, P: PasswordHasher> UserUseCase<R, P> {
         Ok(self.repository.insert_user(user_entity).await?)
     }
 
+    #[instrument(name = "user_use_case_get_user", skip(self), err)]
     pub async fn get_user(&self, id: Uuid) -> Result<UserEntity, UserUseCaseError> {
         Ok(self.repository.get_user(id).await?)
     }
 
+    #[instrument(name = "user_use_case_get_users", skip(self), err)]
     pub async fn get_users(&self) -> Result<Vec<UserEntity>, UserUseCaseError> {
         Ok(self.repository.get_users().await?)
     }
 
+    #[instrument(
+        name = "user_use_case_update_user",
+        skip(self, command), 
+        fields(
+            id = %command.get_id(),
+            username = ?command.get_username(),
+            email = ?command.get_email(),
+            role = ?command.get_role(),
+            status = ?command.get_status(),
+        ),
+        err
+    )]
     pub async fn update_user(
         &self,
         command: UpdateUserCommand,
@@ -124,6 +149,7 @@ impl<R: UserRepository, P: PasswordHasher> UserUseCase<R, P> {
         Ok(())
     }
 
+    #[instrument(name = "user_use_case_delete_user", skip(self), err)]
     pub async fn delete_user(
         &self,
         id: Uuid,

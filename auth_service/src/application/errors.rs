@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::{
     application::ports::{
         email_sender::EmailSenderError, otp_store::OtpStoreError,
@@ -50,6 +52,15 @@ impl From<UserEntityError> for UserUseCaseError {
 pub enum AuthServiceError {
     InvalidCredentials,
     InternalError(String),
+}
+
+impl Display for AuthServiceError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::InvalidCredentials => write!(f, "Invalid Credentials"),
+            Self::InternalError(msg) => write!(f, "Internal server error: {}", msg),
+        }
+    }
 }
 
 impl From<RepositoryError> for AuthServiceError {

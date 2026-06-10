@@ -2,6 +2,7 @@ use uuid::Uuid;
 
 use crate::domain::value_objects::{role::Role, status::Status};
 
+#[derive(Debug)]
 pub struct UpdateUserCommand {
     id: Uuid,
     username: Option<String>,
