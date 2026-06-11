@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package pkg.protos.v1;
+
+option java_package = "com.buildpc.benchmark_service.grpc.generated";
+option java_multiple_files = true;
+option java_outer_classname = "BenchmarkProto";
+
+import "google/protobuf/timestamp.proto";
+import "hardware.proto";
+
+// --- Request Messages---
+message CreateBenchmarkRequest {
+    string title = 1;
+    int32 resolution = 2;
+    string graphics_quality = 3;
+
+    string cpu_id = 4;
+    string gpu_id = 5;
+    string ram_id = 6;
+
+    int32 avg_fps = 7;
+    int32 min_fps = 8;
+    int32 max_fps = 9;
+
+    string game_id = 10;
+    string user_id = 11;
+    optional float score = 12;
+}
+
+message GetBenchmarkRequest {
+    string id = 1;
+}
+
+message ListBenchmarkRequest {
+
+}
+
+message DeleteBenchmarkRequest {
+    string id = 1;
+}
+
+// --- Response Messages---
+message BenchmarkResponse {
+    string id = 1;
+    string title = 2;
+    int32 resolution = 3;
+    string graphics_quality = 4;
+
+    CPUResponse cpu = 5;
+    GPUResponse gpu = 6;
+    RAMResponse ram = 7;
+
+    int32 avg_fps = 8;
+    int32 min_fps = 9;
+    int32 max_fps = 10;
+
+    string game_id = 11;
+    string user_id = 12;
+    optional float score = 13;
+
+    google.protobuf.Timestamp created_at = 14;
+    optional google.protobuf.Timestamp updated_at = 15;
+}
+
+message ListBenchmarkResponse {
+  repeated BenchmarkResponse benchmark = 1;
+}
+
+message DeleteBenchmarkResponse {
+    bool success = 1;
+}
