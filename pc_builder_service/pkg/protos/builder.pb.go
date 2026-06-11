@@ -221,25 +221,25 @@ var File_builder_proto protoreflect.FileDescriptor
 
 const file_builder_proto_rawDesc = "" +
 	"\n" +
-	"\rbuilder.proto\x12\tpkg.proto\x1a\x0fhardwares.proto\"\x96\x01\n" +
+	"\rbuilder.proto\x12\rpkg.protos.v1\x1a\x0fhardwares.proto\"\x96\x01\n" +
 	"\x0eBuildPCRequest\x12\x14\n" +
 	"\x05games\x18\x01 \x03(\tR\x05games\x12\x1b\n" +
 	"\tmax_price\x18\x02 \x01(\x02R\bmaxPrice\x12\x1e\n" +
 	"\n" +
 	"resolution\x18\x03 \x01(\x05R\n" +
 	"resolution\x121\n" +
-	"\x14computer_performance\x18\x04 \x01(\tR\x13computerPerformance\"0\n" +
-	"\x0fBuildPCResponse\x12\x1d\n" +
-	"\x02pc\x18\x01 \x03(\v2\r.pkg.proto.PCR\x02pc\"\xf7\x01\n" +
-	"\x02PC\x12 \n" +
-	"\x03cpu\x18\x01 \x01(\v2\x0e.pkg.proto.CPUR\x03cpu\x12 \n" +
-	"\x03gpu\x18\x02 \x01(\v2\x0e.pkg.proto.GPUR\x03gpu\x12&\n" +
-	"\x03ram\x18\x03 \x01(\v2\x14.pkg.proto.RAMMemoryR\x03ram\x129\n" +
-	"\fmother_board\x18\x04 \x01(\v2\x16.pkg.proto.MotherBoardR\vmotherBoard\x12(\n" +
-	"\x03psu\x18\x05 \x01(\v2\x16.pkg.proto.PowerSourceR\x03psu\x12 \n" +
-	"\x03ssd\x18\x06 \x01(\v2\x0e.pkg.proto.SSDR\x03ssd2R\n" +
-	"\x0eBuilderService\x12@\n" +
-	"\aBuildPC\x12\x19.pkg.proto.BuildPCRequest\x1a\x1a.pkg.proto.BuildPCResponseBDZBgithub.com/erickoda/build-a-computer/pc_builder_service/pkg/protosb\x06proto3"
+	"\x14computer_performance\x18\x04 \x01(\tR\x13computerPerformance\"4\n" +
+	"\x0fBuildPCResponse\x12!\n" +
+	"\x02pc\x18\x01 \x03(\v2\x11.pkg.protos.v1.PCR\x02pc\"\x8f\x02\n" +
+	"\x02PC\x12$\n" +
+	"\x03cpu\x18\x01 \x01(\v2\x12.pkg.protos.v1.CPUR\x03cpu\x12$\n" +
+	"\x03gpu\x18\x02 \x01(\v2\x12.pkg.protos.v1.GPUR\x03gpu\x12*\n" +
+	"\x03ram\x18\x03 \x01(\v2\x18.pkg.protos.v1.RAMMemoryR\x03ram\x12=\n" +
+	"\fmother_board\x18\x04 \x01(\v2\x1a.pkg.protos.v1.MotherBoardR\vmotherBoard\x12,\n" +
+	"\x03psu\x18\x05 \x01(\v2\x1a.pkg.protos.v1.PowerSourceR\x03psu\x12$\n" +
+	"\x03ssd\x18\x06 \x01(\v2\x12.pkg.protos.v1.SSDR\x03ssd2Z\n" +
+	"\x0eBuilderService\x12H\n" +
+	"\aBuildPC\x12\x1d.pkg.protos.v1.BuildPCRequest\x1a\x1e.pkg.protos.v1.BuildPCResponseBDZBgithub.com/erickoda/build-a-computer/pc_builder_service/pkg/protosb\x06proto3"
 
 var (
 	file_builder_proto_rawDescOnce sync.Once
@@ -255,26 +255,26 @@ func file_builder_proto_rawDescGZIP() []byte {
 
 var file_builder_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_builder_proto_goTypes = []any{
-	(*BuildPCRequest)(nil),  // 0: pkg.proto.BuildPCRequest
-	(*BuildPCResponse)(nil), // 1: pkg.proto.BuildPCResponse
-	(*PC)(nil),              // 2: pkg.proto.PC
-	(*CPU)(nil),             // 3: pkg.proto.CPU
-	(*GPU)(nil),             // 4: pkg.proto.GPU
-	(*RAMMemory)(nil),       // 5: pkg.proto.RAMMemory
-	(*MotherBoard)(nil),     // 6: pkg.proto.MotherBoard
-	(*PowerSource)(nil),     // 7: pkg.proto.PowerSource
-	(*SSD)(nil),             // 8: pkg.proto.SSD
+	(*BuildPCRequest)(nil),  // 0: pkg.protos.v1.BuildPCRequest
+	(*BuildPCResponse)(nil), // 1: pkg.protos.v1.BuildPCResponse
+	(*PC)(nil),              // 2: pkg.protos.v1.PC
+	(*CPU)(nil),             // 3: pkg.protos.v1.CPU
+	(*GPU)(nil),             // 4: pkg.protos.v1.GPU
+	(*RAMMemory)(nil),       // 5: pkg.protos.v1.RAMMemory
+	(*MotherBoard)(nil),     // 6: pkg.protos.v1.MotherBoard
+	(*PowerSource)(nil),     // 7: pkg.protos.v1.PowerSource
+	(*SSD)(nil),             // 8: pkg.protos.v1.SSD
 }
 var file_builder_proto_depIdxs = []int32{
-	2, // 0: pkg.proto.BuildPCResponse.pc:type_name -> pkg.proto.PC
-	3, // 1: pkg.proto.PC.cpu:type_name -> pkg.proto.CPU
-	4, // 2: pkg.proto.PC.gpu:type_name -> pkg.proto.GPU
-	5, // 3: pkg.proto.PC.ram:type_name -> pkg.proto.RAMMemory
-	6, // 4: pkg.proto.PC.mother_board:type_name -> pkg.proto.MotherBoard
-	7, // 5: pkg.proto.PC.psu:type_name -> pkg.proto.PowerSource
-	8, // 6: pkg.proto.PC.ssd:type_name -> pkg.proto.SSD
-	0, // 7: pkg.proto.BuilderService.BuildPC:input_type -> pkg.proto.BuildPCRequest
-	1, // 8: pkg.proto.BuilderService.BuildPC:output_type -> pkg.proto.BuildPCResponse
+	2, // 0: pkg.protos.v1.BuildPCResponse.pc:type_name -> pkg.protos.v1.PC
+	3, // 1: pkg.protos.v1.PC.cpu:type_name -> pkg.protos.v1.CPU
+	4, // 2: pkg.protos.v1.PC.gpu:type_name -> pkg.protos.v1.GPU
+	5, // 3: pkg.protos.v1.PC.ram:type_name -> pkg.protos.v1.RAMMemory
+	6, // 4: pkg.protos.v1.PC.mother_board:type_name -> pkg.protos.v1.MotherBoard
+	7, // 5: pkg.protos.v1.PC.psu:type_name -> pkg.protos.v1.PowerSource
+	8, // 6: pkg.protos.v1.PC.ssd:type_name -> pkg.protos.v1.SSD
+	0, // 7: pkg.protos.v1.BuilderService.BuildPC:input_type -> pkg.protos.v1.BuildPCRequest
+	1, // 8: pkg.protos.v1.BuilderService.BuildPC:output_type -> pkg.protos.v1.BuildPCResponse
 	8, // [8:9] is the sub-list for method output_type
 	7, // [7:8] is the sub-list for method input_type
 	7, // [7:7] is the sub-list for extension type_name

@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BuilderService_BuildPC_FullMethodName = "/pkg.proto.BuilderService/BuildPC"
+	BuilderService_BuildPC_FullMethodName = "/pkg.protos.v1.BuilderService/BuildPC"
 )
 
 // BuilderServiceClient is the client API for BuilderService service.
@@ -108,7 +108,7 @@ func _BuilderService_BuildPC_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var BuilderService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "pkg.proto.BuilderService",
+	ServiceName: "pkg.protos.v1.BuilderService",
 	HandlerType: (*BuilderServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

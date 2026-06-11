@@ -182,7 +182,7 @@ var File_benchmark_proto protoreflect.FileDescriptor
 
 const file_benchmark_proto_rawDesc = "" +
 	"\n" +
-	"\x0fbenchmark.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xed\x03\n" +
+	"\x0fbenchmark.proto\x12\rpkg.protos.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xed\x03\n" +
 	"\tBenchmark\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x1e\n" +
@@ -221,12 +221,12 @@ func file_benchmark_proto_rawDescGZIP() []byte {
 
 var file_benchmark_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_benchmark_proto_goTypes = []any{
-	(*Benchmark)(nil),           // 0: pkg.proto.Benchmark
+	(*Benchmark)(nil),           // 0: pkg.protos.v1.Benchmark
 	(*timestamp.Timestamp)(nil), // 1: google.protobuf.Timestamp
 }
 var file_benchmark_proto_depIdxs = []int32{
-	1, // 0: pkg.proto.Benchmark.created_at:type_name -> google.protobuf.Timestamp
-	1, // 1: pkg.proto.Benchmark.updated_at:type_name -> google.protobuf.Timestamp
+	1, // 0: pkg.protos.v1.Benchmark.created_at:type_name -> google.protobuf.Timestamp
+	1, // 1: pkg.protos.v1.Benchmark.updated_at:type_name -> google.protobuf.Timestamp
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

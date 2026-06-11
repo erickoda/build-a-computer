@@ -898,7 +898,7 @@ var File_hardwares_proto protoreflect.FileDescriptor
 
 const file_hardwares_proto_rawDesc = "" +
 	"\n" +
-	"\x0fhardwares.proto\x12\tpkg.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe5\x04\n" +
+	"\x0fhardwares.proto\x12\rpkg.protos.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe5\x04\n" +
 	"\x03CPU\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05brand\x18\x02 \x01(\tR\x05brand\x12\x10\n" +
@@ -1035,29 +1035,29 @@ func file_hardwares_proto_rawDescGZIP() []byte {
 
 var file_hardwares_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_hardwares_proto_goTypes = []any{
-	(*CPU)(nil),                 // 0: pkg.proto.CPU
-	(*GPU)(nil),                 // 1: pkg.proto.GPU
-	(*RAMMemory)(nil),           // 2: pkg.proto.RAMMemory
-	(*MotherBoard)(nil),         // 3: pkg.proto.MotherBoard
-	(*PowerSource)(nil),         // 4: pkg.proto.PowerSource
-	(*SSD)(nil),                 // 5: pkg.proto.SSD
+	(*CPU)(nil),                 // 0: pkg.protos.v1.CPU
+	(*GPU)(nil),                 // 1: pkg.protos.v1.GPU
+	(*RAMMemory)(nil),           // 2: pkg.protos.v1.RAMMemory
+	(*MotherBoard)(nil),         // 3: pkg.protos.v1.MotherBoard
+	(*PowerSource)(nil),         // 4: pkg.protos.v1.PowerSource
+	(*SSD)(nil),                 // 5: pkg.protos.v1.SSD
 	(*timestamp.Timestamp)(nil), // 6: google.protobuf.Timestamp
 }
 var file_hardwares_proto_depIdxs = []int32{
-	6,  // 0: pkg.proto.CPU.release_date:type_name -> google.protobuf.Timestamp
-	6,  // 1: pkg.proto.CPU.created_at:type_name -> google.protobuf.Timestamp
-	6,  // 2: pkg.proto.CPU.updated_at:type_name -> google.protobuf.Timestamp
-	6,  // 3: pkg.proto.GPU.release_date:type_name -> google.protobuf.Timestamp
-	6,  // 4: pkg.proto.GPU.created_at:type_name -> google.protobuf.Timestamp
-	6,  // 5: pkg.proto.GPU.updated_at:type_name -> google.protobuf.Timestamp
-	6,  // 6: pkg.proto.RAMMemory.created_at:type_name -> google.protobuf.Timestamp
-	6,  // 7: pkg.proto.RAMMemory.updated_at:type_name -> google.protobuf.Timestamp
-	6,  // 8: pkg.proto.MotherBoard.created_at:type_name -> google.protobuf.Timestamp
-	6,  // 9: pkg.proto.MotherBoard.updated_at:type_name -> google.protobuf.Timestamp
-	6,  // 10: pkg.proto.PowerSource.created_at:type_name -> google.protobuf.Timestamp
-	6,  // 11: pkg.proto.PowerSource.updated_at:type_name -> google.protobuf.Timestamp
-	6,  // 12: pkg.proto.SSD.created_at:type_name -> google.protobuf.Timestamp
-	6,  // 13: pkg.proto.SSD.updated_at:type_name -> google.protobuf.Timestamp
+	6,  // 0: pkg.protos.v1.CPU.release_date:type_name -> google.protobuf.Timestamp
+	6,  // 1: pkg.protos.v1.CPU.created_at:type_name -> google.protobuf.Timestamp
+	6,  // 2: pkg.protos.v1.CPU.updated_at:type_name -> google.protobuf.Timestamp
+	6,  // 3: pkg.protos.v1.GPU.release_date:type_name -> google.protobuf.Timestamp
+	6,  // 4: pkg.protos.v1.GPU.created_at:type_name -> google.protobuf.Timestamp
+	6,  // 5: pkg.protos.v1.GPU.updated_at:type_name -> google.protobuf.Timestamp
+	6,  // 6: pkg.protos.v1.RAMMemory.created_at:type_name -> google.protobuf.Timestamp
+	6,  // 7: pkg.protos.v1.RAMMemory.updated_at:type_name -> google.protobuf.Timestamp
+	6,  // 8: pkg.protos.v1.MotherBoard.created_at:type_name -> google.protobuf.Timestamp
+	6,  // 9: pkg.protos.v1.MotherBoard.updated_at:type_name -> google.protobuf.Timestamp
+	6,  // 10: pkg.protos.v1.PowerSource.created_at:type_name -> google.protobuf.Timestamp
+	6,  // 11: pkg.protos.v1.PowerSource.updated_at:type_name -> google.protobuf.Timestamp
+	6,  // 12: pkg.protos.v1.SSD.created_at:type_name -> google.protobuf.Timestamp
+	6,  // 13: pkg.protos.v1.SSD.updated_at:type_name -> google.protobuf.Timestamp
 	14, // [14:14] is the sub-list for method output_type
 	14, // [14:14] is the sub-list for method input_type
 	14, // [14:14] is the sub-list for extension type_name

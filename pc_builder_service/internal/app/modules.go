@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"go.uber.org/fx"
+	"go.uber.org/zap"
 
 	pb "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos"
 	"github.com/joho/godotenv"
@@ -36,6 +37,8 @@ var Module = fx.Options(
 		db.NewSSDRepositoryImpl,
 		
 		db.NewGameRepositoryImpl,
+
+		zap.NewDevelopment,
 		
 		services.NewBuilderService,
 		

@@ -10,6 +10,7 @@ import (
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/models"
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/ports"
 	pb "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos"
+	"go.uber.org/zap"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/grpc/codes"
@@ -20,9 +21,10 @@ import (
 type BuilderHandler struct{
 	pb.UnimplementedBuilderServiceServer
 	builderSvc ports.BuilderPort
+	zap        *zap.Logger
 }
 
-func NewBuilderHandler(builderSvc ports.BuilderPort) *BuilderHandler {
+func NewBuilderHandler(zap *zap.Logger, builderSvc ports.BuilderPort) *BuilderHandler {
 	return &BuilderHandler{
 		builderSvc: builderSvc,
 	}
@@ -30,13 +32,15 @@ func NewBuilderHandler(builderSvc ports.BuilderPort) *BuilderHandler {
 
 func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*pb.BuildPCResponse, error) {
 	var inPricePCs []models.PC
-	log.Println("Chega aqui")
+	
+	log.Println("New PC request")
+	
 	benchmarkByHeavierGame, err := h.builderSvc.GetBenchmarksByHavierGame(ctx, req.Games, req.Resolution)
 	if err != nil {
 		return nil, h.handlerGRPCError(err)
 	}
 
-	log.Println("benchmarkByHeavierGame: ", benchmarkByHeavierGame)
+	log.Println("Benchmarks by heavier game found\n", benchmarkByHeavierGame)
 
 	selectedBenchmarks, err := h.builderSvc.GetBenchmarksByBestScore(ctx, benchmarkByHeavierGame, req.ComputerPerformance)
 	if err != nil {
@@ -47,17 +51,21 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 		return &pb.BuildPCResponse{}, nil
 	}
 
-	log.Println("selectedBenchmarks: ", selectedBenchmarks)
+	log.Println("Benchmarks selected to recomendation\n", selectedBenchmarks)
 	
 	cpuSocketsOfEachBenchmark, err := h.builderSvc.GetBenchmarksSockets(ctx, selectedBenchmarks)
 	if err != nil {
 		return nil, h.handlerGRPCError(err)
 	}
 
+	log.Println("CPU sockets of each benchmark found\n", cpuSocketsOfEachBenchmark)
+
 	ramDDROfEachBenchmark, err := h.builderSvc.GetBenchmarksDDRs(ctx, selectedBenchmarks)
 	if err != nil {
 		return nil, h.handlerGRPCError(err)
 	}
+
+	log.Println("RAM DDR of each benchmark found\n", ramDDROfEachBenchmark)
 
 	motherBoardsMappedBySocketAndDDROfEachBenchmark, err := h.builderSvc.GetMotherBoardBySocketAndDDR(
 		ctx, 
@@ -69,6 +77,8 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 		return nil, h.handlerGRPCError(err)
 	}
 
+	log.Println("Mother boards mapped by socket and DDR of each benchmark found\n", motherBoardsMappedBySocketAndDDROfEachBenchmark)
+
 	motherBoards, err := h.builderSvc.GetMotherBoardsByScore(
 		ctx, 
 		motherBoardsMappedBySocketAndDDROfEachBenchmark, 
@@ -77,6 +87,8 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 	if err != nil {
 		return nil, h.handlerGRPCError(err)
 	}
+
+	log.Println("Mother boards selected for each recomendation\n", motherBoards)
 
 	if len(motherBoards) == 0 {
 		return &pb.BuildPCResponse{}, nil
@@ -89,6 +101,8 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 		return nil, h.handlerGRPCError(err)
 	}
 
+	log.Println("Power sources mapped by benchmark found\n", powerSourcesMappedByBenchmarks)
+
 	powerSources, err := h.builderSvc.GetPowerSourcesByScore(
 		ctx, 
 		powerSourcesMappedByBenchmarks,
@@ -96,6 +110,8 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 	if err != nil {
 		return nil, h.handlerGRPCError(err)
 	}
+
+	log.Println("Power sources selected for each recomendation\n", powerSources)
 
 	if len(powerSources) == 0 {
 		return &pb.BuildPCResponse{}, nil
@@ -106,6 +122,8 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 		return nil, h.handlerGRPCError(err)
 	}
 
+	log.Println("Inputed games found")
+
 	SSDsMappedByBenchmarks, err := h.builderSvc.GetSSDByMinimumNecessaryAmount(
 		ctx, 
 		games, 
@@ -114,6 +132,8 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 	if err != nil {
 		return nil, h.handlerGRPCError(err)
 	}
+
+	log.Println("SSDs that all games fill up\n", SSDsMappedByBenchmarks)
 
 	SSDs, err := h.builderSvc.GetSSDByScore(
 		ctx, 
@@ -127,6 +147,8 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 	if len(SSDs) == 0 {
 		return &pb.BuildPCResponse{}, nil
 	}
+
+	log.Println("SSDs selected for each benchmark\n", SSDs)
 
 	CPUs, err := h.builderSvc.GetCPUsByID(ctx, selectedBenchmarks)
 	if err != nil {
@@ -152,6 +174,8 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 		SSDs,
 	)
 
+	log.Println("Created pcs\n", PCs)
+
 	if len(PCs) == 0 {
 		return &pb.BuildPCResponse{}, nil
 	}
@@ -163,6 +187,8 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 		
 		inPricePCs = append(inPricePCs, pc)
 	}
+
+	log.Println("PCs filtered by max price\n", inPricePCs)
 
 	return &pb.BuildPCResponse{
 		Pc: h.convertPCsToProto(inPricePCs),
