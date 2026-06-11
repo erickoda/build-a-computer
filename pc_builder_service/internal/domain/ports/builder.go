@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// BuilderPort defines the interface for the builder service.
 type BuilderPort interface {
 	GetCPUsByID(
 		ctx context.Context, 

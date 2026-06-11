@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// GameRepository defines the interface for the game repository.
 type GameRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*models.Game, error)	
 }

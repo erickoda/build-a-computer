@@ -18,6 +18,7 @@ type Game struct {
 	UpdatedAt 					time.Time 					`gorm:"type:timestamp"`
 }
 
+// ParseID parses a list of game string IDs into a list of game UUIDs.
 func ParseID(ids ...string) ([]uuid.UUID, error) {
 	var parsedIDs []uuid.UUID
 	

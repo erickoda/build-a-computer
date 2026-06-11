@@ -696,9 +696,9 @@ func (s *BuilderService) GetSSDByScore(
 	return ssdMappedByBenchmark, nil
 }
 
-// CreatePCs creates a slice of PCs based on the provided CPU, GPU, RAM, MotherBoard, PowerSource, and SSD maps.
+// CreatePCs creates a slice of PCs based on the provided CPU, GPU, RAM, MotherBoard, PowerSource, and SSD for each benchmark.
 // It iterates over the CPU map and creates a PC for each entry, appending it to the PCs slice.
-// The resulting slice of PCs is returned.
+// It takes the mapped CPU, GPU, RAM, MotherBoard, PowerSource, and SSD for each benchmark and creates a PC for each entry.
 func (s *BuilderService) CreatePCs(
 	cpu map[uuid.UUID]models.CPU,
 	gpu map[uuid.UUID]models.GPU,

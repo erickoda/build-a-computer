@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type RAMMemory interface {
+// RAMMemoryRepository defines the interface for the RAM memory repository.
+type RAMMemoryRepository interface {
 	FindByID(ctx context.Context, id uuid.UUID) (*models.RamMemory, error)
 }

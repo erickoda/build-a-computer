@@ -20,6 +20,7 @@ var ValidSSDType = map[string]SSDType{
 	"m2 nvme": SDDTypeM2NVMe,
 }
 
+// ParseSSDType parses a string into a SSDType value.
 func ParseSSDType(ssdType string) (SSDType, error) {
 	if _, ok := ValidSSDType[ssdType]; !ok {
 		return "", domain.ErrSSDTypeParseError
@@ -27,6 +28,7 @@ func ParseSSDType(ssdType string) (SSDType, error) {
 	return ValidSSDType[ssdType], nil
 }
 
+// Scan implements the scanner for gorm to convert a database value into a SSDType.
 func (st *SSDType) Scan(value any) error {
 	if value == nil{
 		return domain.ErrScanNilValue
@@ -45,6 +47,7 @@ func (st *SSDType) Scan(value any) error {
 	return nil
 }
 
+// Value implements the driver to transform a SSDType into a database value.
 func (st SSDType) Value() (driver.Value, error) {
 	return string(st), nil
 }

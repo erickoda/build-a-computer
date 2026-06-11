@@ -22,6 +22,7 @@ var validComputerPerformances = map[string]ComputerPerformance{
 	"ultra": ComputerPerformanceUltra,
 }
 
+// ParseComputerPerformance parses a string into a ComputerPerformance value.
 func ParseComputerPerformance(s string) (ComputerPerformance, error) {
 	if p, ok := validComputerPerformances[s]; ok {
 		return p, nil
@@ -29,6 +30,7 @@ func ParseComputerPerformance(s string) (ComputerPerformance, error) {
 	return "", domain.ErrPerformanceParseError
 }
 
+// Scan implements the scanner for gorm to convert a database value into a ComputerPerformance.
 func (p *ComputerPerformance) Scan(value any) error {
 	if value == nil{
 		return domain.ErrScanNilValue
@@ -47,6 +49,7 @@ func (p *ComputerPerformance) Scan(value any) error {
 	return nil
 }
 
+// Value implements the driver to transform a ComputerPerformance into a database value.
 func (p ComputerPerformance) Value() (driver.Value, error) {
 	return string(p), nil
 }

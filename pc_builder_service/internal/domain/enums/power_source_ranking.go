@@ -26,6 +26,7 @@ var ValidPowerSourceRanking = map[string]PowerSourceRanking{
 	"titanium": PowerSourceRankingTitanium,
 }
 
+// ParsePowerSourceRanking parses a string into a PowerSourceRanking value.
 func ParsePowerSourceRanking(ranking string) (PowerSourceRanking, error) {
 	if _, ok := ValidPowerSourceRanking[ranking]; !ok {
 		return "", domain.ErrPowerSourceRankingParseError
@@ -33,6 +34,7 @@ func ParsePowerSourceRanking(ranking string) (PowerSourceRanking, error) {
 	return ValidPowerSourceRanking[ranking], nil
 }
 
+// Scan implements the scanner for gorm to convert a database value into a PowerSourceRanking.
 func (psur *PowerSourceRanking) Scan(value any) error {
 	if value == nil{
 		return domain.ErrScanNilValue
@@ -51,6 +53,7 @@ func (psur *PowerSourceRanking) Scan(value any) error {
 	return nil
 }
 
+// Value implements the driver to transform a PowerSourceRanking into a database value.
 func (psur PowerSourceRanking) Value() (driver.Value, error) {
 	return string(psur), nil
 }
