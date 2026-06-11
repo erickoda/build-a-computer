@@ -181,7 +181,7 @@ func TestGetSSDByMinimumPowerAmount(t *testing.T) {
 		t.Fatalf("failed to get benchmarks by best score: %v", err)
 	}
 
-	ssdsMappedByBenchmark, err := svc.GetSSDByMinimumPowerAmount(ctx, games, selectedBenchmarks)
+	ssdsMappedByBenchmark, err := svc.GetSSDByMinimumNecessaryAmount(ctx, games, selectedBenchmarks)
 	if err != nil {
 		t.Fatalf("failed to get SSD by minimum power amount: %v", err)
 	}
@@ -357,7 +357,7 @@ func TestGetSSDByScore(t *testing.T) {
 		t.Fatalf("failed to get benchmarks by best score: %v", err)
 	}
 
-	ssdsMappedByBenchmark, err := svc.GetSSDByMinimumPowerAmount(ctx, games, selectedBenchmarks)
+	ssdsMappedByBenchmark, err := svc.GetSSDByMinimumNecessaryAmount(ctx, games, selectedBenchmarks)
 	if err != nil {
 		t.Fatalf("failed to get SSD by minimum power amount: %v", err)
 	}

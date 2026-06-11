@@ -27,6 +27,8 @@ type BuilderService struct {
 	GameRepo repository.GameRepositoryImpl
 }
 
+// NewBuilderService creates a new instance of BuilderService.
+// it takes a set of repository implementations and returns a new BuilderService instance.
 func NewBuilderService(
 	benchmarkRepoImpl *repository.BenchmarkRepositoryImpl, 
 	cpuRepoImpl *repository.CPURepositoryImpl,
@@ -50,6 +52,9 @@ func NewBuilderService(
 	}
 }
 
+// GetCPUsByID retrieves CPUs by their IDs from the repository and maps them by a benchmark ID.
+// It takes a context and a slice of benchmarks, and returns a map of CPUs keyed by each benchmark ID
+// or an error if one occurs.
 func (s *BuilderService) GetCPUsByID(
 	ctx context.Context,
 	benchmarks []models.Benchmark,
@@ -69,6 +74,8 @@ func (s *BuilderService) GetCPUsByID(
 	return cpuMappedByBenchmark, nil
 }
 
+// GetGPUsByID retrieves GPUs by their IDs from the repository and maps them by a benchmark ID.
+// It takes a context and a slice of benchmarks, and returns a map of GPUs keyed by each benchmark ID.
 func (s *BuilderService) GetGPUsByID(
 	ctx context.Context,
 	benchmarks []models.Benchmark,
@@ -88,6 +95,9 @@ func (s *BuilderService) GetGPUsByID(
 	return gpuMappedByBenchmark, nil
 }
 
+// GetRAMsByID retrieves RAMs by their IDs from the repository and maps them by a benchmark ID.
+// It takes a context and a slice of benchmarks, and returns a map of RAMs keyed by each benchmark ID
+// or an error if one occurs.
 func (s *BuilderService) GetRAMsByID(
 	ctx context.Context,
 	benchmarks []models.Benchmark,
@@ -107,6 +117,9 @@ func (s *BuilderService) GetRAMsByID(
 	return ramMappedByBenchmark, nil
 }
 
+// GetGameByID retrieves games by their IDs from the repository.
+// It takes a context and a slice of game IDs, and returns a slice of games or an
+// error if one occurs.
 func (s *BuilderService) GetGameByID(
 	ctx context.Context,
 	gamesIDs []string,
@@ -130,6 +143,10 @@ func (s *BuilderService) GetGameByID(
 	return games, nil
 }
 
+// GetBenchmarksByHavierGame retrieves benchmarks by the game which have the lower avarage fps in a given resolution.
+// It first parses the game IDs, then finds the benchmarks by the game which have the lower avarage fps.
+// It takes a context, a slice of game IDs, and a resolution, and returns a slice of benchmarks or
+// an error if one occurs.
 func (s *BuilderService) GetBenchmarksByHavierGame(
 	ctx context.Context, 
 	games []string, 
@@ -152,6 +169,12 @@ func (s *BuilderService) GetBenchmarksByHavierGame(
 	return benchmarks, nil
 }
 
+// GetBenchmarksByBestScore first calculates the score of selected benchmarks, if the score is not already calculated.
+// It then sorts the benchmarks by score in ascending order and retrieves the top N benchmarks of the requested performance quartile.
+// N is the number of different computers the system going to build.
+// The performance quartile is determined by the requested performance and the number of selected benchmarks.
+// It takes a context, a slice of benchmarks, and a performance string, and returns a slice of benchmarks or
+// an error if one occurs.
 func (s *BuilderService) GetBenchmarksByBestScore(
 	ctx context.Context, 
 	benchmarks []models.Benchmark,
@@ -220,6 +243,7 @@ func (s *BuilderService) GetBenchmarksByBestScore(
 		 return cmp.Compare(i.Score, j.Score)
 	})
 
+	// This switch statement determines the performance quartile range based on the requested performance.
 	switch requestedPerformance {
 	case e.ComputerPerformanceLow:
 		performanceQuartileCeil = 0.30
@@ -285,6 +309,8 @@ func (s *BuilderService) GetBenchmarksByBestScore(
 	return selectedBenchmarks, nil
 }
 
+// GetBenchmarksSockets retrieves the CPU's sockets that are a part each selected benchmarks.
+// It takes a slice of the selected benchmarks and returns a slice of their corresponding CPU sockets.
 func (s *BuilderService) GetBenchmarksSockets(ctx context.Context, benchmarks []models.Benchmark) ([]string, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -301,6 +327,8 @@ func (s *BuilderService) GetBenchmarksSockets(ctx context.Context, benchmarks []
 	return sockets, nil
 }
 
+// GetBenchmarksDDRs retrieves the DDR type ofmemory that are a part each selected benchmarks.
+// It takes a slice of the selected benchmarks and returns a slice of their corresponding DDR memory.
 func (s *BuilderService) GetBenchmarksDDRs(ctx context.Context, benchmarks []models.Benchmark) ([]string, error) {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
@@ -313,10 +341,16 @@ func (s *BuilderService) GetBenchmarksDDRs(ctx context.Context, benchmarks []mod
 		}
 		ddr = append(ddr, RAM.DDR)
 	}
+	
 
 	return ddr, nil
 }
 
+// GetMotherBoardBySocketAndDDR retrieves the mother board that matches the given socket and DDR type.
+// It maps the selected benchmarks to their corresponding mother boards using a key generated from the socket and DDR type (socket-ddr).
+// It takes a context, a slice of sockets, a slice of DDR types, and a slice of selected benchmarks,
+// and returns a map of mother boards mapped by each benchmark that are compatible with the given socket and DDR type
+// or an error if one occurs.
 func (s *BuilderService) GetMotherBoardBySocketAndDDR(
 	ctx context.Context,
 	sockets []string,
@@ -354,6 +388,11 @@ func (s *BuilderService) GetMotherBoardBySocketAndDDR(
 	return motherBoardsMappedBySocketAndDDR, nil
 }
 
+// GetMotherBoardsByScore first calculates a score for each mother board, if it's not already scored.
+// It then sorts the mother boards by their score in ascending order and retrieves the best scored 
+// mother board for each benchmark in a quartile range defined by the requested performance.
+// It takes a map of mother boards mapped by socket and DDR type, and returns a map of the best scored
+// mother board for each benchmark or an error if one occurs.
 func (s *BuilderService) GetMotherBoardsByScore(
 	ctx context.Context,
 	motherBoardsMappedBySocketAndDDR map[string]map[uuid.UUID][]models.MotherBoard,
@@ -369,7 +408,9 @@ func (s *BuilderService) GetMotherBoardsByScore(
 	if err != nil {
 		return nil, err
 	}
-	
+
+	// This looping through the mother boards mapped by selected benchmarks which are mapped by socket and DDR type key,
+	// and calculates a score for each mother board that is compatible with the requested performance.
 	for key := range motherBoardsMappedBySocketAndDDR {
 		for benchmarkID := range motherBoardsMappedBySocketAndDDR[key] {
 			if benchmarkID == uuid.Nil {
@@ -407,6 +448,7 @@ func (s *BuilderService) GetMotherBoardsByScore(
 
 			var size = len(motherBoardsMappedBySocketAndDDR[key][benchmarkID])
 
+			// This switch statement determines the performance quartile range based on the requested performance.
 			switch requestedPerformance {
 			case e.ComputerPerformanceLow:
 				motherBoardQuartile = 0.3
@@ -460,6 +502,11 @@ func (s *BuilderService) GetMotherBoardsByScore(
 	return motherBoardsByScore, nil
 }
 
+// GetPowerSourcesByRecommendedPower retrieves the power sources supplies which have the highest recommended power supply
+// between the CPU and GPU. It also returns powersources supplies that have +50 and +100 W of power than the recommended power
+// got.
+// It takes a context and a slice of selected benchmarks as input, and returns a map of power sources for each benchmark
+// or an error if one occurs.
 func (s *BuilderService) GetPowerSourcesByRecommendedPower(
 		ctx context.Context,
 		selectedBenchmarks []models.Benchmark,
@@ -485,6 +532,7 @@ func (s *BuilderService) GetPowerSourcesByRecommendedPower(
 		higherPower := int32(math.Max(float64(cpu.RecommendedPower), float64(gpu.RecommendedPower)))
 
 		power = append(power, higherPower)
+		power = append(power, higherPower+50)
 		power = append(power, higherPower+100)
 
 		powerSources, err := s.PowerSourceRepo.FindByRecommendedPowerSource(ctx, power)
@@ -498,6 +546,11 @@ func (s *BuilderService) GetPowerSourcesByRecommendedPower(
 	return powerSourcesByBenchmark, nil
 }
 
+// GetPowerSourcesByScore first calculates the score for each power source supply selected for each benchmark.
+// It then sorts the power source supplies by score in ascending order and retrieves the highest scoring 
+// supply for each benchmark.
+// It takes a map of power source supplies mapped by benchmark ID and returns a map of the highest scoring
+// supply for each benchmark or an error if one occurs.
 func (s *BuilderService) GetPowerSourcesByScore(
 		ctx context.Context,
 		powerSourcesMappedByBenchmark map[uuid.UUID][]models.PowerSource,
@@ -538,7 +591,12 @@ func (s *BuilderService) GetPowerSourcesByScore(
 	return powerSourcesByScore, nil
 }
 
-func (s *BuilderService) GetSSDByMinimumPowerAmount(
+// GetSSDByMinimumNecessaryAmount retrieves SSDs that match the minimum necessary disk amount for the given games.
+// It first gets the games by their ID and then calculates the total necessary disk amount for all games.
+// It then finds SSDs that match the minimum necessary disk amount for each benchmark.
+// It takes a context and a slice of games and benchmarks as input, and returns a map of SSDs grouped by benchmark ID
+// or an error if one occurs.
+func (s *BuilderService) GetSSDByMinimumNecessaryAmount(
 	ctx context.Context,
 	games []models.Game,
 	benchmarks []models.Benchmark,
@@ -567,6 +625,11 @@ func (s *BuilderService) GetSSDByMinimumPowerAmount(
 	return ssdsMappedByBenchmark, nil
 }
 
+// GetSSDByScore first calculates the SSD score for each SSD selected for each benchmark. It then
+// sorts the SSDs by score in ascending order and retrieves the best scored SSD in a quartile range 
+// defined by the requested performance for each benchmark.
+// It takes a context, a map of SSDs mapped by benchmark ID, and a performance string as input and
+// returns a map of the best SSD for each benchmark or an error if one occurs.
 func (s *BuilderService) GetSSDByScore(
 	ctx context.Context,
 	ssdsMappedByBenchmark map[uuid.UUID][]models.SSD,
@@ -633,6 +696,9 @@ func (s *BuilderService) GetSSDByScore(
 	return ssdMappedByBenchmark, nil
 }
 
+// CreatePCs creates a slice of PCs based on the provided CPU, GPU, RAM, MotherBoard, PowerSource, and SSD maps.
+// It iterates over the CPU map and creates a PC for each entry, appending it to the PCs slice.
+// The resulting slice of PCs is returned.
 func (s *BuilderService) CreatePCs(
 	cpu map[uuid.UUID]models.CPU,
 	gpu map[uuid.UUID]models.GPU,
@@ -659,23 +725,25 @@ func (s *BuilderService) CreatePCs(
 	return PCs
 }
 
+// CheckIfPCCostsMoreThanRequested checks if the total price of each PC exceeds the maximum requested price.
+// It returns true if the total price is greater than the requested price, and false otherwise.
 func (s *BuilderService) CheckIfPCCostsMoreThanRequested(
-	pcs []models.PC,
+	pc models.PC,
 	requestedPrice float32,
 ) bool {
 	
 	var totalPrice float32
 	var correctRequestedPrice float32
 	
-	for _, pc := range pcs {
-		totalPrice +=
-			pc.CPU.AvgPrice +
-			pc.GPU.AvgPrice +
-			pc.RAMMemory.AvgPrice +
-			pc.MotherBoard.AvgPrice +
-			pc.PowerSource.AvgPrice +
-			pc.SSD.AvgPrice
-	}
+	
+	totalPrice += 
+		pc.CPU.AvgPrice +
+		pc.GPU.AvgPrice +
+		pc.RAMMemory.AvgPrice +
+		pc.MotherBoard.AvgPrice +
+		pc.PowerSource.AvgPrice +
+		pc.SSD.AvgPrice
+	
 
 	if requestedPrice == 0 {
 		correctRequestedPrice = 999999.99
@@ -685,6 +753,11 @@ func (s *BuilderService) CheckIfPCCostsMoreThanRequested(
 	return totalPrice > requestedPrice
 }
 
+// calculatePerformanceScore calculates the performance score of a PC based on its benchmark results and performance weight.
+// The score is calculated by multiplying the average FPS of the benchmark by the performance weight. The final score
+// is divided by the sum of the average prices of the PC components.
+// It takes a context, a benchmark, a performance weight, and a pointer to the BuilderService, and 
+// returns the score and an error if one occurs.
 func calculatePerformanceScore(
 	ctx context.Context,
 	benchmark models.Benchmark,
@@ -720,6 +793,10 @@ func calculatePerformanceScore(
 	return int32(finalScore), nil
 }
 
+// calculateMotherBoardScore calculates the score of a mother board based on its specifications and average price.
+// Each specification has a coefficient that is applied to the score. The score is calculated by multiplying 
+// each specification and its arbitrary coefficient, then dividing it by the average price.
+// It takes a mother board as input and returns the score as an int32 or an error
 func calculateMotherBoardScore(motherBoard models.MotherBoard) (int32, error) {
 	const PCI_EXPRESS_COEFICIENT float64 = 0.5
 	const MAX_RAM_MEMORY_FREQUENCY_MHZ float64 = 0.001
@@ -741,6 +818,9 @@ func calculateMotherBoardScore(motherBoard models.MotherBoard) (int32, error) {
 	return int32(finalScore), nil
 }
 
+// calculatePowerSourceScore calculates the score of a power source supply based on which ranking it belongs to
+// and if it has an eighty-plus certification. After calculating the score, it is divided by the average price
+// It takes a PowerSource model as input and returns the score as an int32 or an error.
 func calculatePowerSourceScore(powerSource models.PowerSource) (int32, error) {
 	const EIGHTY_PLUS_CERT_COEFICIENT float64 = 2.0
 
@@ -802,6 +882,11 @@ func calculatePowerSourceScore(powerSource models.PowerSource) (int32, error) {
 	return int32(finalScore), nil
 }
 
+// calculateSDDScore calculates the score of an SSD based on its type, reading, writing, and amount it contains.
+// Each SSD type has a different score multiplier in the end of the calculation. Each specification has an
+// arbitrary coefficient that is multiplied by the SSD's reading, writing, and amount to calculate the score.
+// Finally, the score is divided by the SSD's average price.
+// It takes an SSD model as input and returns the calculated score as an int32 or an error.
 func calculateSDDScore(ssd models.SSD) (int32, error) {
 	const READING_COEFICIENT float64 = 0.001
 	const WRITING_COEFICIENT float64 = 0.001

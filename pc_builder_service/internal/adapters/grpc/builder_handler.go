@@ -29,6 +29,8 @@ func NewBuilderHandler(builderSvc ports.BuilderPort) *BuilderHandler {
 }
 
 func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*pb.BuildPCResponse, error) {
+	var inPricePCs []models.PC
+	
 	benchmarkByHeavierGame, err := h.builderSvc.GetBenchmarksByHavierGame(ctx, req.Games, req.Resolution)
 	if err != nil {
 		return nil, h.handlerGRPCError(err)
@@ -104,7 +106,7 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 		return nil, h.handlerGRPCError(err)
 	}
 
-	SSDsMappedByBenchmarks, err := h.builderSvc.GetSSDByMinimumPowerAmount(
+	SSDsMappedByBenchmarks, err := h.builderSvc.GetSSDByMinimumNecessaryAmount(
 		ctx, 
 		games, 
 		selectedBenchmarks,
@@ -154,12 +156,16 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 		return &pb.BuildPCResponse{}, nil
 	}
 
-	if h.builderSvc.CheckIfPCCostsMoreThanRequested(PCs, req.MaxPrice) {
-		return &pb.BuildPCResponse{}, nil
+	for _, pc := range PCs {
+		if h.builderSvc.CheckIfPCCostsMoreThanRequested(pc, req.MaxPrice) {
+			continue
+		}
+		
+		inPricePCs = append(inPricePCs, pc)
 	}
 
 	return &pb.BuildPCResponse{
-		Pc: h.convertPCsToProto(PCs),
+		Pc: h.convertPCsToProto(inPricePCs),
 	}, nil
 }
 

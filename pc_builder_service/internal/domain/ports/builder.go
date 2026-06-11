@@ -62,7 +62,7 @@ type BuilderPort interface {
 		powerSourcesMappedByBenchmark map[uuid.UUID][]models.PowerSource,
 	) (map[uuid.UUID]models.PowerSource, error)
 
-	GetSSDByMinimumPowerAmount(
+	GetSSDByMinimumNecessaryAmount(
 		ctx context.Context,
 		games []models.Game,
 		benchmarks []models.Benchmark,
@@ -84,7 +84,7 @@ type BuilderPort interface {
 	) []models.PC
 
 	CheckIfPCCostsMoreThanRequested(
-		pcs []models.PC,
+		pc models.PC,
 		requestedPrice float32,
 	) bool
 }
