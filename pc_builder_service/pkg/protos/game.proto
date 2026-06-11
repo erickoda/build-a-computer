@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package pkg.protos.v1;
+
+option go_package = "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos";
+
+import "google/protobuf/timestamp.proto";
+
+message Game {
+    string id = 1;
+    string name = 2;
+    optional bytes img = 3;
+    int32 necessary_disk = 4;
+    int32 avg_fps = 5;
+    google.protobuf.Timestamp created_at = 6;
+    optional google.protobuf.Timestamp updated_at = 7;
+}
