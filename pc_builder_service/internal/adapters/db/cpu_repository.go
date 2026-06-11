@@ -21,7 +21,7 @@ func (r *CPURepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*models
 
 	result := r.DB.Gorm.WithContext(ctx).First(&cpu, id)
 	if result.Error != nil {
-		err := HandleError(result.Error)
+		err := HandleError(result.Error, "cpu")
 		return nil, err
 	}
 	return &cpu, nil

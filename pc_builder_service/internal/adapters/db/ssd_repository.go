@@ -19,7 +19,7 @@ func (r *SSDRepositoryImpl) FindByMinimumAmount(ctx context.Context, amount int3
 	
 	err := r.DB.Gorm.WithContext(ctx).Model(&models.SSD{}).Where("amount >= ?", amount).Find(&ssds).Error
 	if err != nil {
-		err = HandleError(err)
+		err = HandleError(err, "ssd")
 		return nil, err
 	}
 	

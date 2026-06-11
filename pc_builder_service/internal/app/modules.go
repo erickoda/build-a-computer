@@ -11,8 +11,6 @@ import (
 	pb "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/health"
-	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/adapters/db"
 	grpcHandler "github.com/erickoda/build-a-computer/pc_builder_service/internal/adapters/grpc"
@@ -80,10 +78,6 @@ func RegisterServer(
 				return err
 			}
 
-			healthServer := health.NewServer()
-			healthpb.RegisterHealthServer(server, healthServer)
-			healthServer.SetServingStatus("builder.BuilderService", healthpb.HealthCheckResponse_SERVING)
-
 			defer recoverServer()
 
 			go func() {
@@ -93,7 +87,7 @@ func RegisterServer(
 				}
 			}()
 
-			log.Println("gRPC server running on port 50051...")
+			log.Println("gRPC server running on port ", lis.Addr().String())
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {

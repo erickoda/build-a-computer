@@ -19,7 +19,7 @@ func (r *GameRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*model
 	var game models.Game
 	
 	if err := r.DB.Gorm.WithContext(ctx).First(&game, id).Error; err != nil {
-		return nil, HandleError(err)
+		return nil, HandleError(err, "game")
 	}
 	
 	return &game, nil

@@ -30,7 +30,7 @@ func NewBuilderHandler(builderSvc ports.BuilderPort) *BuilderHandler {
 
 func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*pb.BuildPCResponse, error) {
 	var inPricePCs []models.PC
-	
+	log.Println("Chega aqui")
 	benchmarkByHeavierGame, err := h.builderSvc.GetBenchmarksByHavierGame(ctx, req.Games, req.Resolution)
 	if err != nil {
 		return nil, h.handlerGRPCError(err)
@@ -170,7 +170,8 @@ func (h *BuilderHandler) BuildPC(ctx context.Context, req *pb.BuildPCRequest) (*
 }
 
 func (h *BuilderHandler) handlerGRPCError(err error) error {
-	if errors.Is(err, domain.ErrBenchmarkNotFound) || 
+	if errors.Is(err, domain.ErrBenchmarkNotFound) ||
+		errors.Is(err, domain.ErrCPUNotFound) ||
 		errors.Is(err, domain.ErrGameNotFound) ||
 		errors.Is(err, domain.ErrGPUNotFound) ||
 		errors.Is(err, domain.ErrMotherBoardNotFound) ||

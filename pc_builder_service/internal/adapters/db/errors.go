@@ -2,13 +2,12 @@ package db
 
 import (
 	"errors"
-	"strings"
 
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/domain/errors"
 	"gorm.io/gorm"
 )
 
-func HandleError(err error) error {
+func HandleError(err error, entity string) error {
 	if err == nil {
 		return nil
 	}
@@ -22,25 +21,20 @@ func HandleError(err error) error {
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		if strings.Contains(err.Error(), "benchmark") {
+		switch entity {
+		case "benchmark":
 			return domain.ErrBenchmarkNotFound
-		}
-		if strings.Contains(err.Error(), "game") {
+		case "game":
 			return domain.ErrGameNotFound
-		}
-		if strings.Contains(err.Error(), "cpu") {
+		case "cpu":
 			return domain.ErrCPUNotFound
-		}
-		if strings.Contains(err.Error(), "gpu") {
+		case "gpu":
 			return domain.ErrGPUNotFound
-		}
-		if strings.Contains(err.Error(), "motherboard") {
+		case "motherboard":
 			return domain.ErrMotherBoardNotFound
-		}
-		if strings.Contains(err.Error(), "ram") {
+		case "ram":
 			return domain.ErrRAMNotFound
-		}
-		if strings.Contains(err.Error(), "ssd") {
+		case "ssd":
 			return domain.ErrSSDNotFound
 		}
 		

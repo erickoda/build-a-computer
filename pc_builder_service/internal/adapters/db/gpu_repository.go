@@ -20,7 +20,7 @@ func (r *GPURepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*models
 
 	result := r.DB.Gorm.WithContext(ctx).First(&gpu, id)
 	if result.Error != nil {
-		err := HandleError(result.Error)
+		err := HandleError(result.Error, "gpu")
 		return nil, err
 	}
 

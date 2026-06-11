@@ -27,7 +27,7 @@ func (r *PowerSourceRepositoryImpl) FindByRecommendedPowerSource(
 		Find(&powerSources).
 		Error
 	if err != nil {
-		err = HandleError(err)
+		err = HandleError(err, "power_source")
 		return nil, err
 	}
 	

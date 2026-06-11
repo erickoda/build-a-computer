@@ -27,7 +27,7 @@ func (r *MotherBoardRepositoryImpl) FindBySocketAndDDR(
 		Where("ddr = ?", ddr).
 		Find(&motherBoards)
 	if result.Error != nil {
-		err := HandleError(result.Error)
+		err := HandleError(result.Error, "mother_board")
 		return nil, err
 	}
 	
