@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 COPY Cargo.toml Cargo.lock build.rs ./
 COPY --from=protos . ../proto
 
+COPY /migrations ./migrations 
 COPY /.sqlx ./.sqlx
 ENV SQLX_OFFLINE=true
 

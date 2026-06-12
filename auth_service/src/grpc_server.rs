@@ -32,6 +32,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await
         .expect("Failed to connect to DATABASE_URL");
 
+    sqlx::migrate!("./migrations").run(&pool).await?;
+
     let sqlx_repository: SqlxUserRepository = SqlxUserRepository::new(pool);
 
     let password_hasher: Argo2Hasher = Argo2Hasher {};
