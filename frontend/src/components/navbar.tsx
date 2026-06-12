@@ -6,25 +6,14 @@ import { Button, Switch } from '@heroui/react';
 import { usePathname } from 'next/navigation';
 import { logout } from '@/src/actions/auth';
 import { useRole } from '@/src/hooks/use-role';
-import { Role } from '../types/jwt';
-
-interface NavItem {
-  label: string;
-  href: string;
-  allowedRoles: Role[];
-}
-
-const navItems: NavItem[] = [
-  { label: 'Users', href: '/users', allowedRoles: ['admin', 'supervisor'] },
-  { label: 'Benchmarks', href: '/benchmarks', allowedRoles: ['admin', 'supervisor', 'common'] },
-];
+import { routesInfos } from '../types/routes';
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const pathname = usePathname();
   const role = useRole();
 
-  const visibleItems = navItems.filter(
+  const visibleItems = routesInfos.filter(
     item => role && item.allowedRoles.includes(role)
   );
 
@@ -51,7 +40,6 @@ export default function Navbar() {
       </div>
       <div className="flex-1 flex justify-end flex-row space-x-2">
         <Switch defaultSelected size="lg" onChange={() => { setTheme(theme === "dark" ? "light" : "dark") }}>
-          {/* {({ isSelected }) => ( */}
           <>
             <Switch.Control className={theme === "light" ? "bg-white" : ""}>
               <Switch.Thumb>
@@ -69,7 +57,6 @@ export default function Navbar() {
               </Switch.Thumb>
             </Switch.Control>
           </>
-          {/* )} */}
         </Switch>
 
         <Button

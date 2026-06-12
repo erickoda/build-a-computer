@@ -2,12 +2,13 @@ import { useState } from "react";
 import { SignUpRequestDto } from "../types/dtos";
 import apiAuthentication from "../api/apiAuthentication";
 import { HttpError } from "@/src/services/api";
+import { setAuthCookie } from "@/src/actions/auth";
 
 const useSignUp = () => {
   const [error, setError] = useState<HttpError | Error | undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const signUp = async (dto: SignUpRequestDto): Promise<boolean> => {
+  const signUp = async (dto: SignUpRequestDto): Promise<{ ok: boolean; token?: string }> => {
     setIsLoading(true);
     setError(undefined);
 
@@ -17,14 +18,13 @@ const useSignUp = () => {
 
     if (!result.ok) {
       setError(result.error);
-      return false;
+      return { ok: false };
     }
 
     const token = result.data.token;
+    await setAuthCookie(token);
 
-    localStorage.setItem("token", token);
-
-    return true;
+    return { ok: true, token };
   };
 
   return {

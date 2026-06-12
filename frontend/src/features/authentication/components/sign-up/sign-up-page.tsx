@@ -15,6 +15,8 @@ import { useForm } from 'react-hook-form';
 import { LoginFormValues, loginSchema } from '../../schemas/signUp';
 import { SignUpRequestDto } from '../../types/dtos';
 import useSignUp from '../../hooks/signUpHook';
+import { getRoleFromToken } from '@/src/utils/jwt';
+import { roleDefaultRedirect } from '@/src/utils/redirect';
 
 const SignUpPage = () => {
   const router = useRouter();
@@ -35,11 +37,14 @@ const SignUpPage = () => {
       password: data.password,
     };
 
-    const isSuccess: boolean = await signUp(dto);
+    const { ok, token } = await signUp(dto);
 
-    if (isSuccess) {
+    if (ok && token) {
       toast.success("Account created successfully!");
-      router.push("/benchmarks");
+
+      const role = getRoleFromToken(token);
+
+      router.push(role ? roleDefaultRedirect[role] : '/');
     } else {
       toast.danger('An error occurred while signing up', {
         description: error?.message || "Please check your details and try again.",

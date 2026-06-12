@@ -6,9 +6,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { SignInFormValues, signInSchema } from '../../schemas/signIn';
 import { SignInRequestDto } from '../../types/dtos';
 import useSignIn from '../../hooks/signInHook';
+import { useRouter } from 'next/navigation';
+import { roleDefaultRedirect } from '@/src/utils/redirect';
+import { getRoleFromToken } from '@/src/utils/jwt';
 
 const SignInPage = () => {
   const { error, isLoading, signIn } = useSignIn();
+  const router = useRouter();
 
   const {
     register,
@@ -24,10 +28,14 @@ const SignInPage = () => {
       password: data.password
     };
 
-    const isSuccess: boolean = await signIn(dto);
+    const { ok, token } = await signIn(dto);
 
-    if (isSuccess) {
+    if (ok && token) {
       toast.success("Signed in successfully!");
+
+      const role = getRoleFromToken(token);
+
+      router.push(role ? roleDefaultRedirect[role] : '/');
     } else {
       toast.danger("An error occurred while signing in", {
         description: error?.message || "Please check your credentials and try again.",

@@ -1,28 +1,18 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { Role } from './types/jwt';
 import { getRoleFromToken } from './utils/jwt';
+import { roleDefaultRedirect } from './utils/redirect';
+import { routesInfos } from './types/routes';
 
 const publicRoutes = ['/sign-in', '/sign-up'];
-
-const routePermissions: Record<string, Role[]> = {
-  '/users': ['admin', 'supervisor'],
-  '/benchmarks': ['admin', 'supervisor', 'common'],
-};
-
-const roleDefaultRedirect: Record<Role, string> = {
-  admin: '/users',
-  supervisor: '/users',
-  common: '/benchmarks',
-};
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('access_token')?.value;
 
   const isPublicRoute = publicRoutes.some((route) => pathname.startsWith(route));
-  const matchedRoute = Object.keys(routePermissions).find((route) =>
-    pathname.startsWith(route)
+  const matchedRoute = routesInfos.find((route) =>
+    pathname.startsWith(route.href)
   );
   const isProtectedRoute = !!matchedRoute;
 
@@ -46,7 +36,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(roleDefaultRedirect[role], request.url));
   }
 
-  if (isProtectedRoute && !routePermissions[matchedRoute!].includes(role)) {
+  if (isProtectedRoute && !matchedRoute.allowedRoles.includes(role)) {
     return NextResponse.redirect(new URL(roleDefaultRedirect[role], request.url));
   }
 
