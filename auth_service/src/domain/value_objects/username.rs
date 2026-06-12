@@ -7,7 +7,7 @@ impl TryFrom<String> for Username {
     type Error = UserEntityError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        if value.len() > 100 {
+        if value.len() > 255 {
             return Err(UserEntityError::InvalidUsername(
                 "User must have at most 255 characters".to_string(),
             ));
