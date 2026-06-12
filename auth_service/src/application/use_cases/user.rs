@@ -142,7 +142,7 @@ impl<R: UserRepository, P: PasswordHasher> UserUseCase<R, P> {
         }
 
         let updated_user =
-            UserEntity::new_with_status(username, email, password, role, status.to_owned());
+            UserEntity::restore(command.get_id(), username, email, password, role, status.to_owned());
 
         self.repository.update_user(updated_user).await?;
 
