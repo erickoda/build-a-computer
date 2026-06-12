@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@heroicons/react':
+        specifier: ^2.2.0
+        version: 2.2.0(react@19.2.4)
       '@heroui/react':
         specifier: ^3.1.0
         version: 3.1.0(@react-spectrum/provider@3.11.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@4.3.0)
@@ -229,6 +232,11 @@ packages:
 
   '@formatjs/intl-localematcher@0.6.2':
     resolution: {integrity: sha512-XOMO2Hupl0wdd172Y06h6kLpBz6Dv+J4okPLl4LPtzbr8f66WbIoy4ev98EBuZ6ZK4h5ydTN6XneT4QVpD7cdA==}
+
+  '@heroicons/react@2.2.0':
+    resolution: {integrity: sha512-LMcepvRaS9LYHJGsF0zzmgKCUim/X3N/DQKc4jepAXJ7l8QxJ1PmxJzqplF2Z3FE4PqBAIGyJAQ/w4B5dsqbtQ==}
+    peerDependencies:
+      react: '>= 16 || ^19.0.0-rc'
 
   '@heroui/react@3.1.0':
     resolution: {integrity: sha512-q+K3Kz5h2ceOEMPuNORLGX1Pqh4McN30y31eykzZZjLbmta4nwi4sDMVAv7/w8QWnWVDOucusXz5x9s5N656nA==}
@@ -2576,6 +2584,10 @@ snapshots:
   '@formatjs/intl-localematcher@0.6.2':
     dependencies:
       tslib: 2.8.1
+
+  '@heroicons/react@2.2.0(react@19.2.4)':
+    dependencies:
+      react: 19.2.4
 
   '@heroui/react@3.1.0(@react-spectrum/provider@3.11.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@4.3.0)':
     dependencies:
