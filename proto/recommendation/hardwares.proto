@@ -1,10 +1,8 @@
 syntax = "proto3";
 
-package pkg.protos.v1;
+package recommendation.v1;
 
 import "google/protobuf/timestamp.proto";
-
-option go_package = "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos";
 
 message CPU {
   string id = 1;
