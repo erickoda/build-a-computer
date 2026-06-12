@@ -4,6 +4,7 @@ use tonic::{Request, Response, Status};
 use uuid::Uuid;
 
 use crate::{
+    domain::value_objects::role::Role,
     infrastructure::{AppUserUseCase, grpc::interceptors::UserContext},
     users_grpc::{
         CreateUserRequest, Empty, ListOfUsers, UpdateUserRequest, User, UserId, users_server::Users,
@@ -26,12 +27,21 @@ impl Users for UsersService {
         &self,
         request: Request<CreateUserRequest>,
     ) -> Result<Response<User>, Status> {
+        let user_ctx = request.extensions().get::<UserContext>().unwrap().clone();
+
+        if user_ctx.user_role != Role::Admin {
+            return Err(Status::permission_denied(
+                "User does not have access to this route!",
+            ));
+        }
+
         Ok(Response::from(User::from(
             self.user_use_case
                 .create_user(request.into_inner().into())
                 .await?,
         )))
     }
+
     async fn get_user(&self, request: Request<UserId>) -> Result<Response<User>, Status> {
         Ok(Response::from(User::from(
             self.user_use_case
