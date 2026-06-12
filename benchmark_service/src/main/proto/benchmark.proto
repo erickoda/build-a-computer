@@ -9,6 +9,14 @@ option java_outer_classname = "BenchmarkProto";
 import "google/protobuf/timestamp.proto";
 import "hardware.proto";
 
+// --- Service ---
+service BenchmarkService {
+  rpc CreateBenchmark (CreateBenchmarkRequest)  returns (BenchmarkResponse);
+  rpc GetBenchmark    (GetBenchmarkRequest)     returns (BenchmarkResponse);
+  rpc ListBenchmarks  (ListBenchmarkRequest)    returns (ListBenchmarkResponse);
+  rpc DeleteBenchmark (DeleteBenchmarkRequest)  returns (DeleteBenchmarkResponse);
+}
+
 // --- Request Messages---
 message CreateBenchmarkRequest {
     string title = 1;

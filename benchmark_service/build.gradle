@@ -21,6 +21,9 @@ repositories {
 
 ext {
     set('springGrpcVersion', "1.0.3")
+    grpcVersion         = '1.63.0'
+    protobufVersion     = '3.25.3'
+    grpcSpringBoot      = '3.1.0.RELEASE'
 }
 
 dependencies {
@@ -59,7 +62,7 @@ protobuf {
     generateProtoTasks {
         all()*.plugins {
             grpc {
-                option '@generated=omit'
+//                option '@generated=omit'
             }
         }
     }
@@ -68,3 +71,14 @@ protobuf {
 tasks.named('test') {
     useJUnitPlatform()
 }
+//
+//sourceSets {
+//    main {
+//        java {
+//            srcDirs += [
+//                'build/generated/source/proto/main/java',
+//                'build/generated/source/proto/main/grpc'
+//            ]
+//        }
+//    }
+//}

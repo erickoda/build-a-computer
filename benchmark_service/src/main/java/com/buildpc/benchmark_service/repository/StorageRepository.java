@@ -1,4 +1,4 @@
-package com.buildpc.benchmark_service.repositories;
+package com.buildpc.benchmark_service.repository;
 
 import com.buildpc.benchmark_service.entities.Storage;
 import org.springframework.data.jpa.repository.JpaRepository;

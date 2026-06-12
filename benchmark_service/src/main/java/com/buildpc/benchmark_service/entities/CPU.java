@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.sql.Date;
 import java.util.UUID;
 
 @Entity
@@ -30,10 +31,10 @@ public class CPU {
 	private String socket;
 	private Boolean graphics;
 	private Boolean oc;
-	private Integer recommenderPower;
-	private DateTime releaseDate;
+	private Integer recommendedPower;
+	private Date releaseDate;
 	private Float averagePrice;
-
-	private DateTime updatedAt;
-	private DateTime createdAt;
+	private byte[] image;
+	private Date updatedAt;
+	private Date createdAt;
 }

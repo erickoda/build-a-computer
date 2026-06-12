@@ -1,9 +1,9 @@
 package com.buildpc.benchmark_service.entities;
 
-import com.google.type.DateTime;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.sql.Date;
 import java.util.UUID;
 
 @Entity
@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 public class Benchmark {
-	enum Performance {
+	public enum GraphicsQuality {
 		LOW,
 		MEDIUM,
 		HIGH,
@@ -25,7 +25,7 @@ public class Benchmark {
 	private UUID id;
 	private String title;
 	private Integer resolution;
-	private Performance performance;
+	private GraphicsQuality graphicsQuality;
 	@NonNull
 	@ManyToOne
 	@JoinColumn(name = "cpu_id")
@@ -49,6 +49,6 @@ public class Benchmark {
 
 	private UUID userId;
 	private Float score;
-	private DateTime updatedAt;
-	private DateTime createdAt;
+	private Date updatedAt;
+	private Date createdAt;
 }

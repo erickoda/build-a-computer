@@ -1,9 +1,8 @@
 package com.buildpc.benchmark_service.services;
 
 import com.buildpc.benchmark_service.entities.Benchmark;
-import com.buildpc.benchmark_service.repositories.BenchmarkRepository;
+import com.buildpc.benchmark_service.repository.BenchmarkRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

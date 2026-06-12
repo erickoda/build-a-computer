@@ -6,7 +6,50 @@ import "google/protobuf/timestamp.proto";
 
 option java_package = "com.buildpc.benchmark_service.grpc.generated";
 option java_multiple_files = true;
-option java_outer_classname = "BenchmarkProto";
+option java_outer_classname = "HardwareProto";
+
+// --- Services ---
+service CPUService {
+  rpc CreateCPU  (CreateCPURequest)  returns (CPUResponse);
+  rpc GetCPU     (GetCPURequest)     returns (CPUResponse);
+  rpc ListCPUs   (ListCPURequest)   returns (ListCPUResponse);
+  rpc DeleteCPU  (DeleteCPURequest)  returns (DeleteCPUResponse);
+}
+
+service GPUService {
+  rpc CreateGPU  (CreateGPURequest)  returns (GPUResponse);
+  rpc GetGPU     (GetGPURequest)     returns (GPUResponse);
+  rpc ListGPUs   (ListGPURequest)   returns (ListGPUResponse);
+  rpc DeleteGPU  (DeleteGPURequest)  returns (DeleteGPUResponse);
+}
+
+service RAMService {
+  rpc CreateRAM  (CreateRAMRequest)  returns (RAMResponse);
+  rpc GetRAM     (GetRAMRequest)     returns (RAMResponse);
+  rpc ListRAMs   (ListRAMRequest)   returns (ListRAMResponse);
+  rpc DeleteRAM  (DeleteRAMRequest)  returns (DeleteRAMResponse);
+}
+
+service MotherBoardService {
+  rpc CreateMotherBoard  (CreateMotherBoardRequest)  returns (MotherBoardResponse);
+  rpc GetMotherBoard     (GetMotherBoardRequest)     returns (MotherBoardResponse);
+  rpc ListMotherBoards   (ListMotherBoardRequest)   returns (ListMotherBoardResponse);
+  rpc DeleteMotherBoard  (DeleteMotherBoardRequest)  returns (DeleteMotherBoardResponse);
+}
+
+service PSUService {
+  rpc CreatePSU  (CreatePSURequest)  returns (PSUResponse);
+  rpc GetPSU     (GetPSURequest)     returns (PSUResponse);
+  rpc ListPSUs   (ListPSURequest)   returns (ListPSUResponse);
+  rpc DeletePSU  (DeletePSURequest)  returns (DeletePSUResponse);
+}
+
+service SSDService {
+  rpc CreateSSD  (CreateSSDRequest)  returns (SSDResponse);
+  rpc GetSSD     (GetSSDRequest)     returns (SSDResponse);
+  rpc ListSSDs   (ListSSDRequest)   returns (ListSSDResponse);
+  rpc DeleteSSD  (DeleteSSDRequest)  returns (DeleteSSDResponse);
+}
 
 // --- Request Messages---
 message CreateCPURequest {

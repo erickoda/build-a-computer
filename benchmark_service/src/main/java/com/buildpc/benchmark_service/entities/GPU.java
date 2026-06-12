@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.sql.Date;
 import java.util.UUID;
 
 @Entity
@@ -26,9 +27,9 @@ public class GPU {
 	private Integer cores;
 	private Integer pciExpress;
 	private Integer recommenderPower;
-	private DateTime releaseDate;
+	private Date releaseDate;
 	private Float averagePrice;
-
-	private DateTime updatedAt;
-	private DateTime createdAt;
+	private byte[] image;
+	private Date updatedAt;
+	private Date createdAt;
 }
