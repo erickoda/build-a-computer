@@ -36,7 +36,7 @@ services:
           cpus: '0.15'
           memory: 128M
     ports:
-      - ${AUTH_MICROSERVICE_PORT}
+      - ${AUTH_MICROSERVICE_PORT}:${AUTH_MICROSERVICE_PORT}
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRATION=${AUTH_MICROSERVICE_JWT_EXPIRATION}
@@ -55,7 +55,7 @@ services:
   users_db:
     image: postgres:15-alpine
     ports:
-      - ${USERS_DB_PORT}
+      - ${USERS_DB_PORT}:${USERS_DB_PORT}
     environment:
       POSTGRES_USER: ${USERS_DB_POSTGRES_USER}
       POSTGRES_PASSWORD: ${USERS_DB_POSTGRES_PASSWORD}
@@ -63,7 +63,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${USERS_DB_POSTGRES_USER} -d ${USERS_DB_POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $${USERS_DB_POSTGRES_USER} -d $${USERS_DB_POSTGRES_DB}"] 
       interval: 5s
       timeout: 5s
       retries: 5
