@@ -1,6 +1,5 @@
 package com.buildpc.benchmark_service.mapper;
 
-import com.buildpc.benchmark_service.entities.Ssd;
 import com.buildpc.benchmark_service.entities.Storage;
 import com.buildpc.benchmark_service.grpc.generated.SSDResponse;
 import com.buildpc.benchmark_service.grpc.generated.CreateSSDRequest;
