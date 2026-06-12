@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.sql.Date;
 import java.util.UUID;
 
 @Entity
@@ -30,7 +31,7 @@ public class MotherBoard {
 	private Integer vrms;
 	private Float averagePrice;
 	private Integer score;
-
-	private DateTime updatedAt;
-	private DateTime createdAt;
+	private byte[] image;
+	private Date updatedAt;
+	private Date createdAt;
 }

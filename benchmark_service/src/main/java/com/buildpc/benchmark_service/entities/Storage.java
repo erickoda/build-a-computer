@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.sql.Date;
 import java.util.UUID;
 
 @Entity
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Storage {
-	enum SSDType {
+	public enum SSDType {
 		SATA,
 		M2_SATA,
 		M2_NVME
@@ -32,7 +33,7 @@ public class Storage {
 	private Integer writing;
 	private Float averagePrice;
 	private Integer score;
-
-	private DateTime updatedAt;
-	private DateTime createdAt;
+	private byte[] image;
+	private Date updatedAt;
+	private Date createdAt;
 }

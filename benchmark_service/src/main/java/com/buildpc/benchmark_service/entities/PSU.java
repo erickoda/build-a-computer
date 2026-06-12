@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.sql.Date;
 import java.util.UUID;
 
 @Entity
@@ -15,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PSU {
-	enum PowerSourceRanking {
+	public enum PowerSourceRanking {
 		WHITE,
 		BRONZE,
 		SILVER,
@@ -34,7 +35,7 @@ public class PSU {
 	private Boolean certification;
 	private Float averagePrice;
 	private Integer score;
-
-	private DateTime updatedAt;
-	private DateTime createdAt;
+	private byte[] image;
+	private Date updatedAt;
+	private Date createdAt;
 }
