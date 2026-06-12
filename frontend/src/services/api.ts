@@ -1,3 +1,5 @@
+import { getCookie } from "../utils/cookies.client";
+
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
 
 export class HttpError extends Error {
@@ -22,7 +24,7 @@ export default async function api<TResponse, TRequest = undefined>(endpoint: str
     ...(options.headers as Record<string, string>)
   };
 
-  const token = localStorage.getItem('token');
+  const token = getCookie('access_token');
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }

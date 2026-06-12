@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SignInRequestDto } from "../types/dtos";
 import apiAuthentication from "../api/apiAuthentication";
 import { HttpError } from "@/src/services/api";
+import { setAuthCookie } from "@/src/actions/auth";
 
 const useSignIn = () => {
   const [error, setError] = useState<HttpError | Error | undefined>();
@@ -22,7 +23,7 @@ const useSignIn = () => {
 
     const token = result.data.token;
 
-    localStorage.setItem("token", token);
+    await setAuthCookie(token);
 
     return true;
   };

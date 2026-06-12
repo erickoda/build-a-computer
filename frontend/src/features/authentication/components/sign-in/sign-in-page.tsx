@@ -3,13 +3,11 @@
 import { toast, Button, ErrorMessage, Input, Link } from '@heroui/react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
 import { SignInFormValues, signInSchema } from '../../schemas/signIn';
 import { SignInRequestDto } from '../../types/dtos';
 import useSignIn from '../../hooks/signInHook';
 
 const SignInPage = () => {
-  const router = useRouter();
   const { error, isLoading, signIn } = useSignIn();
 
   const {
@@ -30,7 +28,6 @@ const SignInPage = () => {
 
     if (isSuccess) {
       toast.success("Signed in successfully!");
-      router.push("/benchmarks");
     } else {
       toast.danger("An error occurred while signing in", {
         description: error?.message || "Please check your credentials and try again.",
