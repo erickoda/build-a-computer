@@ -34,6 +34,7 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /usr/src/app/target/release/grpc_server /usr/local/bin/server
+COPY --from=builder /usr/src/app/target/release/cli /usr/local/bin/cli
 
 EXPOSE 50051
 

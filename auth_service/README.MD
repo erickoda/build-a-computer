@@ -10,6 +10,11 @@ Create Admin User
 cargo run --release --bin cli -- create-admin --username "admin" --email "admin@email.com
 ```
 
+Create Admin User (Inside Docker)
+```bash
+docker compose exec authentication_microservice cli create-admin --username admin --email admin@example.com
+```
+
 ## Setup database with sqlx
 ```bash
 sqlx database create   # Create the database
