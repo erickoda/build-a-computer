@@ -3,7 +3,7 @@ use crate::{
         auth_client::AuthClientWrapper, channel::create_channel, users_client::UsersClientWrapper,
     },
     config::AppConfig,
-    middleware::telemetry::tracing_layer,
+    middleware::tracing::tracing_layer,
     modules::{auth::routes::auth_routes, users::routes::user_routes},
     security::{jwt_adapter::JwtValidator, token::TokenValidator},
 };
@@ -31,8 +31,12 @@ mod extractor;
 mod middleware;
 mod modules;
 mod security;
-mod telemetry;
+mod tracing;
 
+/// Estado global do app compartilhado e injetado nas rotas do Axum.
+///
+/// Mantém as instâncias dos clientes gRPC para comunicação persistente
+/// com os microsserviços e o validador de JWT para autenticação.
 #[derive(Clone)]
 pub struct AppState {
     user_client: UsersClientWrapper,
@@ -40,15 +44,25 @@ pub struct AppState {
     token_validator: Arc<dyn TokenValidator>,
 }
 
+/// Permite que o Axum extraia automaticamente o `TokenValidator` a partir do `AppState`.
+///
+/// Útil para injetar a validação de token de forma limpa nos handlers das rotas protegidas.
 impl FromRef<AppState> for Arc<dyn TokenValidator> {
     fn from_ref(app_state: &AppState) -> Self {
         app_state.token_validator.clone()
     }
 }
 
+/// Função principal que orquestra a inicialização e execução do Gateway.
+///
+/// # Erros
+///
+/// Retorna um erro se houver falha ao estabelecer os canais gRPC com os
+/// microsserviços ou se o servidor TCP não conseguir se vincular à porta
+/// especificada na configuração.
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    telemetry::init_telemetry();
+    tracing::init_telemetry();
 
     let app_configure = AppConfig::from_env();
 
@@ -79,7 +93,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .with_state(state);
 
     let addr = format!("{}:{}", app_configure.host, app_configure.port);
-
     let listener = tokio::net::TcpListener::bind(addr.clone()).await?;
 
     println!("Running API Gateway in address: {}", addr);

@@ -12,6 +12,11 @@ use crate::{
     },
 };
 
+/// Realiza o login de um usuário existente.
+///
+/// Valida as credenciais (e-mail e senha) enviadas no corpo da requisição
+/// junto ao microsserviço. Em caso de sucesso, retorna um status `200 OK`
+/// contendo o token de acesso (JWT).
 pub async fn sign_in(
     State(app_state): State<AppState>,
     Json(dto): Json<SignInRequestDto>,
@@ -24,6 +29,11 @@ pub async fn sign_in(
     Ok((StatusCode::OK, Json(AuthResponseDto::new(token))))
 }
 
+/// Registra um novo usuário no sistema.
+///
+/// Repassa os dados de criação (e-mail, senha e nome de usuário) para o
+/// microsserviço. Se o cadastro for bem-sucedido, o microsserviço já autentica
+/// o usuário e retorna um status `200 OK` com o token de acesso.
 pub async fn sign_up(
     State(app_state): State<AppState>,
     Json(dto): Json<SignUpRequestDto>,
@@ -36,6 +46,11 @@ pub async fn sign_up(
     Ok((StatusCode::OK, Json(AuthResponseDto::new(token))))
 }
 
+/// Solicita a recuperação de senha de um usuário.
+///
+/// Aciona o microsserviço para gerar e enviar um código OTP (One-Time Password)
+/// para o e-mail informado. Retorna sempre `204 No Content` em caso de sucesso
+/// no enfileiramento ou processamento do pedido.
 pub async fn forgot_password(
     State(app_state): State<AppState>,
     Json(dto): Json<ForgotPasswordDto>,
@@ -48,6 +63,11 @@ pub async fn forgot_password(
     Ok(StatusCode::NO_CONTENT)
 }
 
+/// Redefine a senha de um usuário autenticado por OTP.
+///
+/// Recebe o e-mail, a nova senha e o código de verificação (OTP) gerado
+/// na etapa de `forgot_password`. Se o OTP for válido, a senha é alterada
+/// e o endpoint retorna `204 No Content`.
 pub async fn reset_password(
     State(app_state): State<AppState>,
     Json(dto): Json<ResetPasswordDto>,
