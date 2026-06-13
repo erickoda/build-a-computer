@@ -24,7 +24,7 @@ services:
 
   authentication_microservice:
     build:
-      context: ./auth_service
+      context: ./authentication_microservice
       additional_contexts:
         protos: ./proto
     deploy:
