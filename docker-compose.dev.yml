@@ -52,6 +52,46 @@ services:
       users_db:
         condition: service_healthy
 
+  computer_builder_microservice:
+    container_name: computer_builder_microservice
+    build:
+      context: ./pc_builder_service
+      dockerfile: Dockerfile
+      target: run-stage
+      additional_contexts:
+        protos: ./proto
+    deploy:
+      resources:
+        limits:
+          cpus: '0.6'
+          memory: 512M
+        reservations:
+          cpus: '0.4'
+          memory: 256M
+    env_file:
+      - .env
+    environment:
+      - ADDR:${PC_BUILDER_MICROSERVICE_ADDR}
+      - PGHOST=${PC_BUILDER_PGHOST}
+      - PGUSER=${PC_BUILDER_PGUSER}
+      - PGPASSWORD=${PC_BUILDER_PGPASSWORD}
+      - PGDATABASE=${PC_BUILDER_PGDATABASE}
+      - PGSSLMODE=${PC_BUILDER_PGSSLMODE}
+    ports:
+      - "${PC_BUILDER_MICROSERVICE_PORT}:${PC_BUILDER_MICROSERVICE_PORT}"
+    networks:
+      - computer_builder_db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=${PC_BUILDER_MICROSERVICE_ADDR}", "-service=builder.BuilderService"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      recommendation_db:
+        condition: service_healthy
+
   users_db:
     image: postgres:15-alpine
     ports:
@@ -68,5 +108,30 @@ services:
       timeout: 5s
       retries: 5
 
+  recommendation_db:
+    container_name: recommendation_db
+    image: postgres:18.4-alpine3.23
+    ports:
+      - ${RECOMMENDATION_DB_PORT}
+    environment:
+      POSTGRES_USER: ${RECOMMENDATION_DB_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${RECOMMENDATION_DB_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${RECOMMENDATION_DB_POSTGRES_DB}
+      PGDATA: /data/postgres
+    networks:
+      - computer_builder_db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${RECOMMENDATION_DB_POSTGRES_USER} -d ${RECOMMENDATION_DB_POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - recommendation_data:/var/lib/postgresql
+
 volumes:
   postgres_data:
+
+networks:
+  computer_builder_db:
+    driver: bridge
