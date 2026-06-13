@@ -9,9 +9,14 @@ use tracing::{Span, info, info_span};
 
 use crate::security::jwt_adapter::TokenClaims;
 
+/// Construtor de "Spans" de log para requisições recebidas.
 #[derive(Clone)]
 pub struct GatewayMakeSpan;
 
+/// Esta estrutura intercepta a requisição no momento em que ela chega.
+/// Ela tenta extrair as credenciais (`TokenClaims`) previamente injetadas
+/// no contexto da requisição para registrar qual usuário está realizando a
+/// chamada. Se não encontrar, registra como `"anonymous"`.
 impl<B> MakeSpan<B> for GatewayMakeSpan {
     fn make_span(&mut self, request: &axum::http::Request<B>) -> tracing::Span {
         let user_sub = request
@@ -24,18 +29,25 @@ impl<B> MakeSpan<B> for GatewayMakeSpan {
     }
 }
 
+/// Gatilho disparado no início do processamento de uma requisição.
 #[derive(Clone)]
 pub struct GatewayOnRequest;
 
+/// Simplesmente registra a aplicação começou a processar a requisição
+/// HTTP dentro do Span recém-criado.
 impl<B> OnRequest<B> for GatewayOnRequest {
     fn on_request(&mut self, _request: &Request<B>, _: &Span) {
         info!("Started processing request...");
     }
 }
 
+/// Gatilho disparado após a resposta ser gerada pela aplicação.
 #[derive(Clone)]
 pub struct GatewayOnResponse;
 
+/// Registra a conclusão da requisição, registrando o status code
+/// final da resposta e o tempo total de processamento (latência)
+/// em milissegundos.
 impl<B> OnResponse<B> for GatewayOnResponse {
     fn on_response(self, response: &Response<B>, latency: Duration, _: &Span) {
         info!(
@@ -46,6 +58,9 @@ impl<B> OnResponse<B> for GatewayOnResponse {
     }
 }
 
+/// Constrói a `Layer` de tracing configurada para o Axum.
+///
+/// Retorna um middleware unindo todas as personalizações criadas.
 pub fn tracing_layer() -> TraceLayer<
     SharedClassifier<ServerErrorsAsFailures>,
     GatewayMakeSpan,
