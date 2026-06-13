@@ -62,7 +62,7 @@ impl FromRef<AppState> for Arc<dyn TokenValidator> {
 /// especificada na configuração.
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing::init_telemetry();
+    tracing::init_tracing();
 
     let app_configure = AppConfig::from_env();
 
