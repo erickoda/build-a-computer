@@ -71,19 +71,43 @@ func Migrate(db *DB) error {
 	return nil
 }
 
+func ExecOperationBeforeMigration(db *DB) error {
+	enumsCreateSQL := `
+		DO $$ 
+		BEGIN 
+			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'performance') THEN 
+				CREATE TYPE performance AS ENUM ('low', 'medium', 'high', 'ultra'); 
+			END IF;
+
+			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'psu_ranking') THEN 
+				CREATE TYPE psu_ranking AS ENUM ('white', 'bronze', 'silver', 'gold', 'platinum', 'titanium'); 
+			END IF;
+
+			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'ssd_type') THEN 
+				CREATE TYPE ssd_type AS ENUM ('SATA', 'M2 SATA', 'M2 NVMe'); 
+			END IF;
+		END $$;`
+
+	if err := db.Gorm.Exec(enumsCreateSQL).Error; err != nil {
+		return fmt.Errorf("failed to create enums: %w", err)
+	}
+
+	return nil
+}
+
 func (db *DB) Get() *gorm.DB {
 	return db.Gorm
 }
 
 func loadDBConfig() string {
-	_ = godotenv.Load()
+	_ = godotenv.Load(".env")
 	
-	port, _ := strconv.Atoi(os.Getenv("PGPORT"))
-	host := os.Getenv("PGHOST")
-	username := os.Getenv("PGUSER")
-	password := os.Getenv("PGPASSWORD")
-	db_name := os.Getenv("PGDATABASE")
-	ssl_mode := os.Getenv("PGSSLMODE")
+	port, _ := strconv.Atoi(os.Getenv("PC_BUILDER_PGPORT"))
+	host := os.Getenv("PC_BUILDER_PGHOST")
+	username := os.Getenv("PC_BUILDER_PGUSER")
+	password := os.Getenv("PC_BUILDER_PGPASSWORD")
+	db_name := os.Getenv("PC_BUILDER_PGDATABASE")
+	ssl_mode := os.Getenv("PC_BUILDER_PGSSLMODE")
 	
 	config := DBConfig{
 		Host:     host,

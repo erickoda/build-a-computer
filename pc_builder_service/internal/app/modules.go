@@ -47,6 +47,7 @@ var Module = fx.Options(
 		NewGRPCServer,
 	),
 	fx.Invoke(
+		db.ExecOperationBeforeMigration,
 		db.Migrate,
 		RegisterServer,
 	),
@@ -70,9 +71,9 @@ func RegisterServer(
 
 	pb.RegisterBuilderServiceServer(server, handler)
 
-	_ = godotenv.Load()
+	_ = godotenv.Load(".env")
 
-	var addr string = os.Getenv("ADDR")
+	var addr string = os.Getenv("PC_BUILDER_MICROSERVICE_ADDR")
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {

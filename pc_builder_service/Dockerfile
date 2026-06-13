@@ -19,7 +19,7 @@ COPY --from=build-stage /app/pc_builder_service .
 COPY --from=security-provider /etc/passwd /etc/passwd
 COPY --from=security-provider /etc/group /etc/group
 
-EXPOSE 50051
+EXPOSE 50052
 
 USER appuser
 CMD ["./pc_builder_service"]
