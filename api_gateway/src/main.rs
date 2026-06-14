@@ -31,7 +31,7 @@ mod extractor;
 mod middleware;
 mod modules;
 mod security;
-mod tracing;
+mod tracing_config;
 
 /// Estado global do app compartilhado e injetado nas rotas do Axum.
 ///
@@ -62,7 +62,7 @@ impl FromRef<AppState> for Arc<dyn TokenValidator> {
 /// especificada na configuração.
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing::init_tracing();
+    tracing_config::init_tracing();
 
     let app_configure = AppConfig::from_env();
 
@@ -95,7 +95,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let addr = format!("{}:{}", app_configure.host, app_configure.port);
     let listener = tokio::net::TcpListener::bind(addr.clone()).await?;
 
-    println!("Running API Gateway in address: {}", addr);
+    tracing::info!("Running API Gateway in address: {}", addr);
 
     axum::serve(listener, app).await?;
 
