@@ -5,6 +5,12 @@ use crate::{
     infrastructure::AppUserUseCase,
 };
 
+/// Executa o fluxo interativo via CLI para a criação de um administrador.
+///
+/// Este manipulador é responsável por coordenar a interação com o usuário no terminal.
+/// Ele exibe a arte de inicialização, solicita a senha de forma segura (ocultando os
+/// caracteres digitados) usando a crate `rpassword`, e finalmente injeta o usuário
+/// com privilégios de [`Role::Admin`] diretamente no banco de dados através do Use Case.
 pub async fn create_admin(app_user_service: AppUserUseCase, username: &str, email: &str) {
     print_anime_girl();
     println!("⚙️  Initializing admin creation...");
@@ -34,6 +40,7 @@ pub async fn create_admin(app_user_service: AppUserUseCase, username: &str, emai
     println!("✅ Admin user created successfully!");
 }
 
+/// Imprime uma garota de anime em arte ASCII no terminal.
 pub fn print_anime_girl() {
     println!(
         "⣿⣿⣿⣿⣿⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀"

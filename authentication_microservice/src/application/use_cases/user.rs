@@ -16,12 +16,16 @@ use crate::{
     },
 };
 
+/// Responsável pelos fluxos de Gerenciamento de Usuários.
+///
+/// Lida com as operações de CRUD (Create, Read, Update, Delete) de usuários. 
 pub struct UserUseCase<R: UserRepository, P: PasswordHasher> {
     repository: R,
     password_hasher: P,
 }
 
 impl<R: UserRepository, P: PasswordHasher> UserUseCase<R, P> {
+    /// Instancia o caso de uso injetando as dependências de persistência e criptografia.
     pub fn new(repository: R, password_hasher: P) -> Self {
         Self {
             repository,
@@ -29,6 +33,9 @@ impl<R: UserRepository, P: PasswordHasher> UserUseCase<R, P> {
         }
     }
 
+    /// Cria e persiste um novo usuário no sistema.
+    ///
+    /// Valida os dados, aplica o hash na senha e delega a inserção ao repositório.
     #[instrument(
         name = "user_use_case_create_user",
         skip(self, command),
@@ -60,16 +67,26 @@ impl<R: UserRepository, P: PasswordHasher> UserUseCase<R, P> {
         Ok(self.repository.insert_user(user_entity).await?)
     }
 
+    /// Recupera os dados completos de um usuário específico pelo seu UUID.
     #[instrument(name = "user_use_case_get_user", skip(self), err)]
     pub async fn get_user(&self, id: Uuid) -> Result<UserEntity, UserUseCaseError> {
         Ok(self.repository.get_user(id).await?)
     }
 
+    /// Retorna uma lista contendo todos os usuários cadastrados no sistema.
     #[instrument(name = "user_use_case_get_users", skip(self), err)]
     pub async fn get_users(&self) -> Result<Vec<UserEntity>, UserUseCaseError> {
         Ok(self.repository.get_users().await?)
     }
 
+    /// Atualiza as informações de um usuário existente.
+    ///
+    /// # Autorização
+    /// 
+    /// Aplica as seguintes regras de negócio antes da atualização:
+    /// * Um usuário só pode editar o seu próprio perfil, a menos que seja um `Admin`.
+    /// * Modificações sensíveis, como alteração de `Role` (cargo) ou `Status` (atividade), 
+    ///   são estritamente restritas a usuários com privilégios de `Admin`.
     #[instrument(
         name = "user_use_case_update_user",
         skip(self, command), 
@@ -149,6 +166,12 @@ impl<R: UserRepository, P: PasswordHasher> UserUseCase<R, P> {
         Ok(())
     }
 
+    /// Remove um usuário do banco de dados pelo seu UUID.
+    ///
+    /// # Autorização
+    /// 
+    /// Um usuário só tem permissão para deletar a si mesmo. O direito de 
+    /// remover contas de terceiros é restrito apenas a requerentes com cargo de `Admin`.
     #[instrument(name = "user_use_case_delete_user", skip(self), err)]
     pub async fn delete_user(
         &self,

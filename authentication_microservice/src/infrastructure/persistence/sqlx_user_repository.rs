@@ -11,18 +11,26 @@ use crate::{
     infrastructure::persistence::models::user_row::{PgRole, PgStatus, UserRow},
 };
 
+/// Implementação do Repositório de Usuários (Adapter - [`UserRepository`]) utilizando PostgreSQL.
+///
+/// Gerencia a comunicação com o banco de dados de forma assíncrona utilizando [`sqlx`]. 
+/// Todas as queries são checadas em tempo de compilação (compile-time checked) 
+/// pelas macros do [`sqlx`], garantindo que o SQL seja sempre válido em relação 
+/// ao schema atual do banco.
 #[derive(Clone)]
 pub struct SqlxUserRepository {
     pool: PgPool,
 }
 
 impl SqlxUserRepository {
+    /// Instancia um novo repositório recebendo um Pool de conexões do PostgreSQL.
     pub fn new(pool: PgPool) -> Self {
         Self { pool }
     }
 }
 
 impl UserRepository for SqlxUserRepository {
+    /// Insere um novo registro de usuário no banco de dados.
     #[instrument(
         name = "db_user_insert",
         skip(self, user), 
@@ -64,6 +72,8 @@ impl UserRepository for SqlxUserRepository {
         }
     }
 
+    /// Busca um usuário pelo seu UUID. 
+    /// Retorna sucesso apenas se o status do usuário for [`PgStatus::Active`].
     #[instrument(
         name = "db_get_user_by_id",
         skip(self), 
@@ -88,6 +98,7 @@ impl UserRepository for SqlxUserRepository {
         Ok(entity)
     }
 
+    /// Executa um soft delete do usuário no banco de dados.
     #[instrument(
         name = "db_delete_user_by_id",
         skip(self), 
@@ -113,6 +124,8 @@ impl UserRepository for SqlxUserRepository {
         Ok(())
     }
 
+    /// Busca um usuário através do seu e-mail. 
+    /// Retorna apenas usuários com status [`PgStatus::Active`].
     #[instrument(
         name = "db_get_user_by_email",
         skip(self), 
@@ -147,6 +160,7 @@ impl UserRepository for SqlxUserRepository {
         Ok(user_entity)
     }
 
+    /// Retorna uma lista com todos os usuários do sistema que estão com o status [`PgStatus::Active`].
     #[instrument(
         name = "db_get_all_users",
         skip(self), 
@@ -176,6 +190,7 @@ impl UserRepository for SqlxUserRepository {
             .collect::<Result<Vec<UserEntity>, _>>()
     }
 
+    /// Sobrescreve as informações de um usuário existente.
     #[instrument(
         name = "db_update_user",
         skip(self, user), 
@@ -225,6 +240,7 @@ impl UserRepository for SqlxUserRepository {
         Ok(())
     }
 
+    /// Atualiza exclusivamente a coluna de senha buscando o usuário pelo e-mail ativo.
     #[instrument(
         name = "db_update_user",
         skip(self, password), 
@@ -260,6 +276,7 @@ impl UserRepository for SqlxUserRepository {
     }
 }
 
+/// Traduz falhas diretas do Driver SQL para erros mapeados do Repositório.
 impl From<sqlx::Error> for RepositoryError {
     fn from(value: sqlx::Error) -> Self {
         match value {

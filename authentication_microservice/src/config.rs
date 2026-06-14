@@ -1,5 +1,10 @@
 use std::env;
 
+/// Centraliza todas as configurações e segredos necessários para rodar o microsserviço.
+///
+/// Atua como a única fonte de verdade para as definições de infraestrutura,
+/// garantindo que as credenciais de banco de dados, JWT e SMTP sejam mapeadas
+/// de forma tipada e segura.
 pub struct AppConfig {
     pub database_url: String,
     pub jwt_secret: String,
@@ -11,6 +16,10 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
+    /// Carrega e valida as variáveis de ambiente na inicialização.
+    ///
+    /// Tenta ler automaticamente um arquivo `.env` (para desenvolvimento local) e em
+    /// seguida extrai os valores diretamente do sistema operacional (para produção).
     pub fn from_env() -> Self {
         dotenvy::dotenv().ok();
 
