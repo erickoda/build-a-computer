@@ -24,7 +24,7 @@ services:
 
   authentication_microservice:
     build:
-      context: ./auth_service
+      context: ./authentication_microservice
       additional_contexts:
         protos: ./proto
     deploy:
@@ -131,6 +131,7 @@ services:
 
 volumes:
   postgres_data:
+  recommendation_data:
 
 networks:
   computer_builder_db:

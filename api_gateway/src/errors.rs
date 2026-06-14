@@ -5,6 +5,7 @@ use axum::{
 };
 use serde_json::json;
 use tonic::Status;
+use utoipa::ToSchema;
 
 /// Representa os erros globais que a aplicação pode assumir.
 ///
@@ -12,9 +13,10 @@ use tonic::Status;
 /// lidando com eventuais erros advindos da comunicação com os microsserviços
 /// gRPC externos e transformando-os em mensagens HTTP. Além disso,
 /// trata possíveis erros que tenha origem no próprio Gateway.
-#[derive(Debug)]
+#[derive(Debug, ToSchema)]
 pub enum AppError {
     /// Representa erros originários de uma comunicação gRPC.
+    #[schema(value_type = String)]
     Grpc(Status),
 
     /// Representa erros internos arbitrários do API Gateway.
