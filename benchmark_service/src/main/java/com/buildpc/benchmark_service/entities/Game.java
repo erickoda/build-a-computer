@@ -20,7 +20,6 @@ public class Game {
 	private UUID id;
 	private String name;
 	private Integer necessaryDiskSpace;
-	private Integer averageFPS;
 	private DateTime updatedAt;
 	private DateTime createdAt;
 }

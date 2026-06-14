@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package pkg.protos.v1;
+
+option java_package = "com.buildpc.benchmark_service.grpc.generated";
+option java_multiple_files = true;
+option java_outer_classname = "GameProto";
+
+import "google/protobuf/timestamp.proto";
+
+service GameService {
+  rpc CreateGame (CreateGameRequest) returns (GameResponse);
+  rpc GetGame (GetGameRequest) returns (GameResponse);
+  rpc ListGames (ListGameRequest) returns (ListGameResponse);
+  rpc DeleteGame (DeleteGameRequest) returns (DeleteGameResponse);
+}
+
+message CreateGameRequest {
+  string name = 1;
+  optional bytes img = 2;
+  int32 necessary_disk = 3;
+}
+
+message GetGameRequest {
+  string id = 1;
+}
+
+message ListGameRequest {
+
+}
+
+message DeleteGameRequest {
+  string id = 1;
+}
+
+message GameResponse {
+  string id = 1;
+  string name = 2;
+  optional bytes img = 3;
+  int32 necessary_disk = 4;
+  google.protobuf.Timestamp created_at = 5;
+  optional google.protobuf.Timestamp updated_at = 6;
+}
+
+message ListGameResponse {
+  repeated GameResponse games = 1;
+}
+
+message DeleteGameResponse {
+  bool success = 1;
+}
