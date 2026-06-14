@@ -11,11 +11,17 @@ use crate::{
     },
 };
 
+/// Handler para os endpoints gRPC de Usuários.
+///
+/// Atua como um Adaptador Primário (Primary/Driving Adapter). Ele recebe as
+/// requisições da rede via [`tonic`], converte os payloads gRPC para os Comandos
+/// da camada de Aplicação e repassa a execução para o Caso de Uso.
 pub struct UsersService {
     user_use_case: AppUserUseCase,
 }
 
 impl UsersService {
+    /// Instancia o serviço gRPC injetando o Caso de Uso de Usuário.
     pub fn new(user_use_case: AppUserUseCase) -> Self {
         Self { user_use_case }
     }
@@ -23,6 +29,10 @@ impl UsersService {
 
 #[tonic::async_trait]
 impl Users for UsersService {
+    /// Cria um novo usuário no sistema.
+    ///
+    /// # Autorização
+    /// Requer que o chamador possua o cargo de [`Role::Admin`].
     async fn create_user(
         &self,
         request: Request<CreateUserRequest>,
@@ -42,6 +52,7 @@ impl Users for UsersService {
         )))
     }
 
+    /// Busca os detalhes de um usuário específico pelo seu ID (UUID).
     async fn get_user(&self, request: Request<UserId>) -> Result<Response<User>, Status> {
         Ok(Response::from(User::from(
             self.user_use_case
@@ -53,12 +64,14 @@ impl Users for UsersService {
         )))
     }
 
+    /// Retorna uma lista com todos os usuários ativos do sistema.
     async fn get_users(&self, _: Request<Empty>) -> Result<Response<ListOfUsers>, Status> {
         Ok(Response::from(ListOfUsers::from(
             self.user_use_case.get_users().await?,
         )))
     }
 
+    /// Remove (Soft Delete) um usuário do sistema.
     async fn delete_user(&self, request: Request<UserId>) -> Result<Response<Empty>, Status> {
         let user_ctx = request.extensions().get::<UserContext>().unwrap().clone();
 
@@ -72,6 +85,7 @@ impl Users for UsersService {
         Ok(Response::new(Empty {}))
     }
 
+    /// Atualiza as informações de um usuário existente.
     async fn update_user(
         &self,
         request: Request<UpdateUserRequest>,

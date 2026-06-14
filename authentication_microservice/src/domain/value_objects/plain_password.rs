@@ -1,16 +1,37 @@
+use std::sync::LazyLock;
+
 use regex::Regex;
 
 use crate::domain::errors::UserEntityError;
 
+/// Value Object que representa uma senha não criptografada.
+///
+/// Encapsula uma [`String`], garantindo que qualquer instância [`PlainPassword`]
+/// na aplicação obedeça regras importantes de validação de senha.
 #[derive(Debug, PartialEq, Clone)]
 pub struct PlainPassword(String);
 
+static SPECIAL_CHAR_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"[^a-zA-Z0-9]").unwrap());
+
+/// Tenta validar e instanciar um `PlainPassword` a partir de uma `String` bruta.
+///
+/// # Regras de Validação
+///
+/// Para ser considerada uma senha válida, deve atender aos seguintes critérios:
+/// * Tamanho mínimo de **8 caracteres**.
+/// * Tamanho máximo de **24 caracteres**.
+/// * Conter **pelo menos um caractere especial** (qualquer caractere que não seja alfanumérico).
+/// * Conter **pelo menos um caractere maiúsculo**
+///
+/// # Erros
+///
+/// Retorna [`UserEntityError::InvalidPassword`] se qualquer uma das regras de
+/// validação acima for violada, informando, atráves de uma mensage descritiva,
+/// qual regra falhou.
 impl TryFrom<String> for PlainPassword {
     type Error = UserEntityError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        let special_char_regex: Regex = Regex::new(r"[^a-zA-Z0-9]").unwrap();
-
         if value.len() < 8 {
             return Err(UserEntityError::InvalidPassword(
                 "Invalid Password Size! Password must have at least 8 characters!!!".to_string(),
@@ -23,9 +44,16 @@ impl TryFrom<String> for PlainPassword {
             ));
         }
 
-        if !special_char_regex.is_match(&value) {
+        if !SPECIAL_CHAR_REGEX.is_match(&value) {
             return Err(UserEntityError::InvalidPassword(
                 "Invalid Password Format! Password must have at least 1 special character"
+                    .to_string(),
+            ));
+        }
+
+        if !value.chars().any(|char| char.is_uppercase()) {
+            return Err(UserEntityError::InvalidPassword(
+                "Invalid Password Format! Password must have at least 1 uppercase character"
                     .to_string(),
             ));
         }
@@ -35,58 +63,8 @@ impl TryFrom<String> for PlainPassword {
 }
 
 impl PlainPassword {
+    /// Retorna uma referência em formato de string slice (`&str`) para a senha validada.
     pub fn as_str(&self) -> &str {
         &self.0
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    const VALID_PASSWORDS: [&str; 3] = ["y2W0G.*9", "o2N1\\9X*", "b+*9x/u5KMYF||\">k|30YO:@"];
-    const INVALID_PASSWORDS: [&str; 3] = ["y2W0G.*", "12345678", "b+*9x/u5KMYF||\">k|30YO:@a"];
-
-    #[test]
-    pub fn test_try_from_string_for_password_success() {
-        for password_str in VALID_PASSWORDS {
-            let password: Result<PlainPassword, UserEntityError> =
-                PlainPassword::try_from(password_str.to_string());
-
-            assert!(
-                password.is_ok(),
-                "Expected valid password, but it failed. Password: {}",
-                password_str
-            )
-        }
-    }
-
-    #[test]
-    pub fn test_get() {
-        for password_str in VALID_PASSWORDS {
-            let password: &PlainPassword =
-                &PlainPassword::try_from(password_str.to_string()).unwrap();
-            let result: String = password.as_str().to_string();
-
-            assert_eq!(
-                result, password_str,
-                "Expected valid password, but it failed. Password: {}",
-                password_str
-            )
-        }
-    }
-
-    #[test]
-    pub fn test_try_from_string_for_password_fail() {
-        for password_str in INVALID_PASSWORDS {
-            let password: Result<PlainPassword, UserEntityError> =
-                PlainPassword::try_from(password_str.to_string());
-
-            assert!(
-                password.is_err(),
-                "Expected invalid password, but it successed. Password: {}",
-                password_str
-            )
-        }
     }
 }

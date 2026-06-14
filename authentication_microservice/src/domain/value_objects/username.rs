@@ -1,8 +1,22 @@
 use crate::domain::errors::UserEntityError;
 
+/// Representa o nome de usuário (Value Object).
+///
+/// Encapsula a string fornecida no cadastro, garantindo que o nome
+/// respeite o limite de armazenamento do banco de dados.
 #[derive(Debug, PartialEq, Clone)]
 pub struct Username(String);
 
+/// Tenta validar e instanciar um `Username` a partir de uma `String` bruta.
+///
+/// # Regras de Validação
+///
+/// O nome de usuário pode possuir no máximo **255 caracteres**.
+///
+/// # Erros
+///
+/// Retorna [`UserEntityError::InvalidUsername`] caso a string não respeite a regra
+/// de validação acima.
 impl TryFrom<String> for Username {
     type Error = UserEntityError;
 
@@ -17,6 +31,7 @@ impl TryFrom<String> for Username {
     }
 }
 
+/// Extrai uma cópia da `String` interna a partir de uma referência de `Username`.
 impl From<&Username> for String {
     fn from(username: &Username) -> Self {
         username.clone().0

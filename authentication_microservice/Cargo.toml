@@ -1,5 +1,5 @@
 [package]
-name = "auth_service"
+name = "authentication_microservice"
 version = "0.1.0"
 edition = "2024"
 
@@ -13,7 +13,7 @@ mockall = "0.14.0"
 prost = "0.14.4"
 rand = "0.10.1"
 rand_core = { version = "0.6", features = ["getrandom"] }
-regex = "1.12.3"
+regex = "1.12.4"
 rpassword = "7.5.4"
 serde = { version = "1.0.228", features = ["derive"] }
 sqlx = { version = "0.9.0", features = [
@@ -29,7 +29,7 @@ tonic-prost = "0.14.6"
 tower-http = { version = "0.6.11", features = ["trace"] }
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
-uuid = { version = "1.23.2", features = ["v4", "serde"] }
+uuid = { version = "1.23.3", features = ["v4", "serde"] }
 
 [lib]
 name = "auth_service"

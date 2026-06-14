@@ -9,10 +9,16 @@ use crate::{
     domain::value_objects::{hashed_password::HashedPassword, plain_password::PlainPassword},
 };
 
+/// Adaptador de infraestrutura para hash de senhas utilizando o algoritmo Argon2. Implementa
+/// a porta [`PasswordHasher`].
 #[derive(Clone)]
 pub struct Argo2Hasher {}
 
 impl PasswordHasher for Argo2Hasher {
+    /// Gera um hash seguro a partir de uma senha em texto plano.
+    ///
+    /// Este método gera automaticamente um "Salt" criptograficamente seguro e aleatório
+    /// para cada senha usando `OsRng`.
     #[instrument(name = "argo2_hash_password", skip(self, plain_password), err)]
     fn hash_password(
         &self,
@@ -30,6 +36,10 @@ impl PasswordHasher for Argo2Hasher {
         Ok(HashedPassword::from_hash(password_hash))
     }
 
+    /// Verifica se uma senha em texto plano corresponde a um hash do Argon2.
+    ///
+    /// Extrai o salt e os parâmetros de custo originais diretamente da string
+    /// do hash armazenado para realizar a comparação. Dados sensíveis não são logados.
     #[instrument(
         name = "argo2_verify_password",
         skip(self, hashed_password, unencrypted_password),

@@ -8,11 +8,21 @@ use crate::{
     domain::errors::UserEntityError,
 };
 
+/// Erros mapeados para os fluxos de gerenciamento de usuários (User Use Cases).
+///
+/// Atua como uma camada de tradução, convertendo falhas específicas de infraestrutura
+/// (como falhas no banco de dados) e de domínio (regras de negócio) em respostas
+/// semânticas padronizadas para as camadas externas.
 pub enum UserUseCaseError {
+    /// Ocorre quando os dados fornecidos violam alguma regra de negócio.
     ValidationError(String),
+    /// Ocorre quando há violação de unicidade (ex.: e-mail já cadastrado).
     Conflict(String),
+    /// Ocorre quando o recurso solicitado não existe.
     NotFound,
+    /// Ocorre quando o usuário não possui privilégios suficientes para a ação.
     Forbidden,
+    /// Ocorre em falhas inesperadas de infraestrutura.
     InternalError(String),
 }
 
@@ -44,13 +54,20 @@ impl From<RepositoryError> for UserUseCaseError {
 
 impl From<UserEntityError> for UserUseCaseError {
     fn from(err: UserEntityError) -> Self {
-        Self::ValidationError(err.get_text())
+        Self::ValidationError(err.get_text().into())
     }
 }
 
+/// Erros mapeados para os fluxos de autenticação (Auth Use Cases).
+///
+/// Para fins de segurança, falhas detalhadas de domínio (ex: senha fora do padrão)
+/// ou de repositório (ex: e-mail não encontrado) são propositalmente mascaradas
+/// sob a variante `InvalidCredentials` para evitar ataques de enumeração.
 #[derive(Debug)]
 pub enum AuthServiceError {
+    /// Credenciais inválidas. Retornado de forma genérica para proteger dados sensíveis.
     InvalidCredentials,
+    /// Falhas severas de infraestrutura (Banco, provedor de Email, Redis, etc).
     InternalError(String),
 }
 

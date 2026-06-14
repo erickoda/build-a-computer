@@ -23,6 +23,11 @@ use crate::{
     },
 };
 
+/// Reponsável pelo fluxos de Autenticação.
+///
+/// Coordena a interação entre os objetos de domínio (regras de negócio) e as
+/// portas de infraestrutura (banco de dados, provedor de e-mail, gerador de tokens)
+/// para executar as operações de login, cadastro e recuperação de senha.
 pub struct AuthUseCase<
     R: UserRepository,
     T: TokenGenerator,
@@ -40,6 +45,7 @@ pub struct AuthUseCase<
 impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher, E: EmailSender, O: OtpStore>
     AuthUseCase<R, T, P, E, O>
 {
+    /// Instancia o caso de uso injetando todas as dependências de infraestrutura necessárias.
     pub fn new(
         repository: R,
         token_generator: T,
@@ -56,6 +62,10 @@ impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher, E: EmailSender, O:
         }
     }
 
+    /// Autentica um usuário existente no sistema.
+    ///
+    /// Valida as credenciais fornecidas e, em caso de sucesso, gera e retorna um
+    /// token de autenticação.
     #[instrument(
         name = "auth_use_case_sign_in",
         skip(self, command),
@@ -85,6 +95,10 @@ impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher, E: EmailSender, O:
         Ok(AuthOutput::new(token))
     }
 
+    /// Registra um novo usuário no sistema.
+    ///
+    /// Valida os dados de entrada, aplica o hash na senha, persiste o usuário no
+    /// banco de dados e retorna um token de autenticação.
     #[instrument(
         name = "auth_use_case_sign_up",
         skip(self, command),
@@ -118,6 +132,10 @@ impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher, E: EmailSender, O:
         Ok(AuthOutput::new(token))
     }
 
+    /// Inicia o fluxo de recuperação de senha.
+    ///
+    /// Verifica a existência do usuário no repositório, gera um código OTP alfanumérico
+    /// de 6 dígitos, armazena no cache e envia para o e-mail do usuário.
     #[instrument(name = "auth_use_case_forgot_password", skip(self), err)]
     pub async fn forgot_password(
         &self,
@@ -141,6 +159,10 @@ impl<R: UserRepository, T: TokenGenerator, P: PasswordHasher, E: EmailSender, O:
         Ok(())
     }
 
+    /// Conclui o fluxo de recuperação de senha.
+    ///
+    /// Valida o OTP fornecido contra o armazenado no cache. Se válido, atualiza
+    /// a senha do usuário e invalida o OTP para evitar reuso.
     #[instrument(
         name = "auth_use_case_reset_password",
         skip(self, command),
