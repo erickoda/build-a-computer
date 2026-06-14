@@ -57,6 +57,7 @@ services:
     build:
       context: ./pc_builder_service
       dockerfile: Dockerfile
+      network: host
       target: run-stage
       additional_contexts:
         protos: ./proto
