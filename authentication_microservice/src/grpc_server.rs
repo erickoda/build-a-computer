@@ -12,7 +12,7 @@ use auth_service::{
         persistence::sqlx_user_repository::SqlxUserRepository,
         security::{argo2_cryptography::Argo2Hasher, jwt_generator::JwtGenerator},
     },
-    telemetry,
+    tracing_config,
     users_grpc::users_server::UsersServer,
 };
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
@@ -22,7 +22,7 @@ use tower_http::trace::TraceLayer;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    telemetry::init_telemetry();
+    tracing_config::init_tracing();
 
     let config: AppConfig = AppConfig::from_env();
 
