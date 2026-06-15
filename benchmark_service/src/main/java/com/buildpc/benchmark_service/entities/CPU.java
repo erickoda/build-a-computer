@@ -1,16 +1,16 @@
 package com.buildpc.benchmark_service.entities;
 
 import com.google.type.DateTime;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.sql.Date;
 import java.util.UUID;
 
 @Entity
+@Table(name = "cpus")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -35,6 +35,10 @@ public class CPU {
 	private Date releaseDate;
 	private Float averagePrice;
 	private byte[] image;
-	private Date updatedAt;
+
+	@CreatedDate
 	private Date createdAt;
+
+	@LastModifiedDate
+	private Date updatedAt;
 }

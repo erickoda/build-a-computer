@@ -2,11 +2,14 @@ package com.buildpc.benchmark_service.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.sql.Date;
 import java.util.UUID;
 
 @Entity
+@Table(name = "benchmarks")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -49,6 +52,10 @@ public class Benchmark {
 
 	private UUID userId;
 	private Float score;
-	private Date updatedAt;
+
+	@CreatedDate
 	private Date createdAt;
+
+	@LastModifiedDate
+	private Date updatedAt;
 }

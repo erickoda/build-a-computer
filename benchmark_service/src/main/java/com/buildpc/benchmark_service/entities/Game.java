@@ -1,15 +1,15 @@
 package com.buildpc.benchmark_service.entities;
 
 import com.google.type.DateTime;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.util.UUID;
 
 @Entity
+@Table(name = "games")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,6 +20,10 @@ public class Game {
 	private UUID id;
 	private String name;
 	private Integer necessaryDiskSpace;
-	private DateTime updatedAt;
+
+	@CreatedDate
 	private DateTime createdAt;
+
+	@LastModifiedDate
+	private DateTime updatedAt;
 }
