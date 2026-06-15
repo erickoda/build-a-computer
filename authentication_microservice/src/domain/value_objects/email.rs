@@ -30,7 +30,7 @@ impl TryFrom<String> for Email {
     /// # Erros
     ///
     /// * Retorna um [`UserEntityError::InvalidEmail`] caso a String fornecida
-    /// não tenha um formato de e-mail válido.
+    ///   não tenha um formato de e-mail válido.
     fn try_from(value: String) -> Result<Self, Self::Error> {
         if EMAIL_REGEX.is_match(&value) {
             return Ok(Self(value));
