@@ -31,7 +31,7 @@ where
     /// * O header `Authorization` não seja enviado.
     /// * O formato do header `Authorization` não comece com o prefixo `"Bearer "`.
     /// * O token fornecido seja inválido de acordo com as regras do `TokenValidator`
-    /// injetado no estado da aplicação.
+    ///   injetado no estado da aplicação.
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let auth_header = parts
             .headers
