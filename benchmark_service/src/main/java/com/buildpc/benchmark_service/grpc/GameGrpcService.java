@@ -2,25 +2,28 @@ package com.buildpc.benchmark_service.grpc;
 
 import com.buildpc.benchmark_service.entities.Game;
 import com.buildpc.benchmark_service.exceptions.game.DuplicatedGameException;
-import com.buildpc.benchmark_service.grpc.generated.CreateGameRequest;
-import com.buildpc.benchmark_service.grpc.generated.GameResponse;
-import com.buildpc.benchmark_service.grpc.generated.GameServiceGrpc;
+import com.buildpc.benchmark_service.exceptions.game.GameNotFoundException;
+import com.buildpc.benchmark_service.grpc.generated.*;
 import com.buildpc.benchmark_service.mapper.GameMapper;
 import com.buildpc.benchmark_service.services.GameService;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.grpc.server.service.GrpcService;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+@Setter
 @Slf4j
 @GrpcService
 @RequiredArgsConstructor
 @Transactional
 public class GameGrpcService extends GameServiceGrpc.GameServiceImplBase {
-    private GameService gameService;
-    private GameMapper gameMapper;
+    private final GameService gameService;
+    private final GameMapper gameMapper;
 
     @Override
     public void createGame(CreateGameRequest request, StreamObserver<GameResponse> responseObserver) {
@@ -35,14 +38,47 @@ public class GameGrpcService extends GameServiceGrpc.GameServiceImplBase {
         }
         catch(DuplicatedGameException e) {
             responseObserver.onError(Status.ALREADY_EXISTS
-                    .withDescription(e.getMessage())
+                    .withDescription(e.getMessage() +
+                            request.getName() +
+                            request.getNecessaryDisk()
+                    )
                     .asException()
             );
         }
         catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
-                    .asException());
+                    .asException()
+            );
         }
     }
+
+    @Override
+    public void listGames(ListGameRequest request, StreamObserver<ListGameResponse> responseObserver) {
+        log.info("gRPC List game called");
+
+        try{
+            List<Game> foundGames = gameService.searchAll();
+
+            List<GameResponse> gamesMappedToProto = foundGames.stream()
+                    .map(gameMapper::createGameResponse)
+                    .toList();
+
+            responseObserver.onNext(gameMapper.createListGameResponse(gamesMappedToProto));
+            responseObserver.onCompleted();
+        }
+        catch(GameNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException()
+            );
+        }
+        catch(Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException()
+            );
+        }
+    }
+
 }

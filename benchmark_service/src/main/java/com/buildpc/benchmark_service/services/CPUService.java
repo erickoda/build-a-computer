@@ -43,7 +43,7 @@ public class CPUService {
         List<CPU> cpus = cpuRepository.findAll();
 
         if(cpus.isEmpty()) {
-            throw new CPUNotFoundException("None CPU was find");
+            throw new CPUNotFoundException("None CPU was found");
         }
 
         return cpus;
