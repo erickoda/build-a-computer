@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -32,5 +33,12 @@ public class GameService {
         }
 
         return games;
+    }
+
+    public void deleteById(UUID id) throws GameNotFoundException{
+        if(!gameRepository.existsById(id))
+            throw new GameNotFoundException("Can't find this game in data base");
+
+        gameRepository.deleteById(id);
     }
 }

@@ -1,6 +1,7 @@
 package com.buildpc.benchmark_service.grpc;
 
 import com.buildpc.benchmark_service.entities.Game;
+import com.buildpc.benchmark_service.exceptions.cpu.CPUNotFoundException;
 import com.buildpc.benchmark_service.exceptions.game.DuplicatedGameException;
 import com.buildpc.benchmark_service.exceptions.game.GameNotFoundException;
 import com.buildpc.benchmark_service.grpc.generated.*;
@@ -15,6 +16,7 @@ import org.springframework.grpc.server.service.GrpcService;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Setter
 @Slf4j
@@ -81,4 +83,26 @@ public class GameGrpcService extends GameServiceGrpc.GameServiceImplBase {
         }
     }
 
+    @Override
+    public void deleteGame(DeleteGameRequest request, StreamObserver<DeleteGameResponse> responseObserver) {
+        log.info("gRPC delete agme called");
+
+        try {
+            gameService.deleteById(UUID.fromString(request.getId()));
+
+            responseObserver.onNext(gameMapper.createDeleteGameResponse(true));
+            responseObserver.onCompleted();
+
+        }
+        catch(CPUNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
 }

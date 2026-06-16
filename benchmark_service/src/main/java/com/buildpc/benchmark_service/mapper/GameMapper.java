@@ -1,9 +1,7 @@
 package com.buildpc.benchmark_service.mapper;
 
 import com.buildpc.benchmark_service.entities.Game;
-import com.buildpc.benchmark_service.grpc.generated.CreateGameRequest;
-import com.buildpc.benchmark_service.grpc.generated.GameResponse;
-import com.buildpc.benchmark_service.grpc.generated.ListGameResponse;
+import com.buildpc.benchmark_service.grpc.generated.*;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
@@ -36,6 +34,12 @@ public class GameMapper {
     public ListGameResponse createListGameResponse(List<GameResponse> gameResponses) {
         return ListGameResponse.newBuilder()
                 .addAllGames(gameResponses)
+                .build();
+    }
+
+    public DeleteGameResponse createDeleteGameResponse(boolean deletedSuccess) {
+        return DeleteGameResponse.newBuilder()
+                .setSuccess(deletedSuccess)
                 .build();
     }
 
