@@ -3,11 +3,16 @@ package com.buildpc.benchmark_service.mapper;
 import com.buildpc.benchmark_service.entities.CPU;
 import com.buildpc.benchmark_service.grpc.generated.CPUResponse;
 import com.buildpc.benchmark_service.grpc.generated.CreateCPURequest;
+import com.buildpc.benchmark_service.grpc.generated.ListCPUResponse;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
 
 @Component
 public class CPUMapper {
@@ -42,6 +47,12 @@ public class CPUMapper {
         return builder.build();
     }
 
+    public ListCPUResponse createListCPUResponse(List<CPUResponse> cpuResponses) {
+        return ListCPUResponse.newBuilder()
+                .addAllCpu(cpuResponses)
+                .build();
+    }
+
     public CPU toEntity(CreateCPURequest request) {
         CPU cpu = new CPU();
         cpu.setBrand(request.getBrand());
@@ -67,13 +78,18 @@ public class CPUMapper {
         return cpu;
     }
 
-    private Timestamp dateToTimestamp(Date dateTime) {
+    private Timestamp dateToTimestamp(LocalDateTime dateTime) {
+        Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
+
         return Timestamp.newBuilder()
-                .setSeconds(dateTime.getTime() / 1000)
+                .setSeconds(instant.getEpochSecond())
+                .setNanos(instant.getNano())
                 .build();
     }
 
-    private Date timestampToDate(Timestamp timestamp) {
-		return new Date(timestamp.getSeconds());
+    private LocalDateTime timestampToDate(Timestamp timestamp) {
+        Instant instant = Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
+
+        return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
     }
 }
