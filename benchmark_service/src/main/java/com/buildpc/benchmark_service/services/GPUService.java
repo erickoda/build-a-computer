@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional(readOnly = true, noRollbackFor = GPUNotFoundException.class)
 @AllArgsConstructor
@@ -20,5 +22,14 @@ public class GPUService {
             throw new DuplicatedGPUException("this CPU already exists");
         }
         return gpuRepository.save(gpu);
+    }
+
+    public List<GPU> searchAll() {
+        List<GPU> gpus = gpuRepository.findAll();
+
+        if(gpus.isEmpty())
+            throw new GPUNotFoundException("None GPU was found");
+
+        return gpus;
     }
 }
