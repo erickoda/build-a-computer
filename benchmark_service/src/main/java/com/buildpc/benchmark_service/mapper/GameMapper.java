@@ -1,7 +1,9 @@
 package com.buildpc.benchmark_service.mapper;
 
 import com.buildpc.benchmark_service.entities.Game;
+import com.buildpc.benchmark_service.grpc.generated.CreateGameRequest;
 import com.buildpc.benchmark_service.grpc.generated.GameResponse;
+import com.buildpc.benchmark_service.grpc.generated.ListGameResponse;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 @Component
 public class GameMapper {
@@ -16,7 +19,7 @@ public class GameMapper {
         GameResponse.Builder builder = GameResponse.newBuilder()
                 .setId(String.valueOf(game.getId()))
                 .setName(game.getName())
-                .setNecessaryDisk(game.getNecessaryDiskSpace())
+                .setNecessaryDisk(game.getNecessaryDisk())
                 .setCreatedAt(dateToTimestamp(game.getCreatedAt()));
 
         if(game.getImage() != null) {
@@ -28,6 +31,24 @@ public class GameMapper {
         }
 
         return builder.build();
+    }
+
+    public ListGameResponse createListGameResponse(List<GameResponse> gameResponses) {
+        return ListGameResponse.newBuilder()
+                .addAllGames(gameResponses)
+                .build();
+    }
+
+    public Game toEntity(CreateGameRequest request) {
+        Game game = new Game();
+
+        game.setName(request.getName());
+        game.setNecessaryDisk(request.getNecessaryDisk());
+
+        if(request.hasImg())
+            game.setImage(request.getImg().toByteArray());
+
+        return game;
     }
 
     private Timestamp dateToTimestamp(LocalDateTime dateTime) {
