@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -23,6 +24,12 @@ public class GPUService {
             throw new DuplicatedGPUException("this CPU already exists");
         }
         return gpuRepository.save(gpu);
+    }
+
+    public GPU searchBYId(UUID id) throws GPUNotFoundException {
+        Optional<GPU> foundGPU = gpuRepository.findById(id);
+
+        return foundGPU.orElseThrow(() -> new GPUNotFoundException("Can't find this GPU in data base"));
     }
 
     public List<GPU> searchAll() throws GPUNotFoundException{

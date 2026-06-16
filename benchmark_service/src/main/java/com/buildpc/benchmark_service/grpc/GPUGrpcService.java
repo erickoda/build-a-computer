@@ -54,6 +54,28 @@ public class GPUGrpcService extends GPUServiceGrpc.GPUServiceImplBase {
     }
 
     @Override
+    public void getGPU(GetGPURequest request, StreamObserver<GPUResponse> responseObserver) {
+        log.info("gRPC get GPU called");
+
+        try{
+            GPU foundGPU = gpuService.searchBYId(UUID.fromString(request.getId()));
+
+            responseObserver.onNext(gpuMapper.toProto(foundGPU));
+            responseObserver.onCompleted();
+        }
+        catch(GPUNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
+
+    @Override
     public void listGPUs(ListGPURequest request, StreamObserver<ListGPUResponse> responseObserver) {
         log.info("gRPC List GPUs called");
 
