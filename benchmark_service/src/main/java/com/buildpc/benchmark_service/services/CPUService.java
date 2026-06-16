@@ -1,12 +1,10 @@
 package com.buildpc.benchmark_service.services;
 
 import com.buildpc.benchmark_service.entities.CPU;
-import com.buildpc.benchmark_service.exceptions.CPUNotFoundException;
-import com.buildpc.benchmark_service.exceptions.DuplicatedCPUException;
+import com.buildpc.benchmark_service.exceptions.cpu.CPUNotFoundException;
+import com.buildpc.benchmark_service.exceptions.cpu.DuplicatedCPUException;
 import com.buildpc.benchmark_service.repository.CPURepository;
-import com.buildpc.benchmark_service.repository.specs.CPUSpecs;
 import lombok.AllArgsConstructor;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

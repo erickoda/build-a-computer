@@ -1,8 +1,8 @@
 package com.buildpc.benchmark_service.grpc;
 
 import com.buildpc.benchmark_service.entities.CPU;
-import com.buildpc.benchmark_service.exceptions.CPUNotFoundException;
-import com.buildpc.benchmark_service.exceptions.DuplicatedCPUException;
+import com.buildpc.benchmark_service.exceptions.cpu.CPUNotFoundException;
+import com.buildpc.benchmark_service.exceptions.cpu.DuplicatedCPUException;
 import com.buildpc.benchmark_service.grpc.generated.*;
 import com.buildpc.benchmark_service.mapper.CPUMapper;
 import com.buildpc.benchmark_service.services.CPUService;
@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @GrpcService
