@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(readOnly = true, noRollbackFor = GPUNotFoundException.class)
@@ -24,12 +25,19 @@ public class GPUService {
         return gpuRepository.save(gpu);
     }
 
-    public List<GPU> searchAll() {
+    public List<GPU> searchAll() throws GPUNotFoundException{
         List<GPU> gpus = gpuRepository.findAll();
 
         if(gpus.isEmpty())
             throw new GPUNotFoundException("None GPU was found");
 
         return gpus;
+    }
+
+    public void deleteById(UUID id) throws GPUNotFoundException {
+        if(!gpuRepository.existsById(id))
+            throw new GPUNotFoundException("Can't this GPU in data base");
+
+        gpuRepository.deleteById(id);
     }
 }

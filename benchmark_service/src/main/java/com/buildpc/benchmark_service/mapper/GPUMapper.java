@@ -1,9 +1,7 @@
 package com.buildpc.benchmark_service.mapper;
 
 import com.buildpc.benchmark_service.entities.GPU;
-import com.buildpc.benchmark_service.grpc.generated.GPUResponse;
-import com.buildpc.benchmark_service.grpc.generated.CreateGPURequest;
-import com.buildpc.benchmark_service.grpc.generated.ListGPUResponse;
+import com.buildpc.benchmark_service.grpc.generated.*;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
@@ -45,6 +43,12 @@ public class GPUMapper {
     public ListGPUResponse createListGPUResponse(List<GPUResponse> gpuResponses){
         return ListGPUResponse.newBuilder()
                 .addAllGpu(gpuResponses)
+                .build();
+    }
+
+    public DeleteGPUResponse createDeleteGPUResponse(boolean deletedSuccess) {
+        return DeleteGPUResponse.newBuilder()
+                .setSuccess(deletedSuccess)
                 .build();
     }
 

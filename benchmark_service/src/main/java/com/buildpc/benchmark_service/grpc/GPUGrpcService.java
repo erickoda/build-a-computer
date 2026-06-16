@@ -14,6 +14,7 @@ import org.springframework.grpc.server.service.GrpcService;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @GrpcService
@@ -71,6 +72,28 @@ public class GPUGrpcService extends GPUServiceGrpc.GPUServiceImplBase {
                     .asException());
         }
         catch (Exception e){
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
+
+    @Override
+    public void deleteGPU(DeleteGPURequest request, StreamObserver<DeleteGPUResponse> responseObserver) {
+        log.info("gRPC Delete GPU called");
+
+        try{
+            gpuService.deleteById(UUID.fromString(request.getId()));
+
+            responseObserver.onNext(gpuMapper.createDeleteGPUResponse(true));
+            responseObserver.onCompleted();
+        }
+        catch (GPUNotFoundException e){
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
                     .asException());
