@@ -21,20 +21,24 @@ public class CPUService {
 
     public CPU saveCPU(CPU cpu) throws DuplicatedCPUException {
         if(cpuRepository.existsBySeries(cpu.getSeries())) {
-            throw new DuplicatedCPUException("this cpu already exists");
+            throw new DuplicatedCPUException("this CPU already exists");
         }
         return cpuRepository.save(cpu);
     }
 
-    public void deleteById(UUID id) { cpuRepository.deleteById(id); }
+    public void deleteById(UUID id) throws CPUNotFoundException{
+        if(!cpuRepository.existsById(id)) {
+            throw new CPUNotFoundException("Can't find this CPU");
+        }
 
-    public List<CPU> searchByTokens(String searchString) {
-        Specification<CPU> specs = CPUSpecs.specificationsLikeTokens(searchString);
+        cpuRepository.deleteById(id);
+    }
 
-        List<CPU> cpus = cpuRepository.findAll(specs);
+    public List<CPU> searchAll() {
+        List<CPU> cpus = cpuRepository.findAll();
 
         if(cpus.isEmpty()) {
-            throw new CPUNotFoundException("None cpu was find");
+            throw new CPUNotFoundException("None CPU was find");
         }
 
         return cpus;
