@@ -1,16 +1,19 @@
 package com.buildpc.benchmark_service.entities;
 
-import com.google.type.DateTime;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "cpus")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,13 +35,13 @@ public class CPU {
 	private Boolean graphics;
 	private Boolean oc;
 	private Integer recommendedPower;
-	private Date releaseDate;
+	private LocalDateTime releaseDate;
 	private Float averagePrice;
 	private byte[] image;
 
 	@CreatedDate
-	private Date createdAt;
+	private LocalDateTime createdAt;
 
 	@LastModifiedDate
-	private Date updatedAt;
+	private LocalDateTime updatedAt;
 }
