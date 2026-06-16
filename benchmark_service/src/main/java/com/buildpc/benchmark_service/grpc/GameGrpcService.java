@@ -1,5 +1,6 @@
 package com.buildpc.benchmark_service.grpc;
 
+import com.buildpc.benchmark_service.entities.CPU;
 import com.buildpc.benchmark_service.entities.Game;
 import com.buildpc.benchmark_service.exceptions.cpu.CPUNotFoundException;
 import com.buildpc.benchmark_service.exceptions.game.DuplicatedGameException;
@@ -52,6 +53,28 @@ public class GameGrpcService extends GameServiceGrpc.GameServiceImplBase {
                     .withDescription(e.getMessage())
                     .asException()
             );
+        }
+    }
+
+    @Override
+    public void getGame(GetGameRequest request, StreamObserver<GameResponse> responseObserver) {
+        log.info("gRPC get CPU called");
+
+        try{
+            Game foundGame = gameService.searchById(UUID.fromString(request.getId()));
+
+            responseObserver.onNext(gameMapper.createGameResponse(foundGame));
+            responseObserver.onCompleted();
+        }
+        catch (GameNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
         }
     }
 

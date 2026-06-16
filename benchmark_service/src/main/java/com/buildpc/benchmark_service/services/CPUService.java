@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Transactional
+@Transactional(readOnly = true, noRollbackFor = CPUNotFoundException.class)
 @AllArgsConstructor
 public class CPUService {
     private final CPURepository cpuRepository;

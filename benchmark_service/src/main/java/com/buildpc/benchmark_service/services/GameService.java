@@ -1,6 +1,8 @@
 package com.buildpc.benchmark_service.services;
 
+import com.buildpc.benchmark_service.entities.CPU;
 import com.buildpc.benchmark_service.entities.Game;
+import com.buildpc.benchmark_service.exceptions.cpu.CPUNotFoundException;
 import com.buildpc.benchmark_service.exceptions.game.DuplicatedGameException;
 import com.buildpc.benchmark_service.exceptions.game.GameNotFoundException;
 import com.buildpc.benchmark_service.repository.GameRepository;
@@ -9,10 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Transactional
+@Transactional(readOnly = true, noRollbackFor = GameNotFoundException.class)
 @AllArgsConstructor
 public class GameService {
     private final GameRepository gameRepository;
@@ -33,6 +36,12 @@ public class GameService {
         }
 
         return games;
+    }
+
+    public Game searchById(UUID id) throws GameNotFoundException {
+        Optional<Game> foundGame = gameRepository.findById(id);
+
+        return foundGame.orElseThrow(() -> new GameNotFoundException("Can't find this Game"));
     }
 
     public void deleteById(UUID id) throws GameNotFoundException{
