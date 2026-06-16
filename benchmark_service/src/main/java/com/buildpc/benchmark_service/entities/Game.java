@@ -1,11 +1,11 @@
 package com.buildpc.benchmark_service.entities;
 
-import com.google.type.DateTime;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -20,10 +20,11 @@ public class Game {
 	private UUID id;
 	private String name;
 	private Integer necessaryDiskSpace;
+	private byte[] image;
 
 	@CreatedDate
-	private DateTime createdAt;
+	private LocalDateTime createdAt;
 
 	@LastModifiedDate
-	private DateTime updatedAt;
+	private LocalDateTime updatedAt;
 }
