@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface GPURepository extends JpaRepository<GPU, UUID> {
+    boolean existsBySeries(String series);
 }
