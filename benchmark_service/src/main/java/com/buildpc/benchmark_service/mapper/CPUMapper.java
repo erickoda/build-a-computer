@@ -3,6 +3,7 @@ package com.buildpc.benchmark_service.mapper;
 import com.buildpc.benchmark_service.entities.CPU;
 import com.buildpc.benchmark_service.grpc.generated.CPUResponse;
 import com.buildpc.benchmark_service.grpc.generated.CreateCPURequest;
+import com.buildpc.benchmark_service.grpc.generated.DeleteCPUResponse;
 import com.buildpc.benchmark_service.grpc.generated.ListCPUResponse;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
@@ -50,6 +51,12 @@ public class CPUMapper {
     public ListCPUResponse createListCPUResponse(List<CPUResponse> cpuResponses) {
         return ListCPUResponse.newBuilder()
                 .addAllCpu(cpuResponses)
+                .build();
+    }
+
+    public DeleteCPUResponse createDeleteCPUResponse(boolean deletedSuccess) {
+        return DeleteCPUResponse.newBuilder()
+                .setSuccess(deletedSuccess)
                 .build();
     }
 
