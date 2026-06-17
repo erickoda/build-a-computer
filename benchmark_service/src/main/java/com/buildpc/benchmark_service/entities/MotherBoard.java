@@ -25,7 +25,7 @@ public class MotherBoard {
 	private String brand;
 	private String series;
 	private String socket;
-	private String Ddr;
+	private String ddr;
 	private Integer memorySlots;
 	private Integer maxRAM;
 	private Integer maxRamMemoryFrequencyMhz;

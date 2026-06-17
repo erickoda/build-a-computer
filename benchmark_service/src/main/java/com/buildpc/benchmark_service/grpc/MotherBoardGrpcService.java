@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.grpc.server.service.GrpcService;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -44,6 +45,32 @@ public class MotherBoardGrpcService extends MotherBoardServiceGrpc.MotherBoardSe
                             request.getDdr()
                     ).asException()
             );
+        }
+        catch(Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
+
+    @Override
+    public void listMotherBoards(ListMotherBoardRequest request, StreamObserver<ListMotherBoardResponse> responseObserver) {
+        log.info("gRPC List Mother Boards called");
+
+        try{
+            List<MotherBoard> motherBoards = motherBoardService.searchAll();
+
+            List<MotherBoardResponse> motherBoardsMappedToProto = motherBoards.stream()
+                    .map(motherBoardMapper::toProto)
+                    .toList();
+
+            responseObserver.onNext(motherBoardMapper.createListMotherBoardResponse(motherBoardsMappedToProto));
+            responseObserver.onCompleted();
+        }
+        catch(MotherBoardNotFoundException e){
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
         }
         catch(Exception e) {
             responseObserver.onError(Status.INTERNAL
