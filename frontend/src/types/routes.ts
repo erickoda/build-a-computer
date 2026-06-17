@@ -11,3 +11,5 @@ export const routesInfos: RouteItems[] = [
   { label: 'Benchmarks', href: '/benchmarks', allowedRoles: ['admin', 'supervisor', 'common'] },
 ];
 
+export const publicRoutes = ['/sign-in', '/sign-up', '/forgot-password'];
+
