@@ -118,16 +118,14 @@ impl<R: UserRepository, P: PasswordHasher> UserUseCase<R, P> {
         let mut status = user.get_status().to_owned();
 
         if requester_role != Role::Admin {
-            if let Some(new_role) = command.get_role().to_owned() {
-                if role != new_role {
-                    return Err(UserUseCaseError::Forbidden);
-                }
+            if let Some(new_role) = command.get_role().to_owned()
+                && role != new_role {
+                return Err(UserUseCaseError::Forbidden);
             }
 
-            if let Some(new_status) = command.get_status().to_owned() {
-                if status != new_status {
-                    return Err(UserUseCaseError::Forbidden);
-                }
+            if let Some(new_status) = command.get_status().to_owned() 
+                && status != new_status {
+                return Err(UserUseCaseError::Forbidden);
             }
         }
 
@@ -151,11 +149,11 @@ impl<R: UserRepository, P: PasswordHasher> UserUseCase<R, P> {
         }
 
         if let Some(new_role) = command.get_role() {
-            role = new_role.to_owned().into();
+            role = new_role.to_owned();
         }
 
         if let Some(new_status) = command.get_status() {
-            status = new_status.to_owned().into();
+            status = new_status.to_owned();
         }
 
         let updated_user =

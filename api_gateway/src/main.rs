@@ -4,8 +4,12 @@ use crate::{
     },
     config::AppConfig,
     middleware::tracing::tracing_layer,
-    modules::{auth::routes::auth_routes, users::routes::user_routes},
+    modules::{
+        auth::{routes::auth_routes, swagger::AuthApi},
+        users::{routes::user_routes, swagger::UsersApi},
+    },
     security::{jwt_adapter::JwtValidator, token::TokenValidator},
+    swagger::ApiDoc,
 };
 use axum::{
     Router,
@@ -17,6 +21,8 @@ use axum::{
 };
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
+use utoipa::OpenApi;
+use utoipa_swagger_ui::SwaggerUi;
 
 pub mod auth_grpc {
     tonic::include_proto!("auth");
@@ -31,7 +37,8 @@ mod extractor;
 mod middleware;
 mod modules;
 mod security;
-mod tracing;
+mod swagger;
+mod tracing_config;
 
 /// Estado global do app compartilhado e injetado nas rotas do Axum.
 ///
@@ -62,7 +69,7 @@ impl FromRef<AppState> for Arc<dyn TokenValidator> {
 /// especificada na configuração.
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing::init_tracing();
+    tracing_config::init_tracing();
 
     let app_configure = AppConfig::from_env();
 
@@ -85,17 +92,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .allow_origin("*".parse::<HeaderValue>().unwrap())
         .allow_headers([AUTHORIZATION, CONTENT_TYPE]);
 
+    let mut openapi = ApiDoc::openapi();
+
+    openapi.merge(AuthApi::openapi());
+    openapi.merge(UsersApi::openapi());
+
     let app = Router::new()
         .nest("/api/v1/users", user_routes())
-        .nest("/api/v1/authenticate", auth_routes())
+        .nest("/api/v1/auth", auth_routes())
         .layer(tracing_layer())
         .layer(cors_layer)
+        .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", openapi))
         .with_state(state);
 
     let addr = format!("{}:{}", app_configure.host, app_configure.port);
     let listener = tokio::net::TcpListener::bind(addr.clone()).await?;
 
-    println!("Running API Gateway in address: {}", addr);
+    tracing::info!("Running API Gateway in address: {}", addr);
 
     axum::serve(listener, app).await?;
 

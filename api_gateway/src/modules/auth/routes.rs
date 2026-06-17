@@ -15,7 +15,7 @@ use crate::{
 /// * `POST /sign-in` - Autentica um usuário e retorna o token de acesso (JWT).
 /// * `POST /sign-up` - Registra um novo usuário no sistema e retorna o token de acesso.
 /// * `POST /forgot-password` - Inicia o fluxo de recuperação de senha - envio de e-mail com código
-/// OTP.
+///   OTP.
 /// * `POST /reset-password` - Conclui a redefinição de senha utilizando um código válido.
 pub fn auth_routes() -> Router<AppState> {
     Router::new()
