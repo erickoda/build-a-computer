@@ -13,6 +13,7 @@ import org.springframework.grpc.server.service.GrpcService;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @GrpcService
@@ -62,6 +63,50 @@ public class RAMGrpcService extends RAMServiceGrpc.RAMServiceImplBase {
                     .asException());
         }
         catch(Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
+
+    @Override
+    public void deleteRAM(DeleteRAMRequest request, StreamObserver<DeleteRAMResponse> responseObserver) {
+        log.info("gRPC Delete RAM called");
+
+        try{
+            ramService.deleteById(UUID.fromString(request.getId()));
+
+            responseObserver.onNext(ramMapper.createDeleteRAMResponse(true));
+            responseObserver.onCompleted();
+        }
+        catch(RAMNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
+
+    @Override
+    public void getRAM(GetRAMRequest request, StreamObserver<RAMResponse> responseObserver) {
+        log.info("gRPC Get a ram memory called");
+
+        try{
+            RAM foundRAM = ramService.searchById(UUID.fromString(request.getId()));
+
+            responseObserver.onNext(ramMapper.toProto(foundRAM));
+            responseObserver.onCompleted();
+        }
+        catch(RAMNotFoundException e){
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch (Exception e){
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
                     .asException());

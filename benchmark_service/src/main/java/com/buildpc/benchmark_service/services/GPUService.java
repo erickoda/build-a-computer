@@ -43,7 +43,7 @@ public class GPUService {
 
     public void deleteById(UUID id) throws GPUNotFoundException {
         if(!gpuRepository.existsById(id))
-            throw new GPUNotFoundException("Can't this GPU in data base");
+            throw new GPUNotFoundException("Can't find this GPU in data base");
 
         gpuRepository.deleteById(id);
     }

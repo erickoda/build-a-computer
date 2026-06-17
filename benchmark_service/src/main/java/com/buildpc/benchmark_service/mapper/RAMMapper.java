@@ -1,6 +1,7 @@
 package com.buildpc.benchmark_service.mapper;
 
 import com.buildpc.benchmark_service.entities.RAM;
+import com.buildpc.benchmark_service.grpc.generated.DeleteRAMResponse;
 import com.buildpc.benchmark_service.grpc.generated.ListRAMResponse;
 import com.buildpc.benchmark_service.grpc.generated.RAMResponse;
 import com.buildpc.benchmark_service.grpc.generated.CreateRAMRequest;
@@ -41,6 +42,12 @@ public class RAMMapper {
     public ListRAMResponse createListRAMResponse(List<RAMResponse> ramResponses) {
         return ListRAMResponse.newBuilder()
                 .addAllRam(ramResponses)
+                .build();
+    }
+
+    public DeleteRAMResponse createDeleteRAMResponse(boolean deletedSuccess){
+        return DeleteRAMResponse.newBuilder()
+                .setSuccess(deletedSuccess)
                 .build();
     }
 

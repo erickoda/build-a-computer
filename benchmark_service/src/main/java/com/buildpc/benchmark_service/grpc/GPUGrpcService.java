@@ -58,9 +58,9 @@ public class GPUGrpcService extends GPUServiceGrpc.GPUServiceImplBase {
         log.info("gRPC get GPU called");
 
         try{
-            GPU foundGPUs = gpuService.searchBYId(UUID.fromString(request.getId()));
+            GPU foundGPU = gpuService.searchBYId(UUID.fromString(request.getId()));
 
-            responseObserver.onNext(gpuMapper.toProto(foundGPUs));
+            responseObserver.onNext(gpuMapper.toProto(foundGPU));
             responseObserver.onCompleted();
         }
         catch(GPUNotFoundException e) {
