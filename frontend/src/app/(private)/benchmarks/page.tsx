@@ -1,8 +1,9 @@
+import BenchmarksPage from "@/src/features/benchmark/components/benchmarks-page";
 
 const Benchmarks = () => {
   return (
-    <div>Benchmarks </div>
+  <BenchmarksPage />
   )
 }
 
-export default Benchmarks 
+export default Benchmarks
