@@ -1,6 +1,9 @@
 package com.buildpc.benchmark_service.mapper;
 
 import com.buildpc.benchmark_service.entities.PSU;
+import com.buildpc.benchmark_service.entities.valueObjects.PSURanking;
+import com.buildpc.benchmark_service.grpc.generated.DeleteMotherBoardResponse;
+import com.buildpc.benchmark_service.grpc.generated.DeletePSUResponse;
 import com.buildpc.benchmark_service.grpc.generated.PSUResponse;
 import com.buildpc.benchmark_service.grpc.generated.CreatePSURequest;
 import com.google.protobuf.ByteString;
@@ -8,6 +11,9 @@ import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Component
 public class PSUMapper {
@@ -34,12 +40,18 @@ public class PSUMapper {
         return builder.build();
     }
 
+    public DeletePSUResponse createDeletePSUResponse(boolean deletedSuccess) {
+        return DeletePSUResponse.newBuilder()
+                .setSuccess(deletedSuccess)
+                .build();
+    }
+
     public PSU toEntity(CreatePSURequest request) {
         PSU psu = new PSU();
         psu.setBrand(request.getBrand());
         psu.setSeries(request.getSeries());
         psu.setPowerAmount(request.getPowerAmount());
-        psu.setRanking(PSU.PowerSourceRanking.valueOf(request.getRanking()));
+        psu.setRanking(PSURanking.valueOf(request.getRanking().toUpperCase()));
         psu.setScore(request.getScore());
         psu.setEightyPlusCert(request.getEightyPlusCert());
         psu.setAvgPrice(request.getAvgPrice());
@@ -51,9 +63,12 @@ public class PSUMapper {
         return psu;
     }
 
-    private Timestamp dateToTimestamp(Date dateTime) {
+    private Timestamp dateToTimestamp(LocalDateTime dateTime) {
+        Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
+
         return Timestamp.newBuilder()
-                .setSeconds(dateTime.getTime() / 1000)
+                .setSeconds(instant.getEpochSecond())
+                .setNanos(instant.getNano())
                 .build();
     }
 }

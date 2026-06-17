@@ -1,45 +1,55 @@
 package com.buildpc.benchmark_service.entities;
 
+import com.buildpc.benchmark_service.entities.valueObjects.PSURanking;
 import com.google.type.DateTime;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnTransformer;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
+import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "power_sources")
+@EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PSU {
-	public enum PowerSourceRanking {
-		WHITE,
-		BRONZE,
-		SILVER,
-		GOLD,
-		PLATINUM,
-		TITANIUM
-	}
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 	private String brand;
 	private String series;
 	private Integer powerAmount;
-	private PowerSourceRanking ranking;
+
+	//TODO: set column name equal pc-builder service
+	@JdbcType(PostgreSQLEnumJdbcType.class)
+	@JdbcTypeCode(SqlTypes.NAMED_ENUM)
+	@Column(name = "ranking", columnDefinition = "psu_ranking")
+	@ColumnTransformer(
+			write = "LOWER(?)::psu_ranking",
+			read = "UPPER(ranking::text)"
+	)
+	private PSURanking ranking;
+
 	private Boolean eightyPlusCert;
 	private Float avgPrice;
 	private Integer score;
 	private byte[] img;
 
 	@LastModifiedDate
-	private Date updatedAt;
+	private LocalDateTime updatedAt;
 
 	@CreatedDate
-	private Date createdAt;
+	private LocalDateTime createdAt;
 }

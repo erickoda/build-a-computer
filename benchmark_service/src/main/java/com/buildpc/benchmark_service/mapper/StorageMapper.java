@@ -1,6 +1,7 @@
 package com.buildpc.benchmark_service.mapper;
 
 import com.buildpc.benchmark_service.entities.Storage;
+import com.buildpc.benchmark_service.entities.valueObjects.SSDType;
 import com.buildpc.benchmark_service.grpc.generated.SSDResponse;
 import com.buildpc.benchmark_service.grpc.generated.CreateSSDRequest;
 import com.google.protobuf.ByteString;
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Component
 public class StorageMapper {
@@ -41,7 +44,7 @@ public class StorageMapper {
         ssd.setBrand(request.getBrand());
         ssd.setSeries(request.getSeries());
         ssd.setAmount(request.getAmount());
-        ssd.setType(Storage.SSDType.valueOf(request.getType()));
+        ssd.setType(SSDType.valueOf(request.getType()));
         ssd.setReading(request.getReading());
         ssd.setWriting(request.getWriting());
         ssd.setAvgPrice(request.getAvgPrice());
@@ -54,9 +57,12 @@ public class StorageMapper {
         return ssd;
     }
 
-    private Timestamp dateToTimestamp(Date dateTime) {
+    private Timestamp dateToTimestamp(LocalDateTime dateTime) {
+        Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
+
         return Timestamp.newBuilder()
-                .setSeconds(dateTime.getTime() / 1000)
+                .setSeconds(instant.getEpochSecond())
+                .setNanos(instant.getNano())
                 .build();
     }
 }
