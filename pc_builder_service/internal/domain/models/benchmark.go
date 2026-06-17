@@ -11,9 +11,9 @@ type Benchmark struct {
 	ID 							uuid.UUID 					`gorm:"type:uuid;primaryKey"`
 	Title 						string 						`gorm:"type:varchar(255);not null"`
 	Resolution 					int32 						`gorm:"type:integer;not null"`
-	ComputerPerformance 		e.ComputerPerformance 		`gorm:"column:performance;type:performance;not null"`
+	ComputerPerformance 		e.ComputerPerformance 		`gorm:"column:graphics_quality;type:performance;not null"`
 	CPUId 						uuid.UUID 					`gorm:"type:uuid;not null"`
-	GPUId 						uuid.UUID 					`gorm:"type:uuid"`
+	GPUId 						uuid.UUID 					`gorm:"column:gpu_id;type:uuid"`
 	RAMId 						uuid.UUID 					`gorm:"type:uuid;not null"`
 	AvgFps 						int32 						`gorm:"type:integer;not null"`
 	MaxFps 						int32 						`gorm:"type:integer;not null"`
