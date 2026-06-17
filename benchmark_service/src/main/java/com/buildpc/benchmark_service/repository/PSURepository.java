@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.UUID;
 
 public interface PSURepository extends JpaRepository<PSU, UUID> {
+    boolean existsByBrandAndSeries(String brand, String series);
 }

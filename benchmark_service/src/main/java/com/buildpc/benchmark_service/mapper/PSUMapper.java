@@ -2,10 +2,7 @@ package com.buildpc.benchmark_service.mapper;
 
 import com.buildpc.benchmark_service.entities.PSU;
 import com.buildpc.benchmark_service.entities.valueObjects.PSURanking;
-import com.buildpc.benchmark_service.grpc.generated.DeleteMotherBoardResponse;
-import com.buildpc.benchmark_service.grpc.generated.DeletePSUResponse;
-import com.buildpc.benchmark_service.grpc.generated.PSUResponse;
-import com.buildpc.benchmark_service.grpc.generated.CreatePSURequest;
+import com.buildpc.benchmark_service.grpc.generated.*;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
@@ -14,6 +11,8 @@ import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+
+import java.util.List;
 
 @Component
 public class PSUMapper {
@@ -38,6 +37,12 @@ public class PSUMapper {
         }
 
         return builder.build();
+    }
+
+    public ListPSUResponse createListPSUResponse(List<PSUResponse> psuResponses){
+        return ListPSUResponse.newBuilder()
+                .addAllPsu(psuResponses)
+                .build();
     }
 
     public DeletePSUResponse createDeletePSUResponse(boolean deletedSuccess) {
