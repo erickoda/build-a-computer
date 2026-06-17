@@ -1,14 +1,16 @@
 package com.buildpc.benchmark_service.mapper;
 
 import com.buildpc.benchmark_service.entities.MotherBoard;
-import com.buildpc.benchmark_service.grpc.generated.MotherBoardResponse;
-import com.buildpc.benchmark_service.grpc.generated.CreateMotherBoardRequest;
+import com.buildpc.benchmark_service.grpc.generated.*;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
 
 @Component
 public class MotherBoardMapper {
@@ -40,6 +42,18 @@ public class MotherBoardMapper {
         return builder.build();
     }
 
+    public ListMotherBoardResponse createListMotherBoardResponse(List<MotherBoardResponse> mbResponses) {
+        return ListMotherBoardResponse.newBuilder()
+                .addAllMotherboard(mbResponses)
+                .build();
+    }
+
+    public DeleteMotherBoardResponse createDeleteMotherBoardResponse(boolean deletedSuccess) {
+        return DeleteMotherBoardResponse.newBuilder()
+                .setSuccess(deletedSuccess)
+                .build();
+    }
+
     public MotherBoard toEntity(CreateMotherBoardRequest request) {
         MotherBoard motherBoard = new MotherBoard();
         motherBoard.setBrand(request.getBrand());
@@ -62,9 +76,12 @@ public class MotherBoardMapper {
         return motherBoard;
     }
 
-    private Timestamp dateToTimestamp(Date dateTime) {
+    private Timestamp dateToTimestamp(LocalDateTime dateTime) {
+        Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
+
         return Timestamp.newBuilder()
-                .setSeconds(dateTime.getTime() / 1000)
+                .setSeconds(instant.getEpochSecond())
+                .setNanos(instant.getNano())
                 .build();
     }
 }
