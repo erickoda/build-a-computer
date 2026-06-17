@@ -25,16 +25,16 @@ public class MotherBoard {
 	private String brand;
 	private String series;
 	private String socket;
-	private String ddr;
+	private String Ddr;
 	private Integer memorySlots;
 	private Integer maxRAM;
-	private Integer maxRamFrequency;
+	private Integer maxRamMemoryFrequencyMhz;
 	private Integer pciExpress;
-	private Integer maxM2Slots;
-	private Integer vrms;
-	private Float averagePrice;
+	private Integer M2Slots;
+	private Integer vrm;
+	private Float avgPrice;
 	private Integer score;
-	private byte[] image;
+	private byte[] img;
 
 	@LastModifiedDate
 	private LocalDateTime updatedAt;

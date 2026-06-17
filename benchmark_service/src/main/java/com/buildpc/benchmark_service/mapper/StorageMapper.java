@@ -18,16 +18,16 @@ public class StorageMapper {
                 .setId(String.valueOf(ssd.getId()))
                 .setBrand(ssd.getBrand())
                 .setSeries(ssd.getSeries())
-                .setAmount(ssd.getMemoryAmount())
+                .setAmount(ssd.getAmount())
                 .setType(String.valueOf(ssd.getType()))
                 .setReading(ssd.getReading())
                 .setWriting(ssd.getWriting())
-                .setAvgPrice(ssd.getAveragePrice())
+                .setAvgPrice(ssd.getAvgPrice())
                 .setScore(ssd.getScore())
                 .setCreatedAt(dateToTimestamp(ssd.getCreatedAt()));
 
-        if (ssd.getImage() != null) {
-            builder.setImg(ByteString.copyFrom(ssd.getImage()));
+        if (ssd.getImg() != null) {
+            builder.setImg(ByteString.copyFrom(ssd.getImg()));
         }
         if (ssd.getUpdatedAt() != null) {
             builder.setUpdatedAt(dateToTimestamp(ssd.getUpdatedAt()));
@@ -40,15 +40,15 @@ public class StorageMapper {
         Storage ssd = new Storage();
         ssd.setBrand(request.getBrand());
         ssd.setSeries(request.getSeries());
-        ssd.setMemoryAmount(request.getAmount());
+        ssd.setAmount(request.getAmount());
         ssd.setType(Storage.SSDType.valueOf(request.getType()));
         ssd.setReading(request.getReading());
         ssd.setWriting(request.getWriting());
-        ssd.setAveragePrice(request.getAvgPrice());
+        ssd.setAvgPrice(request.getAvgPrice());
         ssd.setScore(request.getScore());
 
         if (request.hasImg()) {
-            ssd.setImage(request.getImg().toByteArray());
+            ssd.setImg(request.getImg().toByteArray());
         }
 
         return ssd;

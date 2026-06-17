@@ -20,12 +20,12 @@ public class PSUMapper {
                 .setPowerAmount(psu.getPowerAmount())
                 .setRanking(String.valueOf(psu.getRanking()))
                 .setScore(psu.getScore())
-                .setEightyPlusCert(psu.getCertification())
-                .setAvgPrice(psu.getAveragePrice())
+                .setEightyPlusCert(psu.getEightyPlusCert())
+                .setAvgPrice(psu.getAvgPrice())
                 .setCreatedAt(dateToTimestamp(psu.getCreatedAt()));
 
-        if (psu.getImage() != null) {
-            builder.setImg(ByteString.copyFrom(psu.getImage()));
+        if (psu.getImg() != null) {
+            builder.setImg(ByteString.copyFrom(psu.getImg()));
         }
         if (psu.getUpdatedAt() != null) {
             builder.setUpdatedAt(dateToTimestamp(psu.getUpdatedAt()));
@@ -41,11 +41,11 @@ public class PSUMapper {
         psu.setPowerAmount(request.getPowerAmount());
         psu.setRanking(PSU.PowerSourceRanking.valueOf(request.getRanking()));
         psu.setScore(request.getScore());
-        psu.setCertification(request.getEightyPlusCert());
-        psu.setAveragePrice(request.getAvgPrice());
+        psu.setEightyPlusCert(request.getEightyPlusCert());
+        psu.setAvgPrice(request.getAvgPrice());
 
         if (request.hasImg()) {
-            psu.setImage(request.getImg().toByteArray());
+            psu.setImg(request.getImg().toByteArray());
         }
 
         return psu;

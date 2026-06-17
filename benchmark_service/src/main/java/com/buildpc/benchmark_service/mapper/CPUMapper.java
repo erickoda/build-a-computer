@@ -22,7 +22,7 @@ public class CPUMapper {
         CPUResponse.Builder builder = CPUResponse.newBuilder()
                 .setId(String.valueOf(cpu.getId()))
                 .setBrand(cpu.getBrand())
-                .setGen(cpu.getGeneration())
+                .setGen(cpu.getGen())
                 .setFamily(cpu.getFamily())
                 .setSeries(cpu.getSeries())
                 .setCores(cpu.getCores())
@@ -34,12 +34,12 @@ public class CPUMapper {
                 .setGraphics(cpu.getGraphics())
                 .setOc(cpu.getOc())
                 .setRecommendedPower(cpu.getRecommendedPower())
-                .setAvgPrice(cpu.getAveragePrice())
+                .setAvgPrice(cpu.getAvgPrice())
                 .setReleaseDate(dateToTimestamp(cpu.getReleaseDate()))
                 .setCreatedAt(dateToTimestamp(cpu.getCreatedAt()));
 
-        if (cpu.getImage() != null) {
-            builder.setImg(ByteString.copyFrom(cpu.getImage()));
+        if (cpu.getImg() != null) {
+            builder.setImg(ByteString.copyFrom(cpu.getImg()));
         }
         if (cpu.getUpdatedAt() != null) {
             builder.setUpdatedAt(dateToTimestamp(cpu.getUpdatedAt()));
@@ -63,7 +63,7 @@ public class CPUMapper {
     public CPU toEntity(CreateCPURequest request) {
         CPU cpu = new CPU();
         cpu.setBrand(request.getBrand());
-        cpu.setGeneration(request.getGen());
+        cpu.setGen(request.getGen());
         cpu.setFamily(request.getFamily());
         cpu.setSeries(request.getSeries());
         cpu.setCores(request.getCores());
@@ -75,11 +75,11 @@ public class CPUMapper {
         cpu.setGraphics(request.getGraphics());
         cpu.setOc(request.getOc());
         cpu.setRecommendedPower(request.getRecommendedPower());
-        cpu.setAveragePrice(request.getAvgPrice());
+        cpu.setAvgPrice(request.getAvgPrice());
         cpu.setReleaseDate(timestampToDate(request.getReleaseDate()));
 
         if (request.hasImg()) {
-            cpu.setImage(request.getImg().toByteArray());
+            cpu.setImg(request.getImg().toByteArray());
         }
 
         return cpu;

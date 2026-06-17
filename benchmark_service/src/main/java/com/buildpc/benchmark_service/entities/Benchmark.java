@@ -42,9 +42,9 @@ public class Benchmark {
 	@JoinColumn(name = "ram_id")
 	private RAM ram;
 
-	private Integer averageFPS;
-	private Integer minimumFPS;
-	private Integer maximumFPS;
+	private Integer avgFPS;
+	private Integer maxFPS;
+	private Integer minFPS;
 
 	@ManyToOne
 	@JoinColumn(name = "game_id")

@@ -23,7 +23,7 @@ public class CPU {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private UUID id;
 	private String brand;
-	private String generation;
+	private String gen;
 	private String family;
 	private String series;
 	private Integer cores;
@@ -36,8 +36,8 @@ public class CPU {
 	private Boolean oc;
 	private Integer recommendedPower;
 	private LocalDateTime releaseDate;
-	private Float averagePrice;
-	private byte[] image;
+	private Float avgPrice;
+	private byte[] img;
 
 	@CreatedDate
 	private LocalDateTime createdAt;

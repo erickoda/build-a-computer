@@ -22,7 +22,7 @@ public class Game {
 	private UUID id;
 	private String name;
 	private Integer necessaryDisk;
-	private byte[] image;
+	private byte[] img;
 
 	@CreatedDate
 	private LocalDateTime createdAt;

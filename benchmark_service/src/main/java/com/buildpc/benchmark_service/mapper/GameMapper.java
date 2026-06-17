@@ -20,8 +20,8 @@ public class GameMapper {
                 .setNecessaryDisk(game.getNecessaryDisk())
                 .setCreatedAt(dateToTimestamp(game.getCreatedAt()));
 
-        if(game.getImage() != null) {
-            builder.setImg(ByteString.copyFrom(game.getImage()));
+        if(game.getImg() != null) {
+            builder.setImg(ByteString.copyFrom(game.getImg()));
         }
 
         if(game.getUpdatedAt() != null) {
@@ -50,7 +50,7 @@ public class GameMapper {
         game.setNecessaryDisk(request.getNecessaryDisk());
 
         if(request.hasImg())
-            game.setImage(request.getImg().toByteArray());
+            game.setImg(request.getImg().toByteArray());
 
         return game;
     }

@@ -25,7 +25,7 @@ public class RAMMapper {
                 .setDdr(ram.getDdr())
                 .setMemoryAmount(ram.getMemoryAmount())
                 .setAvgPrice(ram.getAveragePrice())
-                .setFrequencyMhz(ram.getFrequency())
+                .setFrequencyMhz(ram.getFrequencyMhz())
                 .setSeries(ram.getSeries())
                 .setCreatedAt(dateToTimestamp(ram.getCreatedAt()));
 
@@ -57,7 +57,7 @@ public class RAMMapper {
         ram.setDdr(request.getDdr());
         ram.setMemoryAmount(request.getMemoryAmount());
         ram.setAveragePrice(request.getAvgPrice());
-        ram.setFrequency(request.getFrequencyMhz());
+        ram.setFrequencyMhz(request.getFrequencyMhz());
         ram.setSeries(request.getSeries());
 
         if (request.hasImg()) {

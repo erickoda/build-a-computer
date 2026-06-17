@@ -24,16 +24,16 @@ public class MotherBoardMapper {
                 .setDdr(motherBoard.getDdr())
                 .setMemorySlots(motherBoard.getMemorySlots())
                 .setMaxRam(motherBoard.getMaxRAM())
-                .setMaxRamFrequencyMhz(motherBoard.getMaxRamFrequency())
-                .setM2Slots(motherBoard.getMaxM2Slots())
+                .setMaxRamFrequencyMhz(motherBoard.getMaxRamMemoryFrequencyMhz())
+                .setM2Slots(motherBoard.getM2Slots())
                 .setPciExpressX16(motherBoard.getPciExpress())
-                .setVrm(motherBoard.getVrms())
-                .setAvgPrice(motherBoard.getAveragePrice())
+                .setVrm(motherBoard.getVrm())
+                .setAvgPrice(motherBoard.getAvgPrice())
                 .setScore(motherBoard.getScore())
                 .setCreatedAt(dateToTimestamp(motherBoard.getCreatedAt()));
 
-        if (motherBoard.getImage() != null) {
-            builder.setImg(ByteString.copyFrom(motherBoard.getImage()));
+        if (motherBoard.getImg() != null) {
+            builder.setImg(ByteString.copyFrom(motherBoard.getImg()));
         }
         if (motherBoard.getUpdatedAt() != null) {
             builder.setUpdatedAt(dateToTimestamp(motherBoard.getUpdatedAt()));
@@ -62,15 +62,15 @@ public class MotherBoardMapper {
         motherBoard.setDdr(request.getDdr());
         motherBoard.setMemorySlots(request.getMemorySlots());
         motherBoard.setMaxRAM(request.getMaxRam());
-        motherBoard.setMaxRamFrequency(request.getMaxRamFrequencyMhz());
-        motherBoard.setMaxM2Slots(request.getM2Slots());
+        motherBoard.setMaxRamMemoryFrequencyMhz(request.getMaxRamFrequencyMhz());
+        motherBoard.setM2Slots(request.getM2Slots());
         motherBoard.setPciExpress(request.getPciExpressX16());
-        motherBoard.setVrms(request.getVrm());
-        motherBoard.setAveragePrice(request.getAvgPrice());
+        motherBoard.setVrm(request.getVrm());
+        motherBoard.setAvgPrice(request.getAvgPrice());
         motherBoard.setScore(request.getScore());
 
         if (request.hasImg()) {
-            motherBoard.setImage(request.getImg().toByteArray());
+            motherBoard.setImg(request.getImg().toByteArray());
         }
 
         return motherBoard;

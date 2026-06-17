@@ -22,16 +22,16 @@ public class GPUMapper {
                 .setFamily(gpu.getFamily())
                 .setSeries(gpu.getSeries())
                 .setMemoryAmount(gpu.getMemoryAmount())
-                .setMemoryGen(gpu.getMemoryGeneration())
+                .setMemoryGen(gpu.getMemoryGen())
                 .setCores(gpu.getCores())
                 .setPciExpress(gpu.getPciExpress())
-                .setRecommendedPower(gpu.getRecommenderPower())
-                .setAvgPrice(gpu.getAveragePrice())
+                .setRecommendedPower(gpu.getRecommendedPower())
+                .setAvgPrice(gpu.getAvgPrice())
                 .setReleaseDate(dateToTimestamp(gpu.getReleaseDate()))
                 .setCreatedAt(dateToTimestamp(gpu.getCreatedAt()));
 
-        if (gpu.getImage() != null) {
-            builder.setImg(ByteString.copyFrom(gpu.getImage()));
+        if (gpu.getImg() != null) {
+            builder.setImg(ByteString.copyFrom(gpu.getImg()));
         }
         if (gpu.getUpdatedAt() != null) {
             builder.setUpdatedAt(dateToTimestamp(gpu.getUpdatedAt()));
@@ -58,15 +58,15 @@ public class GPUMapper {
         gpu.setFamily(request.getFamily());
         gpu.setSeries(request.getSeries());
         gpu.setMemoryAmount(request.getMemoryAmount());
-        gpu.setMemoryGeneration(request.getMemoryGen());
+        gpu.setMemoryGen(request.getMemoryGen());
         gpu.setCores(request.getCores());
         gpu.setPciExpress(request.getPciExpress());
-        gpu.setRecommenderPower(request.getRecommendedPower());
-        gpu.setAveragePrice(request.getAvgPrice());
+        gpu.setRecommendedPower(request.getRecommendedPower());
+        gpu.setAvgPrice(request.getAvgPrice());
         gpu.setReleaseDate(timestampToDate(request.getReleaseDate()));
 
         if (request.hasImg()) {
-            gpu.setImage(request.getImg().toByteArray());
+            gpu.setImg(request.getImg().toByteArray());
         }
 
         return gpu;

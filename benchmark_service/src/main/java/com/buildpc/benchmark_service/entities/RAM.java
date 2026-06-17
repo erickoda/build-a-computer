@@ -24,9 +24,9 @@ public class RAM {
 	private UUID id;
 	private String brand;
 	private Integer memoryAmount;
-	private Integer frequency;
+	private Integer frequencyMhz;
 	private String series;
-	private String ddr;
+	private String Ddr;
 	private Float averagePrice;
 	private byte[] image;
 

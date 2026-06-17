@@ -32,10 +32,10 @@ public class PSU {
 	private String series;
 	private Integer powerAmount;
 	private PowerSourceRanking ranking;
-	private Boolean certification;
-	private Float averagePrice;
+	private Boolean eightyPlusCert;
+	private Float avgPrice;
 	private Integer score;
-	private byte[] image;
+	private byte[] img;
 
 	@LastModifiedDate
 	private Date updatedAt;

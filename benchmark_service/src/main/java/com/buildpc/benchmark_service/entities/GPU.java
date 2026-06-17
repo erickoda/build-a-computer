@@ -26,13 +26,13 @@ public class GPU {
 	private String family;
 	private String series;
 	private Integer memoryAmount;
-	private String memoryGeneration;
+	private String memoryGen;
 	private Integer cores;
 	private Integer pciExpress;
-	private Integer recommenderPower;
+	private Integer recommendedPower;
 	private LocalDateTime releaseDate;
-	private Float averagePrice;
-	private byte[] image;
+	private Float avgPrice;
+	private byte[] img;
 
 	@CreatedDate
 	private LocalDateTime createdAt;

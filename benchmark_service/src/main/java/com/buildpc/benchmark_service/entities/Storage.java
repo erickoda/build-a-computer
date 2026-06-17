@@ -27,13 +27,13 @@ public class Storage {
 	private UUID id;
 	private String brand;
 	private String series;
-	private Integer memoryAmount;
+	private Integer amount;
 	private SSDType type;
 	private Integer reading;
 	private Integer writing;
-	private Float averagePrice;
+	private Float avgPrice;
 	private Integer score;
-	private byte[] image;
+	private byte[] img;
 
 	@LastModifiedDate
 	private Date updatedAt;

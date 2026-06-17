@@ -36,9 +36,9 @@ public class BenchmarkMapper {
                 .setCpu(cpuMapper.toProto(benchmark.getCpu()))
                 .setGpu(gpuMapper.toProto(benchmark.getGpu()))
                 .setRam(ramMapper.toProto(benchmark.getRam()))
-                .setAvgFps(benchmark.getAverageFPS())
-                .setMinFps(benchmark.getMinimumFPS())
-                .setMaxFps(benchmark.getMaximumFPS())
+                .setAvgFps(benchmark.getAvgFPS())
+                .setMinFps(benchmark.getMinFPS())
+                .setMaxFps(benchmark.getMaxFPS())
                 .setGameId(String.valueOf(benchmark.getGame().getId()))
                 .setUserId(String.valueOf(benchmark.getUserId()))
                 .setCreatedAt(dateToTimestamp(benchmark.getCreatedAt()));
@@ -66,9 +66,9 @@ public class BenchmarkMapper {
         benchmark.setCpu(cpu);
         benchmark.setGpu(gpu);
         benchmark.setRam(ram);
-        benchmark.setAverageFPS(request.getAvgFps());
-        benchmark.setMinimumFPS(request.getMinFps());
-        benchmark.setMaximumFPS(request.getMaxFps());
+        benchmark.setAvgFPS(request.getAvgFps());
+        benchmark.setMinFPS(request.getMinFps());
+        benchmark.setMaxFPS(request.getMaxFps());
         benchmark.setGame(gameRepository.getReferenceById(UUID.fromString(request.getGameId())));
         benchmark.setUserId(UUID.fromString(request.getUserId()));
 
