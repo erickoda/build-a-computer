@@ -36,6 +36,11 @@ public class RAMGrpcService extends RAMServiceGrpc.RAMServiceImplBase {
             responseObserver.onNext(ramMapper.toProto(savedRAM));
             responseObserver.onCompleted();
         }
+        catch(IllegalArgumentException e){
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
         catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
@@ -62,6 +67,11 @@ public class RAMGrpcService extends RAMServiceGrpc.RAMServiceImplBase {
                     .withDescription(e.getMessage())
                     .asException());
         }
+        catch(IllegalArgumentException e){
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
         catch(Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
@@ -84,6 +94,11 @@ public class RAMGrpcService extends RAMServiceGrpc.RAMServiceImplBase {
                     .withDescription(e.getMessage())
                     .asException());
         }
+        catch(IllegalArgumentException e){
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
         catch(Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
@@ -103,6 +118,11 @@ public class RAMGrpcService extends RAMServiceGrpc.RAMServiceImplBase {
         }
         catch(RAMNotFoundException e){
             responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(IllegalArgumentException e){
+            responseObserver.onError(Status.INVALID_ARGUMENT
                     .withDescription(e.getMessage())
                     .asException());
         }

@@ -76,6 +76,11 @@ public class StorageGrpcService extends SSDServiceGrpc.SSDServiceImplBase {
                     .withDescription(e.getMessage())
                     .asException());
         }
+        catch(IllegalArgumentException e){
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
         catch(Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
@@ -95,6 +100,11 @@ public class StorageGrpcService extends SSDServiceGrpc.SSDServiceImplBase {
         }
         catch(StorageNotFoundException e){
             responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(IllegalArgumentException e){
+            responseObserver.onError(Status.INVALID_ARGUMENT
                     .withDescription(e.getMessage())
                     .asException());
         }
