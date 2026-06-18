@@ -15,6 +15,9 @@ pub struct AppConfig {
     /// URL do microsserviço de usuários. Padrão: `"http://127.0.0.1:50051"`.
     pub users_microservice_url: String,
 
+    /// URL do microsserviço de recomendação. Padrão: `"http://127.0.0.1:50052"`.
+    pub recommendation_microservice_url: String,
+
     /// Porta de escuta do servidor HTTP. Padrão: `3000`.
     pub port: u16,
 }
@@ -39,6 +42,8 @@ impl AppConfig {
                 .unwrap_or_else(|_| "http://127.0.0.1:50051".to_string()),
             users_microservice_url: env::var("USERS_MICROSERVICE_URL")
                 .unwrap_or_else(|_| "http://127.0.0.1:50051".to_string()),
+            recommendation_microservice_url: env::var("RECOMMENDATION_MICROSERVICE_URL")
+                .unwrap_or_else(|_| "http://127.0.0.1:50052".to_string()),
         }
     }
 }

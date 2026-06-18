@@ -21,7 +21,7 @@ type DBConfig struct {
 	Username string
 	Password string
 	DBName   string
-	SSLMode string
+	SSLMode  string
 }
 
 type DB struct {
@@ -30,15 +30,15 @@ type DB struct {
 
 func NewDataBase() (*DB, error) {
 	gorm_config := &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger:                 logger.Default.LogMode(logger.Info),
 		SkipDefaultTransaction: true,
-		PrepareStmt: true,
+		PrepareStmt:            true,
 	}
 
 	dns := loadDBConfig()
 
 	db, err := gorm.Open(postgres.Open(dns), gorm_config)
-	if err != nil{
+	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
@@ -67,7 +67,7 @@ func Migrate(db *DB) error {
 	if err != nil {
 		return fmt.Errorf("failed to migrate database: %w", err)
 	}
-	
+
 	return nil
 }
 
@@ -101,14 +101,14 @@ func (db *DB) Get() *gorm.DB {
 
 func loadDBConfig() string {
 	_ = godotenv.Load(".env")
-	
-	port, _ := strconv.Atoi(os.Getenv("PC_BUILDER_PGPORT"))
-	host := os.Getenv("PC_BUILDER_PGHOST")
-	username := os.Getenv("PC_BUILDER_PGUSER")
-	password := os.Getenv("PC_BUILDER_PGPASSWORD")
-	db_name := os.Getenv("PC_BUILDER_PGDATABASE")
-	ssl_mode := os.Getenv("PC_BUILDER_PGSSLMODE")
-	
+
+	port, _ := strconv.Atoi(os.Getenv("PGPORT"))
+	host := os.Getenv("PGHOST")
+	username := os.Getenv("PGUSER")
+	password := os.Getenv("PGPASSWORD")
+	db_name := os.Getenv("PGDATABASE")
+	ssl_mode := os.Getenv("PGSSLMODE")
+
 	config := DBConfig{
 		Host:     host,
 		Port:     int32(port),
@@ -119,11 +119,11 @@ func loadDBConfig() string {
 	}
 
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
-		config.Host, 
-		config.Port, 
-		config.Username, 
-		config.Password, 
-		config.DBName, 
+		config.Host,
+		config.Port,
+		config.Username,
+		config.Password,
+		config.DBName,
 		config.SSLMode,
 	)
 }

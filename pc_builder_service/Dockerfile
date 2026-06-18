@@ -24,7 +24,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o pc_builder_service cmd/server/main.go
 FROM alpine:3.23 AS security-provider
 RUN adduser -D -g '' -u 10001 appuser
 
-FROM scratch AS run-stage
+FROM alpine:3.23 AS run-stage
+
+RUN apk add --no-cache bash
 
 WORKDIR /app
 

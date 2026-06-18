@@ -1,11 +1,13 @@
 use crate::{
     clients::{
-        auth_client::AuthClientWrapper, channel::create_channel, users_client::UsersClientWrapper,
+        auth_client::AuthClientWrapper, channel::create_channel,
+        recommendation_client::RecommendationClientWrapper, users_client::UsersClientWrapper,
     },
     config::AppConfig,
     middleware::tracing::tracing_layer,
     modules::{
         auth::{routes::auth_routes, swagger::AuthApi},
+        recommendation::routes::recommendation_routes,
         users::{routes::user_routes, swagger::UsersApi},
     },
     security::{jwt_adapter::JwtValidator, token::TokenValidator},
@@ -30,6 +32,9 @@ pub mod auth_grpc {
 pub mod users_grpc {
     tonic::include_proto!("user");
 }
+pub mod recommendation_grpc {
+    tonic::include_proto!("recommendation.v1");
+}
 mod clients;
 mod config;
 mod errors;
@@ -48,6 +53,7 @@ mod tracing_config;
 pub struct AppState {
     user_client: UsersClientWrapper,
     auth_client: AuthClientWrapper,
+    recommendation_client: RecommendationClientWrapper,
     token_validator: Arc<dyn TokenValidator>,
 }
 
@@ -79,11 +85,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let auth_channel = create_channel(app_configure.users_microservice_url).await?;
     let auth_client = AuthClientWrapper::new(auth_channel);
 
+    let recommendation_channel =
+        create_channel(app_configure.recommendation_microservice_url).await?;
+    let recommendation_client = RecommendationClientWrapper::new(recommendation_channel);
+
     let jwt_validator = JwtValidator::new(app_configure.jwt_secret);
 
     let state = AppState {
         user_client,
         auth_client,
+        recommendation_client,
         token_validator: Arc::new(jwt_validator),
     };
 
@@ -100,6 +111,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let app = Router::new()
         .nest("/api/v1/users", user_routes())
         .nest("/api/v1/auth", auth_routes())
+        .nest("/api/v1/recommendation", recommendation_routes())
         .layer(tracing_layer())
         .layer(cors_layer)
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", openapi))
