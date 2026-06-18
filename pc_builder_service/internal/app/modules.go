@@ -47,8 +47,6 @@ var Module = fx.Options(
 		NewGRPCServer,
 	),
 	fx.Invoke(
-		db.ExecOperationBeforeMigration,
-		db.Migrate,
 		RegisterServer,
 	),
 )
