@@ -1,8 +1,9 @@
 use serde::Serialize;
+use utoipa::ToSchema;
 
 use crate::modules::recommendation::dtos::response::Timestamp;
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct GpuDto {
     id: String,
     brand: String,
@@ -14,9 +15,12 @@ pub struct GpuDto {
     pci_express: i32,
     recommended_power: i32,
     avg_price: f32,
+    #[schema(value_type = String, format = DateTime)]
     release_date: Timestamp,
     img: Option<Vec<u8>>,
+    #[schema(value_type = String, format = DateTime)]
     created_at: Timestamp,
+    #[schema(value_type = Option<String>, format = DateTime)]
     updated_at: Option<Timestamp>,
 }
 

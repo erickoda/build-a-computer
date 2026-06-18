@@ -1,8 +1,9 @@
 use serde::Serialize;
+use utoipa::ToSchema;
 
 use crate::modules::recommendation::dtos::response::Timestamp;
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct SsdDto {
     id: String,
     brand: String,
@@ -14,7 +15,9 @@ pub struct SsdDto {
     avg_price: f32,
     score: i32,
     img: Option<Vec<u8>>,
+    #[schema(value_type = String, format = DateTime)]
     created_at: Timestamp,
+    #[schema(value_type = Option<String>, format = DateTime)]
     updated_at: Option<Timestamp>,
 }
 

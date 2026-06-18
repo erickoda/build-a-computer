@@ -1,11 +1,12 @@
 use serde::Serialize;
+use utoipa::ToSchema;
 
 use crate::modules::recommendation::dtos::response::{
     cpu::CpuDto, gpu::GpuDto, mother_board::MotherBoardDto, power_source::PowerSourceDto,
     ram_memmory::RamMemoryDto, ssd::SsdDto,
 };
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct Pc {
     cpu: CpuDto,
     gpu: GpuDto,

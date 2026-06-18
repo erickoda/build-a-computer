@@ -9,11 +9,13 @@ use crate::{
     recommendation_grpc,
 };
 
+/// Converte um timestamp nativo do gRPC/Prost para o formato de data/hora do `chrono`.
 fn from_prost_timestamp(ts: ProstTimestamp) -> DateTime<Utc> {
     DateTime::from_timestamp(ts.seconds, ts.nanos.max(0) as u32).unwrap_or_default()
 }
 
 impl From<recommendation_grpc::Cpu> for CpuDto {
+    /// Converte um modelo de CPU do gRPC em um `CpuDto`.
     fn from(cpu: recommendation_grpc::Cpu) -> Self {
         Self::new(
             cpu.id,
@@ -42,6 +44,7 @@ impl From<recommendation_grpc::Cpu> for CpuDto {
 }
 
 impl From<recommendation_grpc::Gpu> for GpuDto {
+    /// Converte um modelo de GPU do gRPC em um `GpuDto`.
     fn from(gpu: recommendation_grpc::Gpu) -> Self {
         Self::new(
             gpu.id,
@@ -65,6 +68,7 @@ impl From<recommendation_grpc::Gpu> for GpuDto {
 }
 
 impl From<recommendation_grpc::RamMemory> for RamMemoryDto {
+    /// Converte um modelo de Memória RAM do gRPC em um `RamMemoryDto`.
     fn from(ram: recommendation_grpc::RamMemory) -> Self {
         Self::new(
             ram.id,
@@ -82,6 +86,7 @@ impl From<recommendation_grpc::RamMemory> for RamMemoryDto {
 }
 
 impl From<recommendation_grpc::MotherBoard> for MotherBoardDto {
+    /// Converte um modelo de Placa-Mãe do gRPC em um `MotherBoardDto`.
     fn from(mb: recommendation_grpc::MotherBoard) -> Self {
         Self::new(
             mb.id,
@@ -105,6 +110,7 @@ impl From<recommendation_grpc::MotherBoard> for MotherBoardDto {
 }
 
 impl From<recommendation_grpc::PowerSource> for PowerSourceDto {
+    /// Converte um modelo de Fonte de Alimentação do gRPC em um `PowerSourceDto`.
     fn from(psu: recommendation_grpc::PowerSource) -> Self {
         Self::new(
             psu.id,
@@ -123,6 +129,7 @@ impl From<recommendation_grpc::PowerSource> for PowerSourceDto {
 }
 
 impl From<recommendation_grpc::Ssd> for SsdDto {
+    /// Converte um modelo de SSD do gRPC em um `SsdDto`.
     fn from(ssd: recommendation_grpc::Ssd) -> Self {
         Self::new(
             ssd.id,
@@ -142,6 +149,7 @@ impl From<recommendation_grpc::Ssd> for SsdDto {
 }
 
 impl From<recommendation_grpc::Pc> for Pc {
+    /// Converte um modelo de PC consolidado do gRPC para a estrutura de domínio `Pc`.
     fn from(grpc_pc: recommendation_grpc::Pc) -> Self {
         Self::new(
             grpc_pc.cpu.unwrap_or_default().into(),
@@ -155,6 +163,7 @@ impl From<recommendation_grpc::Pc> for Pc {
 }
 
 impl From<recommendation_grpc::BuildPcResponse> for Vec<Pc> {
+    /// Converte a resposta estruturada do gRPC em um vetor de computadores recomendados.
     fn from(build_pc_response: recommendation_grpc::BuildPcResponse) -> Vec<Pc> {
         build_pc_response.pc.into_iter().map(Pc::from).collect()
     }

@@ -7,7 +7,7 @@ use crate::{
     middleware::tracing::tracing_layer,
     modules::{
         auth::{routes::auth_routes, swagger::AuthApi},
-        recommendation::routes::recommendation_routes,
+        recommendation::{routes::recommendation_routes, swagger::RecommendationApi},
         users::{routes::user_routes, swagger::UsersApi},
     },
     security::{jwt_adapter::JwtValidator, token::TokenValidator},
@@ -107,6 +107,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     openapi.merge(AuthApi::openapi());
     openapi.merge(UsersApi::openapi());
+    openapi.merge(RecommendationApi::openapi());
 
     let app = Router::new()
         .nest("/api/v1/users", user_routes())

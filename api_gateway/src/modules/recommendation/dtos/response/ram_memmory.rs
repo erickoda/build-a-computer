@@ -1,8 +1,9 @@
 use serde::Serialize;
+use utoipa::ToSchema;
 
 use crate::modules::recommendation::dtos::response::Timestamp;
 
-#[derive(Serialize)]
+#[derive(Serialize, ToSchema)]
 pub struct RamMemoryDto {
     id: String,
     brand: String,
@@ -12,7 +13,9 @@ pub struct RamMemoryDto {
     frequency_mhz: i32,
     series: String,
     img: Option<Vec<u8>>,
+    #[schema(value_type = String, format = DateTime)]
     created_at: Timestamp,
+    #[schema(value_type = Option<String>, format = DateTime)]
     updated_at: Option<Timestamp>,
 }
 

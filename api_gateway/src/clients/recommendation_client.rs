@@ -21,7 +21,8 @@ impl RecommendationClientWrapper {
         }
     }
 
-    pub async fn recommned(
+    /// Busca recomendações de computadores no microsserviço gRPC com base nos critérios informados.
+    pub async fn recommend(
         &self,
         games: Vec<String>,
         max_price: f32,
