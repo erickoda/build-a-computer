@@ -2,6 +2,8 @@ package com.buildpc.benchmark_service.mapper;
 
 import com.buildpc.benchmark_service.entities.Storage;
 import com.buildpc.benchmark_service.entities.valueObjects.SSDType;
+import com.buildpc.benchmark_service.grpc.generated.DeleteSSDResponse;
+import com.buildpc.benchmark_service.grpc.generated.ListSSDResponse;
 import com.buildpc.benchmark_service.grpc.generated.SSDResponse;
 import com.buildpc.benchmark_service.grpc.generated.CreateSSDRequest;
 import com.google.protobuf.ByteString;
@@ -12,6 +14,7 @@ import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 @Component
 public class StorageMapper {
@@ -22,7 +25,7 @@ public class StorageMapper {
                 .setBrand(ssd.getBrand())
                 .setSeries(ssd.getSeries())
                 .setAmount(ssd.getAmount())
-                .setType(String.valueOf(ssd.getType()))
+                .setType(ssd.getType().toProtoValue())
                 .setReading(ssd.getReading())
                 .setWriting(ssd.getWriting())
                 .setAvgPrice(ssd.getAvgPrice())
@@ -39,12 +42,24 @@ public class StorageMapper {
         return builder.build();
     }
 
+    public ListSSDResponse createListStorageResponse(List<SSDResponse> storageResponses) {
+        return ListSSDResponse.newBuilder()
+                .addAllSsd(storageResponses)
+                .build();
+    }
+
+    public DeleteSSDResponse createDeleteSSDResponse(boolean deleteSuccess) {
+        return DeleteSSDResponse.newBuilder()
+                .setSuccess(deleteSuccess)
+                .build();
+    }
+
     public Storage toEntity(CreateSSDRequest request) {
         Storage ssd = new Storage();
         ssd.setBrand(request.getBrand());
         ssd.setSeries(request.getSeries());
         ssd.setAmount(request.getAmount());
-        ssd.setType(SSDType.valueOf(request.getType()));
+        ssd.setType(SSDType.fromDatabaseValue(request.getType()));
         ssd.setReading(request.getReading());
         ssd.setWriting(request.getWriting());
         ssd.setAvgPrice(request.getAvgPrice());

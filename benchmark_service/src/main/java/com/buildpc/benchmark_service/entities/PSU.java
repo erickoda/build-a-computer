@@ -1,12 +1,14 @@
 package com.buildpc.benchmark_service.entities;
 
 import com.buildpc.benchmark_service.entities.valueObjects.PSURanking;
+import com.buildpc.benchmark_service.entities.valueObjects.PSURankingUserType;
 import com.google.type.DateTime;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
 import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,13 +35,8 @@ public class PSU {
 	private Integer powerAmount;
 
 	//TODO: set column name equal pc-builder service
-	@JdbcType(PostgreSQLEnumJdbcType.class)
-	@JdbcTypeCode(SqlTypes.NAMED_ENUM)
+	@Type(PSURankingUserType.class)
 	@Column(name = "ranking", columnDefinition = "psu_ranking")
-	@ColumnTransformer(
-			write = "LOWER(?)::psu_ranking",
-			read = "UPPER(ranking::text)"
-	)
 	private PSURanking ranking;
 
 	private Boolean eightyPlusCert;

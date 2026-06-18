@@ -1,12 +1,11 @@
 package com.buildpc.benchmark_service.grpc;
 
-import com.buildpc.benchmark_service.entities.PSU;
-import com.buildpc.benchmark_service.exceptions.psu.DuplicatedPSUException;
-import com.buildpc.benchmark_service.exceptions.psu.PSUNotFoundException;
+import com.buildpc.benchmark_service.entities.Storage;
+import com.buildpc.benchmark_service.exceptions.storage.DuplicatedStorageException;
+import com.buildpc.benchmark_service.exceptions.storage.StorageNotFoundException;
 import com.buildpc.benchmark_service.grpc.generated.*;
-import com.buildpc.benchmark_service.mapper.PSUMapper;
-import com.buildpc.benchmark_service.repository.PSURepository;
-import com.buildpc.benchmark_service.services.PSUService;
+import com.buildpc.benchmark_service.mapper.StorageMapper;
+import com.buildpc.benchmark_service.services.StorageService;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
@@ -21,28 +20,28 @@ import java.util.UUID;
 @GrpcService
 @RequiredArgsConstructor
 @Transactional
-public class PSUGrpcService extends PSUServiceGrpc.PSUServiceImplBase {
-    private final PSUService psuService;
-    private final PSUMapper psuMapper;
+public class StorageGrpcService extends SSDServiceGrpc.SSDServiceImplBase {
+    private final StorageService storageService;
+    private final StorageMapper storageMapper;
 
     @Override
-    public void createPSU(CreatePSURequest request, StreamObserver<PSUResponse> responseObserver) {
-        log.info("gRPC Create PSU called");
+    public void createSSD(CreateSSDRequest request, StreamObserver<SSDResponse> responseObserver) {
+        log.info("gRPC Create storage/ssd called");
 
-        try {
-            PSU psu = psuMapper.toEntity(request);
+        try{
+            Storage storage = storageMapper.toEntity(request);
 
-            PSU savedPSU = psuService.savePSU(psu);
+            Storage savedStorage = storageService.saveStorage(storage);
 
-            responseObserver.onNext(psuMapper.toProto(savedPSU));
+            responseObserver.onNext(storageMapper.toProto(savedStorage));
             responseObserver.onCompleted();
         }
-        catch(DuplicatedPSUException e) {
+        catch(DuplicatedStorageException e) {
             responseObserver.onError(Status.ALREADY_EXISTS
                     .withDescription(e.getMessage() +
                             request.getBrand() +
                             request.getSeries() +
-                            request.getPowerAmount()
+                            request.getAmount()
                     ).asException());
         }
         catch (IllegalArgumentException e) {
@@ -51,7 +50,7 @@ public class PSUGrpcService extends PSUServiceGrpc.PSUServiceImplBase {
                     .asException()
             );
         }
-        catch (Exception e) {
+        catch(Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
                     .asException());
@@ -59,23 +58,25 @@ public class PSUGrpcService extends PSUServiceGrpc.PSUServiceImplBase {
     }
 
     @Override
-    public void listPSUs(ListPSURequest request, StreamObserver<ListPSUResponse> responseObserver) {
-        try{
-            List<PSU> foundPsu = psuService.searchAll();
+    public void listSSDs(ListSSDRequest request, StreamObserver<ListSSDResponse> responseObserver) {
+        log.info("gRPC List storages called");
 
-            List<PSUResponse> PSUMappedToProto = foundPsu.stream()
-                    .map(psuMapper::toProto)
+        try{
+            List<Storage> SSDs = storageService.searchAll();
+
+            List<SSDResponse> SSDsMappedToProto = SSDs.stream()
+                    .map(storageMapper::toProto)
                     .toList();
 
-            responseObserver.onNext(psuMapper.createListPSUResponse(PSUMappedToProto));
+            responseObserver.onNext(storageMapper.createListStorageResponse(SSDsMappedToProto));
             responseObserver.onCompleted();
         }
-        catch(PSUNotFoundException e){
+        catch(StorageNotFoundException e){
             responseObserver.onError(Status.NOT_FOUND
                     .withDescription(e.getMessage())
                     .asException());
         }
-        catch(Exception e){
+        catch(Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
                     .asException());
@@ -83,16 +84,16 @@ public class PSUGrpcService extends PSUServiceGrpc.PSUServiceImplBase {
     }
 
     @Override
-    public void deletePSU(DeletePSURequest request, StreamObserver<DeletePSUResponse> responseObserver) {
-        log.info("gRPC Delete PSU called");
+    public void deleteSSD(DeleteSSDRequest request, StreamObserver<DeleteSSDResponse> responseObserver) {
+        log.info("gRPC Delete by ID storage called");
 
-        try {
-            psuService.deleteById(UUID.fromString(request.getId()));
+        try{
+            storageService.deleteById(UUID.fromString(request.getId()));
 
-            responseObserver.onNext(psuMapper.createDeletePSUResponse(true));
+            responseObserver.onNext(storageMapper.createDeleteSSDResponse(true));
             responseObserver.onCompleted();
         }
-        catch(PSUNotFoundException e){
+        catch(StorageNotFoundException e){
             responseObserver.onError(Status.NOT_FOUND
                     .withDescription(e.getMessage())
                     .asException());

@@ -26,7 +26,7 @@ public class RAM {
 	private Integer memoryAmount;
 	private Integer frequencyMhz;
 	private String series;
-	private String Ddr;
+	private String ddr;
 	private Float averagePrice;
 	private byte[] image;
 

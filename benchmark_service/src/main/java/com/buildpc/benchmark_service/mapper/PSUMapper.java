@@ -23,7 +23,7 @@ public class PSUMapper {
                 .setBrand(psu.getBrand())
                 .setSeries(psu.getSeries())
                 .setPowerAmount(psu.getPowerAmount())
-                .setRanking(String.valueOf(psu.getRanking()))
+                .setRanking(psu.getRanking().toProtoValue())
                 .setScore(psu.getScore())
                 .setEightyPlusCert(psu.getEightyPlusCert())
                 .setAvgPrice(psu.getAvgPrice())
@@ -56,7 +56,7 @@ public class PSUMapper {
         psu.setBrand(request.getBrand());
         psu.setSeries(request.getSeries());
         psu.setPowerAmount(request.getPowerAmount());
-        psu.setRanking(PSURanking.valueOf(request.getRanking().toUpperCase()));
+        psu.setRanking(PSURanking.fromDatabaseValue(request.getRanking()));
         psu.setScore(request.getScore());
         psu.setEightyPlusCert(request.getEightyPlusCert());
         psu.setAvgPrice(request.getAvgPrice());

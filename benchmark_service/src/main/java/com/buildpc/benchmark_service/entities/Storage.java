@@ -1,19 +1,15 @@
 package com.buildpc.benchmark_service.entities;
 
+import com.buildpc.benchmark_service.entities.valueObjects.PSURankingUserType;
 import com.buildpc.benchmark_service.entities.valueObjects.SSDType;
-import com.google.type.DateTime;
+import com.buildpc.benchmark_service.entities.valueObjects.SSDTypeUserType;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnTransformer;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
-import org.hibernate.type.SqlTypes;
+import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -33,13 +29,8 @@ public class Storage {
 	private Integer amount;
 
 	//TODO: set column name equal pc-builder service
-	@JdbcType(PostgreSQLEnumJdbcType.class)
-	@JdbcTypeCode(SqlTypes.NAMED_ENUM)
+	@Type(SSDTypeUserType.class)
 	@Column(name = "type", columnDefinition = "ssd_type")
-	@ColumnTransformer(
-			write = "LOWER(?)::ssd_type",
-			read = "UPPER(type::text)"
-	)
 	private SSDType type;
 
 	private Integer reading;
