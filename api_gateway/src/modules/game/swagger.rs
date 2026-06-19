@@ -1,0 +1,18 @@
+use utoipa::OpenApi;
+
+use crate::modules::game::{dtos, handlers};
+
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        handlers::create_game,
+        handlers::get_game,
+        handlers::list_games,
+        handlers::delete_game
+    ),
+    components(schemas(
+        dtos::request::create_game::CreateGameRequestDto,
+        dtos::response::game::GameDto,
+    ))
+)]
+pub struct GameApi;
