@@ -41,6 +41,20 @@ export type RAMMemory = {
   series: string;
 };
 
+// ─── Game ─────────────────────────────────────────────────────────────────────
+
+export type Game = {
+  id: string;
+  /** Display name shown in the UI. */
+  name: string;
+  /**
+   * Banner image stem — no size suffix, no extension.
+   * Resolved at runtime to: /src/app/banners/<banner>-<size>.png
+   * e.g. "elden-ring" → "/src/app/banners/elden-ring-desktop.png"
+   */
+  banner: string;
+};
+
 // ─── Benchmark (from benchmark.proto) ────────────────────────────────────────
 
 export type Benchmark = {
@@ -429,12 +443,16 @@ export const rams: Record<string, RAMMemory> = {
   },
 };
 
-export const games: Record<string, string> = {
-  'game-1': 'Elden Ring',
-  'game-2': 'Cyberpunk 2077',
-  'game-3': 'GTA V',
-  'game-4': 'Red Dead Redemption 2',
-  'game-5': 'Fortnite',
+export const games: Record<string, Game> = {
+  'game-1': { id: 'game-1', name: 'Elden Ring', banner: 'elden-ring' },
+  'game-2': { id: 'game-2', name: 'Cyberpunk 2077', banner: 'cyberpunk-2077' },
+  'game-3': { id: 'game-3', name: 'GTA V', banner: 'gta-v' },
+  'game-4': {
+    id: 'game-4',
+    name: 'Red Dead Redemption 2',
+    banner: 'red-dead-redemption-2',
+  },
+  'game-5': { id: 'game-5', name: 'Fortnite', banner: 'fortnite' },
 };
 
 export const graphicsQualities = ['Low', 'Medium', 'High', 'Ultra'] as const;

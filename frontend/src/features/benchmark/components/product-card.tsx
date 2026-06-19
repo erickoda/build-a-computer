@@ -214,7 +214,7 @@ export function BenchmarkCard({
   const gpu = gpus[b.gpu_id];
   const cpu = cpus[b.cpu_id];
   const ram = rams[b.ram_id];
-  const gameName = games[b.game_id] ?? b.game_id;
+  const gameName = games[b.game_id]?.name ?? b.game_id;
   const totalPrice = systemPrice(b.gpu_id, b.cpu_id, b.ram_id);
 
   // ── List row ──────────────────────────────────────────────────────────────

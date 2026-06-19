@@ -81,7 +81,7 @@ export const filterOptions = {
   ramBrand: uniqueFrom(
     activeRamIds.map((id) => rams[id]?.brand).filter(Boolean),
   ),
-  games: activeGameIds.map((id) => ({ id, name: games[id] ?? id })),
+  games: activeGameIds.map((id) => ({ id, name: games[id]?.name ?? id })),
   graphicsQualities: graphicsQualities.filter((q) =>
     benchmarks.some((b) => b.graphics_quality === q),
   ),

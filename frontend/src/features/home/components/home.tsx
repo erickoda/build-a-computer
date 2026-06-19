@@ -19,7 +19,7 @@ export function LandingPage() {
 
       {/* Left: Build a Computer */}
       <Link
-        href={''}
+        href={'/build-pc'}
         type="button"
         className="group relative z-10 flex-1 flex flex-col items-center justify-center gap-6 px-8 transition-colors hover:backdrop-blur-[3px] active:bg-muted/10"
       >
