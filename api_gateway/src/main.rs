@@ -1,12 +1,26 @@
 use crate::{
     clients::{
-        auth_client::AuthClientWrapper, channel::create_channel,
-        recommendation_client::RecommendationClientWrapper, users_client::UsersClientWrapper,
+        auth_client::AuthClientWrapper, benchmark_client::BenchmarkClientWrapper,
+        channel::create_channel, cpu_client::CpuClientWrapper, game_client::GameClientWrapper,
+        gpu_client::GpuClientWrapper, motherboard_client::MotherBoardClientWrapper,
+        psu_client::PsuClientWrapper, ram_client::RamClientWrapper,
+        recommendation_client::RecommendationClientWrapper, ssd_client::SsdClientWrapper,
+        users_client::UsersClientWrapper,
     },
     config::AppConfig,
     middleware::tracing::tracing_layer,
     modules::{
         auth::{routes::auth_routes, swagger::AuthApi},
+        benchmark::{routes::benchmark_routes, swagger::BenchmarkApi},
+        game::{routes::game_routes, swagger::GameApi},
+        hardware::{
+            cpu::{routes::cpu_routes, swagger::CpuApi},
+            gpu::{routes::gpu_routes, swagger::GpuApi},
+            motherboard::{routes::motherboard_routes, swagger::MotherBoardApi},
+            psu::{routes::psu_routes, swagger::PsuApi},
+            ram::{routes::ram_routes, swagger::RamApi},
+            ssd::{routes::ssd_routes, swagger::SsdApi},
+        },
         recommendation::{routes::recommendation_routes, swagger::RecommendationApi},
         users::{routes::user_routes, swagger::UsersApi},
     },
@@ -35,6 +49,9 @@ pub mod users_grpc {
 pub mod recommendation_grpc {
     tonic::include_proto!("recommendation.v1");
 }
+pub mod benchmark_grpc {
+    tonic::include_proto!("pkg.protos.v1");
+}
 mod clients;
 mod config;
 mod errors;
@@ -54,6 +71,14 @@ pub struct AppState {
     user_client: UsersClientWrapper,
     auth_client: AuthClientWrapper,
     recommendation_client: RecommendationClientWrapper,
+    benchmark_client: BenchmarkClientWrapper,
+    game_client: GameClientWrapper,
+    cpu_client: CpuClientWrapper,
+    gpu_client: GpuClientWrapper,
+    ram_client: RamClientWrapper,
+    motherboard_client: MotherBoardClientWrapper,
+    psu_client: PsuClientWrapper,
+    ssd_client: SsdClientWrapper,
     token_validator: Arc<dyn TokenValidator>,
 }
 
@@ -89,6 +114,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         create_channel(app_configure.recommendation_microservice_url).await?;
     let recommendation_client = RecommendationClientWrapper::new(recommendation_channel);
 
+    let benchmark_channel = create_channel(app_configure.benchmark_microservice_url).await?;
+    let benchmark_client = BenchmarkClientWrapper::new(benchmark_channel.clone());
+    let game_client = GameClientWrapper::new(benchmark_channel.clone());
+    let cpu_client = CpuClientWrapper::new(benchmark_channel.clone());
+    let gpu_client = GpuClientWrapper::new(benchmark_channel.clone());
+    let ram_client = RamClientWrapper::new(benchmark_channel.clone());
+    let motherboard_client = MotherBoardClientWrapper::new(benchmark_channel.clone());
+    let psu_client = PsuClientWrapper::new(benchmark_channel.clone());
+    let ssd_client = SsdClientWrapper::new(benchmark_channel);
+
     let jwt_validator = JwtValidator::new(app_configure.jwt_secret);
     let token_validator: Arc<dyn TokenValidator> = Arc::new(jwt_validator);
 
@@ -96,6 +131,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         user_client,
         auth_client,
         recommendation_client,
+        benchmark_client,
+        game_client,
+        cpu_client,
+        gpu_client,
+        ram_client,
+        motherboard_client,
+        psu_client,
+        ssd_client,
         token_validator: token_validator.clone(),
     };
 
@@ -109,11 +152,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     openapi.merge(AuthApi::openapi());
     openapi.merge(UsersApi::openapi());
     openapi.merge(RecommendationApi::openapi());
+    openapi.merge(BenchmarkApi::openapi());
+    openapi.merge(GameApi::openapi());
+    openapi.merge(CpuApi::openapi());
+    openapi.merge(GpuApi::openapi());
+    openapi.merge(RamApi::openapi());
+    openapi.merge(MotherBoardApi::openapi());
+    openapi.merge(PsuApi::openapi());
+    openapi.merge(SsdApi::openapi());
 
     let app = Router::new()
         .nest("/api/v1/users", user_routes())
         .nest("/api/v1/auth", auth_routes())
         .nest("/api/v1/recommendation", recommendation_routes())
+        .nest("/api/v1/benchmarks", benchmark_routes())
+        .nest("/api/v1/games", game_routes())
+        .nest("/api/v1/hardware/cpus", cpu_routes())
+        .nest("/api/v1/hardware/gpus", gpu_routes())
+        .nest("/api/v1/hardware/rams", ram_routes())
+        .nest("/api/v1/hardware/motherboards", motherboard_routes())
+        .nest("/api/v1/hardware/psus", psu_routes())
+        .nest("/api/v1/hardware/ssds", ssd_routes())
         .layer(tracing_layer(token_validator))
         .layer(cors_layer)
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", openapi))
