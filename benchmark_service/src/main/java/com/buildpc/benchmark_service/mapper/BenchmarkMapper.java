@@ -4,14 +4,21 @@ import com.buildpc.benchmark_service.entities.Benchmark;
 import com.buildpc.benchmark_service.entities.CPU;
 import com.buildpc.benchmark_service.entities.GPU;
 import com.buildpc.benchmark_service.entities.RAM;
+import com.buildpc.benchmark_service.entities.valueObjects.Performance;
 import com.buildpc.benchmark_service.grpc.generated.BenchmarkResponse;
 import com.buildpc.benchmark_service.grpc.generated.CreateBenchmarkRequest;
+import com.buildpc.benchmark_service.grpc.generated.DeleteBenchmarkResponse;
+import com.buildpc.benchmark_service.grpc.generated.ListBenchmarkResponse;
 import com.buildpc.benchmark_service.repository.*;
 import com.google.protobuf.Timestamp;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.sql.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -32,7 +39,7 @@ public class BenchmarkMapper {
                 .setId(String.valueOf(benchmark.getId()))
                 .setTitle(benchmark.getTitle())
                 .setResolution(benchmark.getResolution())
-                .setGraphicsQuality(String.valueOf(benchmark.getGraphicsQuality()))
+                .setGraphicsQuality(benchmark.getGraphicsQuality().toProtoValue())
                 .setCpu(cpuMapper.toProto(benchmark.getCpu()))
                 .setGpu(gpuMapper.toProto(benchmark.getGpu()))
                 .setRam(ramMapper.toProto(benchmark.getRam()))
@@ -53,6 +60,18 @@ public class BenchmarkMapper {
         return builder.build();
     }
 
+    public ListBenchmarkResponse createListBenchmarkResponse(List<BenchmarkResponse> responses) {
+        return ListBenchmarkResponse.newBuilder()
+                .addAllBenchmark(responses)
+                .build();
+    }
+
+    public DeleteBenchmarkResponse createDeleteBenchmarkResponse(boolean deletedSuccess) {
+        return DeleteBenchmarkResponse.newBuilder()
+                .setSuccess(deletedSuccess)
+                .build();
+    }
+
     public Benchmark toEntity(CreateBenchmarkRequest request) {
         // Resolve FK references — getReferenceById issues no SELECT, only sets the FK
         CPU cpu = cpuRepository.getReferenceById(UUID.fromString(request.getCpuId()));
@@ -62,7 +81,7 @@ public class BenchmarkMapper {
         Benchmark benchmark = new Benchmark();
         benchmark.setTitle(request.getTitle());
         benchmark.setResolution(request.getResolution());
-        benchmark.setGraphicsQuality(Benchmark.GraphicsQuality.valueOf(request.getGraphicsQuality()));
+        benchmark.setGraphicsQuality(Performance.fromDatabaseValue(request.getGraphicsQuality()));
         benchmark.setCpu(cpu);
         benchmark.setGpu(gpu);
         benchmark.setRam(ram);
@@ -79,9 +98,12 @@ public class BenchmarkMapper {
         return benchmark;
     }
 
-    private Timestamp dateToTimestamp(Date dateTime) {
+    private Timestamp dateToTimestamp(LocalDateTime dateTime) {
+        Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
+
         return Timestamp.newBuilder()
-                .setSeconds(dateTime.getTime() / 1000)
+                .setSeconds(instant.getEpochSecond())
+                .setNanos(instant.getNano())
                 .build();
     }
 }

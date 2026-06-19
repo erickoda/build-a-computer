@@ -24,13 +24,13 @@ public class RAMMapper {
                 .setBrand(ram.getBrand())
                 .setDdr(ram.getDdr())
                 .setMemoryAmount(ram.getMemoryAmount())
-                .setAvgPrice(ram.getAveragePrice())
+                .setAvgPrice(ram.getAvgPrice())
                 .setFrequencyMhz(ram.getFrequencyMhz())
                 .setSeries(ram.getSeries())
                 .setCreatedAt(dateToTimestamp(ram.getCreatedAt()));
 
-        if (ram.getImage() != null) {
-            builder.setImg(ByteString.copyFrom(ram.getImage()));
+        if (ram.getImg() != null) {
+            builder.setImg(ByteString.copyFrom(ram.getImg()));
         }
         if (ram.getUpdatedAt() != null) {
             builder.setUpdatedAt(dateToTimestamp(ram.getUpdatedAt()));
@@ -56,12 +56,12 @@ public class RAMMapper {
         ram.setBrand(request.getBrand());
         ram.setDdr(request.getDdr());
         ram.setMemoryAmount(request.getMemoryAmount());
-        ram.setAveragePrice(request.getAvgPrice());
+        ram.setAvgPrice(request.getAvgPrice());
         ram.setFrequencyMhz(request.getFrequencyMhz());
         ram.setSeries(request.getSeries());
 
         if (request.hasImg()) {
-            ram.setImage(request.getImg().toByteArray());
+            ram.setImg(request.getImg().toByteArray());
         }
 
         return ram;
