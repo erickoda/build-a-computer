@@ -32,6 +32,60 @@ export function systemPrice(
   );
 }
 
+// ─── Brand color mapping ──────────────────────────────────────────────────────
+// Intel → blue, AMD → red, NVIDIA → green. Anything else falls back to a
+// neutral gray so the gradient stays subtle rather than breaking.
+
+const BRAND_RGB: Record<string, string> = {
+  //  INTEL: '37, 99, 235', // blue-600
+  //  AMD: '220, 38, 38', // red-600
+  // NVIDIA: '22, 163, 74', // green-600
+  INTEL: '45, 70, 125', // blue-600
+  AMD: '150, 59, 59', // red-600
+  NVIDIA: '46, 128, 76', // green-600
+};
+
+const NEUTRAL_RGB = '120, 120, 128';
+
+function brandRgb(brand: string | undefined): string {
+  if (!brand) return NEUTRAL_RGB;
+  return BRAND_RGB[brand.toUpperCase()] ?? NEUTRAL_RGB;
+}
+
+/**
+ * Builds a subtle, desaturated side-to-side gradient: GPU brand color bleeds
+ * in from the left, CPU brand color bleeds in from the right, fading to
+ * transparent toward the middle so the card's own background shows through.
+ */
+function brandGradient(gpu?: GPU, cpu?: CPU): React.CSSProperties {
+  const left = brandRgb(gpu?.brand);
+  const right = brandRgb(cpu?.brand);
+
+  return {
+    backgroundImage: `linear-gradient(to right, rgba(${left}, 0.16) 0%, rgba(${left}, 0.05) 30%, transparent 50%, rgba(${right}, 0.05) 70%, rgba(${right}, 0.16) 100%)`,
+  };
+}
+
+// ─── FPS color mapping ────────────────────────────────────────────────────────
+// <30 → red, <60 → orange, ≥60 → green. Muted/desaturated tones so the
+// numbers stay legible and on-brand rather than reading as a stoplight.
+
+const FPS_RGB = {
+  low: '185, 89, 89', // muted red
+  mid: '191, 130, 71', // muted orange
+  high: '85, 145, 102', // muted green
+};
+
+function fpsRgb(fps: number): string {
+  if (fps < 30) return FPS_RGB.low;
+  if (fps < 60) return FPS_RGB.mid;
+  return FPS_RGB.high;
+}
+
+function fpsColorStyle(fps: number): React.CSSProperties {
+  return { color: `rgb(${fpsRgb(fps)})` };
+}
+
 // ─── Spec row helper ──────────────────────────────────────────────────────────
 
 function Spec({ label, value }: { label: string; value: React.ReactNode }) {
@@ -76,7 +130,7 @@ function HardwareDetail({
   ram?: RAMMemory;
 }) {
   return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 p-4 pt-3 border-t bg-muted/20">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 p-4 pt-3 border-t bg-muted/10">
       {/* GPU */}
       {gpu && (
         <HwSection title="GPU">
@@ -173,10 +227,13 @@ export function BenchmarkCard({
             'group grid items-center overflow-hidden border bg-card text-card-foreground transition-colors hover:border-foreground/20 cursor-pointer select-none',
             expanded ? 'rounded-t-lg border-b-0' : 'rounded-lg',
           )}
-          style={{ gridTemplateColumns: LIST_GRID_COLS }}
+          style={{
+            gridTemplateColumns: LIST_GRID_COLS,
+            ...brandGradient(gpu, cpu),
+          }}
         >
           {/* Game */}
-          <div className="flex min-w-0 items-center gap-2 border-r bg-muted/40 px-3 py-2.5 h-full">
+          <div className="flex min-w-0 items-center gap-2 border-r px-3 py-2.5 h-full">
             <ChevronDownIcon
               className={cn(
                 'size-3.5 shrink-0 text-muted-foreground transition-transform duration-200',
@@ -201,17 +258,28 @@ export function BenchmarkCard({
           <div className="h-full border-r" />
           {/* Avg FPS */}
           <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
-            <span className="text-sm font-bold tabular-nums">{b.avg_fps}</span>
+            <span
+              className="text-sm font-bold tabular-nums"
+              style={fpsColorStyle(b.avg_fps)}
+            >
+              {b.avg_fps}
+            </span>
           </div>
           {/* Min FPS */}
           <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
-            <span className="text-sm tabular-nums text-muted-foreground">
+            <span
+              className="text-sm tabular-nums"
+              style={fpsColorStyle(b.min_fps)}
+            >
               {b.min_fps}
             </span>
           </div>
           {/* Max FPS */}
           <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
-            <span className="text-sm tabular-nums text-muted-foreground">
+            <span
+              className="text-sm tabular-nums"
+              style={fpsColorStyle(b.max_fps)}
+            >
               {b.max_fps}
             </span>
           </div>
@@ -284,9 +352,10 @@ export function BenchmarkCard({
           'flex flex-col',
           expanded ? 'w-72 shrink-0 border-r' : 'flex-1',
         )}
+        style={brandGradient(gpu, cpu)}
       >
         {/* Header bar */}
-        <div className="flex items-center justify-between gap-2 border-b bg-muted/40 px-4 py-2.5">
+        <div className="flex items-center justify-between gap-2 border-b bg-muted/20 px-4 py-2.5">
           <p className="truncate text-sm font-medium">{gameName}</p>
           <div className="flex shrink-0 items-center gap-1.5">
             <Badge variant="outline">{resolutionLabel(b.resolution)}</Badge>
@@ -303,13 +372,21 @@ export function BenchmarkCard({
         {/* FPS block */}
         <div className="flex items-stretch divide-x border-b">
           <div className="flex flex-1 flex-col items-center py-3">
-            <span className="text-xl font-bold tabular-nums">{b.avg_fps}</span>
+            <span
+              className="text-xl font-bold tabular-nums"
+              style={fpsColorStyle(b.avg_fps)}
+            >
+              {b.avg_fps}
+            </span>
             <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
               Avg FPS
             </span>
           </div>
           <div className="flex flex-1 flex-col items-center py-3">
-            <span className="text-base font-semibold tabular-nums text-muted-foreground">
+            <span
+              className="text-base font-semibold tabular-nums"
+              style={fpsColorStyle(b.min_fps)}
+            >
               {b.min_fps}
             </span>
             <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
@@ -317,7 +394,10 @@ export function BenchmarkCard({
             </span>
           </div>
           <div className="flex flex-1 flex-col items-center py-3">
-            <span className="text-base font-semibold tabular-nums text-muted-foreground">
+            <span
+              className="text-base font-semibold tabular-nums"
+              style={fpsColorStyle(b.max_fps)}
+            >
               {b.max_fps}
             </span>
             <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
