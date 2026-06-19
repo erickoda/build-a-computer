@@ -1,7 +1,8 @@
 'use client';
 
 import { benchmarks, cpus, gpus, rams } from '@/src/utils/benchmarks';
-import { Bars3Icon, Squares2X2Icon } from '@heroicons/react/16/solid';
+import { Bars3Icon, PlusIcon, Squares2X2Icon } from '@heroicons/react/16/solid';
+import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { DEFAULT_FILTERS, FilterPanel, type Filters } from './filter-panel';
 import { BenchmarkCard, LIST_GRID_COLS } from './product-card';
@@ -152,127 +153,137 @@ const BenchmarksPage = () => {
   }, [filters, sort]);
 
   return (
-    <ResizablePanelGroup
-      direction="horizontal"
-      className="h-screen w-full items-stretch"
-    >
-      <ResizablePanel defaultSize={22} minsize={16}>
-        <FilterPanel
-          filters={filters}
-          onChange={setFilters}
-          resultCount={filtered.length}
-        />
-      </ResizablePanel>
+    <>
+      <ResizablePanelGroup
+        direction="horizontal"
+        className="h-screen w-full items-stretch"
+      >
+        <ResizablePanel defaultSize={22} minsize={16}>
+          <FilterPanel
+            filters={filters}
+            onChange={setFilters}
+            resultCount={filtered.length}
+          />
+        </ResizablePanel>
 
-      <ResizableHandle withHandle />
+        <ResizableHandle withHandle />
 
-      <ResizablePanel defaultSize={78} minsize={40}>
-        <div className="flex h-full flex-col">
-          <header className="flex flex-wrap items-center justify-between gap-4 border-b px-6 py-4">
-            <div>
-              <h1 className="text-lg font-semibold">Benchmarks</h1>
-              <p className="text-sm text-muted-foreground">
-                Drag the divider to resize the filters.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <label htmlFor="sort" className="sr-only">
-                Sort by
-              </label>
-              <select
-                id="sort"
-                value={sort}
-                onChange={(e) => setSort(e.target.value as SortKey)}
-                className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {sortOptions.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-              <ToggleGroup
-                type="single"
-                value={density}
-                onValueChange={(v) =>
-                  v && setDensity(v as 'comfortable' | 'compact')
-                }
-                variant="outline"
-                size="sm"
-              >
-                <ToggleGroupItem
-                  value="comfortable"
-                  aria-label="Comfortable grid"
-                >
-                  <Squares2X2Icon className="size-4" />
-                </ToggleGroupItem>
-                <ToggleGroupItem value="compact" aria-label="Compact grid">
-                  <Bars3Icon className="size-4" />
-                </ToggleGroupItem>
-              </ToggleGroup>
-            </div>
-          </header>
-
-          <div className="flex-1 overflow-y-auto p-6">
-            {filtered.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center text-center">
-                <p className="text-sm font-medium">
-                  No benchmarks match your filters
-                </p>
+        <ResizablePanel defaultSize={78} minsize={40}>
+          <div className="flex h-full flex-col">
+            <header className="flex flex-wrap items-center justify-between gap-4 border-b px-6 py-4">
+              <div>
+                <h1 className="text-lg font-semibold">Benchmarks</h1>
                 <p className="text-sm text-muted-foreground">
-                  Try adjusting or clearing your filters.
+                  Drag the divider to resize the filters.
                 </p>
               </div>
-            ) : density === 'compact' ? (
-              <div className="flex flex-col gap-0">
-                {/* Sticky list header */}
-                <div
-                  className="sticky top-0 z-10 grid border-b border-t bg-muted/80 backdrop-blur-sm text-[10px] font-semibold uppercase tracking-wider text-muted-foreground rounded-t-lg overflow-hidden"
-                  style={{ gridTemplateColumns: LIST_GRID_COLS }}
+              <div className="flex items-center gap-3">
+                <label htmlFor="sort" className="sr-only">
+                  Sort by
+                </label>
+                <select
+                  id="sort"
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as SortKey)}
+                  className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <div className="px-3 py-2">Game</div>
-                  <div className="px-2 py-2 text-center">Res</div>
-                  <div className="px-2 py-2 text-center">Quality</div>
-                  <div className="py-2" />
-                  <div className="px-2 py-2 text-center">Avg</div>
-                  <div className="px-2 py-2 text-center">Min</div>
-                  <div className="px-2 py-2 text-center">Max</div>
-                  <div className="px-3 py-2">GPU</div>
-                  <div className="px-3 py-2">CPU</div>
-                  <div className="px-3 py-2">RAM</div>
-                  <div className="px-2 py-2 text-center">Score</div>
-                  <div className="px-3 py-2 text-right">Price</div>
+                  {sortOptions.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+                <ToggleGroup
+                  type="single"
+                  value={density}
+                  onValueChange={(v) =>
+                    v && setDensity(v as 'comfortable' | 'compact')
+                  }
+                  variant="outline"
+                  size="sm"
+                >
+                  <ToggleGroupItem
+                    value="comfortable"
+                    aria-label="Comfortable grid"
+                  >
+                    <Squares2X2Icon className="size-4" />
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="compact" aria-label="Compact grid">
+                    <Bars3Icon className="size-4" />
+                  </ToggleGroupItem>
+                </ToggleGroup>
+              </div>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-6">
+              {filtered.length === 0 ? (
+                <div className="flex h-full flex-col items-center justify-center text-center">
+                  <p className="text-sm font-medium">
+                    No benchmarks match your filters
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Try adjusting or clearing your filters.
+                  </p>
                 </div>
-                {/* Rows */}
-                <div className="flex flex-col gap-1 pt-1">
+              ) : density === 'compact' ? (
+                <div className="flex flex-col gap-0">
+                  {/* Sticky list header */}
+                  <div
+                    className="sticky top-0 z-10 grid border-b border-t bg-muted/80 backdrop-blur-sm text-[10px] font-semibold uppercase tracking-wider text-muted-foreground rounded-t-lg overflow-hidden"
+                    style={{ gridTemplateColumns: LIST_GRID_COLS }}
+                  >
+                    <div className="px-3 py-2">Game</div>
+                    <div className="px-2 py-2 text-center">Res</div>
+                    <div className="px-2 py-2 text-center">Quality</div>
+                    <div className="py-2" />
+                    <div className="px-2 py-2 text-center">Avg</div>
+                    <div className="px-2 py-2 text-center">Min</div>
+                    <div className="px-2 py-2 text-center">Max</div>
+                    <div className="px-3 py-2">GPU</div>
+                    <div className="px-3 py-2">CPU</div>
+                    <div className="px-3 py-2">RAM</div>
+                    <div className="px-2 py-2 text-center">Score</div>
+                    <div className="px-3 py-2 text-right">Price</div>
+                  </div>
+                  {/* Rows */}
+                  <div className="flex flex-col gap-1 pt-1">
+                    {filtered.map((benchmark) => (
+                      <BenchmarkCard
+                        key={benchmark.id}
+                        benchmark={benchmark}
+                        view="list"
+                        expanded={selectedId === benchmark.id}
+                        onToggle={() => toggleSelected(benchmark.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
                   {filtered.map((benchmark) => (
                     <BenchmarkCard
                       key={benchmark.id}
                       benchmark={benchmark}
-                      view="list"
+                      view="grid"
                       expanded={selectedId === benchmark.id}
                       onToggle={() => toggleSelected(benchmark.id)}
                     />
                   ))}
                 </div>
-              </div>
-            ) : (
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                {filtered.map((benchmark) => (
-                  <BenchmarkCard
-                    key={benchmark.id}
-                    benchmark={benchmark}
-                    view="grid"
-                    expanded={selectedId === benchmark.id}
-                    onToggle={() => toggleSelected(benchmark.id)}
-                  />
-                ))}
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+
+      <Link
+        href="/benchmarks/create"
+        className="fixed bottom-6 right-6 z-20 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-105 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
+        <PlusIcon className="size-4" />
+        Add Benchmark
+      </Link>
+    </>
   );
 };
 
