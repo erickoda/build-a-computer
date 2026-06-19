@@ -10,7 +10,6 @@ import (
 	"go.uber.org/zap"
 
 	pb "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos"
-	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/adapters/db"
@@ -68,8 +67,6 @@ func RegisterServer(
 ) {
 
 	pb.RegisterBuilderServiceServer(server, handler)
-
-	_ = godotenv.Load(".env")
 
 	var addr string = os.Getenv("ADDR")
 

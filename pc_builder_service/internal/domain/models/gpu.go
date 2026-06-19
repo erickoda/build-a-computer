@@ -9,11 +9,11 @@ import (
 
 type GPU struct {
 	ID 					uuid.UUID 				`gorm:"type:uuid;primaryKey"`
-	Brand 				string 					`gorm:"type:varchar(50);not null"`
-	Family 				string 					`gorm:"type:varchar(10);not null"`
-	Series 				string 					`gorm:"type:varchar(20);not null"`
+	Brand 				string 					`gorm:"type:varchar(255);not null"`
+	Family 				string 					`gorm:"type:varchar(255);not null"`
+	Series 				string 					`gorm:"type:varchar(255);not null"`
 	MemoryAmount 		int32 					`gorm:"type:integer;not null"`
-	MemoryGen 			string 					`gorm:"type:varchar(10);not null"`
+	MemoryGen 			string 					`gorm:"type:varchar(255);not null"`
 	Cores 				int32 					`gorm:"type:integer;not null"`
 	PciExpress 			int32 					`gorm:"column:pci_express;type:integer;not null"`
 	RecommendedPower 	int32 					`gorm:"type:integer;not null"`

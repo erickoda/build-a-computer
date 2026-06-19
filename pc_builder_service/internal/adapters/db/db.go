@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/joho/godotenv"
+	
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -100,7 +100,6 @@ func (db *DB) Get() *gorm.DB {
 }
 
 func loadDBConfig() string {
-	_ = godotenv.Load(".env")
 
 	port, _ := strconv.Atoi(os.Getenv("PGPORT"))
 	host := os.Getenv("PGHOST")
