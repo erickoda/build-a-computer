@@ -1,4 +1,4 @@
-use axum::{Router, routing::get};
+use axum::{Router, routing::post};
 
 use crate::{AppState, modules::recommendation::handlers::get_recommendation};
 
@@ -7,5 +7,5 @@ use crate::{AppState, modules::recommendation::handlers::get_recommendation};
 /// Este método associa os caminhos de URL aos seus respectivos handlers
 /// e define o estado compartilhado da aplicação ([`AppState`]) para injeção de dependências.
 pub fn recommendation_routes() -> Router<AppState> {
-    Router::new().route("/", get(get_recommendation))
+    Router::new().route("/", post(get_recommendation))
 }

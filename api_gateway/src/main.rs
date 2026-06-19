@@ -90,12 +90,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let recommendation_client = RecommendationClientWrapper::new(recommendation_channel);
 
     let jwt_validator = JwtValidator::new(app_configure.jwt_secret);
+    let token_validator: Arc<dyn TokenValidator> = Arc::new(jwt_validator);
 
     let state = AppState {
         user_client,
         auth_client,
         recommendation_client,
-        token_validator: Arc::new(jwt_validator),
+        token_validator: token_validator.clone(),
     };
 
     let cors_layer = CorsLayer::new()
@@ -113,7 +114,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .nest("/api/v1/users", user_routes())
         .nest("/api/v1/auth", auth_routes())
         .nest("/api/v1/recommendation", recommendation_routes())
-        .layer(tracing_layer())
+        .layer(tracing_layer(token_validator))
         .layer(cors_layer)
         .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", openapi))
         .with_state(state);

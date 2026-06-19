@@ -18,7 +18,7 @@ use crate::{
 ///
 /// Retorna um `AppError` caso ocorra falha de comunicação ou processamento no cliente gRPC.
 #[utoipa::path(
-    get,
+    post,
     path = "/api/v1/recommendation",
     request_body = RecommendationRequestDto,
     responses(
@@ -42,5 +42,5 @@ pub async fn get_recommendation(
         )
         .await?;
 
-    Ok((StatusCode::CREATED, Json(grpc_response.into())))
+    Ok((StatusCode::OK, Json(grpc_response.into())))
 }

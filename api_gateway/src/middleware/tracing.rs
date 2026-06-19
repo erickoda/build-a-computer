@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{sync::Arc, time::Duration};
 
 use axum::{extract::Request, http::Response};
 use tower_http::{
@@ -7,22 +7,35 @@ use tower_http::{
 };
 use tracing::{Span, info, info_span};
 
-use crate::security::jwt_adapter::TokenClaims;
+use crate::security::token::TokenValidator;
 
 /// Construtor de "Spans" de log para requisições recebidas.
 #[derive(Clone)]
-pub struct GatewayMakeSpan;
+pub struct GatewayMakeSpan {
+    validator: Arc<dyn TokenValidator>,
+}
+
+impl GatewayMakeSpan {
+    pub fn new(validator: Arc<dyn TokenValidator>) -> Self {
+        Self { validator }
+    }
+}
 
 /// Esta estrutura intercepta a requisição no momento em que ela chega.
-/// Ela tenta extrair as credenciais (`TokenClaims`) previamente injetadas
-/// no contexto da requisição para registrar qual usuário está realizando a
-/// chamada. Se não encontrar, registra como `"anonymous"`.
+/// Como o `TraceLayer` envolve o roteador inteiro, ele roda antes de
+/// qualquer extractor do Axum (incluindo o que valida o JWT), então o
+/// span precisa decodificar o token Bearer diretamente para registrar
+/// qual usuário está realizando a chamada. Se o header estiver ausente
+/// ou o token for inválido, registra como `"anonymous"`.
 impl<B> MakeSpan<B> for GatewayMakeSpan {
     fn make_span(&mut self, request: &axum::http::Request<B>) -> tracing::Span {
         let user_sub = request
-            .extensions()
-            .get::<TokenClaims>()
-            .map(|claims| claims.sub.clone())
+            .headers()
+            .get("Authorization")
+            .and_then(|h| h.to_str().ok())
+            .and_then(|h| h.strip_prefix("Bearer "))
+            .and_then(|token| self.validator.validate(token).ok())
+            .map(|user| user.id)
             .unwrap_or_else(|| "anonymous".to_string());
 
         info_span!("REQUEST", method = %request.method(), uri = %request.uri(), version = ?request.version(), user_sub = %user_sub)
@@ -61,14 +74,12 @@ impl<B> OnResponse<B> for GatewayOnResponse {
 /// Constrói a `Layer` de tracing configurada para o Axum.
 ///
 /// Retorna um middleware unindo todas as personalizações criadas.
-pub fn tracing_layer() -> TraceLayer<
-    SharedClassifier<ServerErrorsAsFailures>,
-    GatewayMakeSpan,
-    GatewayOnRequest,
-    GatewayOnResponse,
-> {
+pub fn tracing_layer(
+    validator: Arc<dyn TokenValidator>,
+) -> TraceLayer<SharedClassifier<ServerErrorsAsFailures>, GatewayMakeSpan, GatewayOnRequest, GatewayOnResponse>
+{
     TraceLayer::new_for_http()
-        .make_span_with(GatewayMakeSpan)
+        .make_span_with(GatewayMakeSpan::new(validator))
         .on_request(GatewayOnRequest)
         .on_response(GatewayOnResponse)
 }
