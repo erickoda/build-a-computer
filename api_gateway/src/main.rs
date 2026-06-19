@@ -79,10 +79,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app_configure = AppConfig::from_env();
 
-    let user_channel = create_channel(app_configure.auth_microservice_url).await?;
+    let user_channel = create_channel(app_configure.users_microservice_url).await?;
     let user_client = UsersClientWrapper::new(user_channel);
 
-    let auth_channel = create_channel(app_configure.users_microservice_url).await?;
+    let auth_channel = create_channel(app_configure.auth_microservice_url).await?;
     let auth_client = AuthClientWrapper::new(auth_channel);
 
     let recommendation_channel =
