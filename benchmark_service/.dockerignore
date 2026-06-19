@@ -1,0 +1,26 @@
+# Build/output locais (nao precisam ir para o contexto do Docker)
+build/
+.gradle/
+out/
+bin/
+
+# Configs de IDE
+.idea/
+*.iml
+.vscode/
+
+# Git e metadados
+.git/
+.gitignore
+
+# Segredos e ambiente local
+.env
+*.env
+
+# Docker (nao precisa se copiar pra dentro do contexto)
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Logs e temporarios
+*.log
