@@ -6,23 +6,35 @@ use crate::{
     security::token::{AuthenticatedUser, TokenValidator},
 };
 
+/// Representa os dados (claims) contidos no payload do JWT.
 #[derive(Debug, Deserialize)]
-struct TokenClaims {
+pub struct TokenClaims {
+    /// ID (Subject) do usuário.
     pub sub: String,
+    /// Cargo do usuário no sistema.
     pub role: String,
 }
 
+/// Validador de tokens JWT utilizando um segredo simétrico.
 pub struct JwtValidator {
+    /// Segredo JWT
     jwt_secret: String,
 }
 
 impl JwtValidator {
+    /// Instancia um novo validador com a chave secreta fornecida.
     pub fn new(jwt_secret: String) -> Self {
         Self { jwt_secret }
     }
 }
 
 impl TokenValidator for JwtValidator {
+    /// Decodifica e valida a assinatura de um token JWT.
+    ///
+    /// # Erros
+    ///
+    /// * Retorna `AppError::Unauthorized` se o token estiver expirado, inválido ou mal assinado.
+    /// * Retorna `AppError::InternalError` em caso de falhas inesperadas na decodificação.
     fn validate(&self, token: &str) -> Result<AuthenticatedUser, AppError> {
         let token_data = decode::<TokenClaims>(
             token,

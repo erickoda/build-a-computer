@@ -1,0 +1,167 @@
+services:
+  api_gateway:
+    build:
+      context: ./api_gateway
+      additional_contexts:
+        protos: ./proto
+    deploy:
+      resources:
+        limits:
+          cpus: "0.30"
+          memory: 512M
+        reservations:
+          cpus: "0.15"
+          memory: 128M
+    ports:
+      - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL}
+      - USERS_MICROSERVICE_URL=${USERS_MICROSERVICE_URL}
+      - RECOMMENDATION_MICROSERVICE_URL=${RECOMMENDATION_MICROSERVICE_URL}
+    networks:
+      - microservice
+    depends_on:
+      authentication_microservice:
+        condition: service_healthy
+      recommendation_microservice:
+        condition: service_healthy
+
+  authentication_microservice:
+    build:
+      context: ./authentication_microservice
+      additional_contexts:
+        protos: ./proto
+    deploy:
+      resources:
+        limits:
+          cpus: "0.60"
+          memory: 512M
+        reservations:
+          cpus: "0.15"
+          memory: 128M
+    ports:
+      - ${AUTH_MICROSERVICE_PORT}:${AUTH_MICROSERVICE_PORT}
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${AUTH_MICROSERVICE_JWT_EXPIRATION}
+      - DATABASE_URL=${AUTH_MICROSERVICE_USERS_DATABASE_URL}
+      - SMTP_USERNAME=${AUTH_MICROSERVICE_SMTP_USERNAME}
+      - SMTP_PASSWORD=${AUTH_MICROSERVICE_SMTP_PASSWORD}
+    healthcheck:
+      test:
+        ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/${AUTH_MICROSERVICE_PORT}'"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - microservice
+      - users_db
+    depends_on:
+      users_db:
+        condition: service_healthy
+
+  recommendation_microservice:
+    container_name: recommendation_microservice
+    build:
+      context: ./pc_builder_service
+      dockerfile: Dockerfile
+      target: run-stage
+      additional_contexts:
+        protos: ./proto
+    deploy:
+      resources:
+        limits:
+          cpus: "0.6"
+          memory: 512M
+        reservations:
+          cpus: "0.4"
+          memory: 256M
+    env_file:
+      - .env
+    environment:
+      - ADDR=${RECOMMENDATION_MICROSERVICE_ADDR}
+      - PGHOST=${RECOMMENDATION_PGHOST}
+      - PGPORT=${RECOMMENDATION_PGPORT}
+      - PGUSER=${RECOMMENDATION_PGUSER}
+      - PGPASSWORD=${RECOMMENDATION_PGPASSWORD}
+      - PGDATABASE=${RECOMMENDATION_PGDATABASE}
+      - PGSSLMODE=${RECOMMENDATION_PGSSLMODE}
+    ports:
+      - "${RECOMMENDATION_MICROSERVICE_PORT}:${RECOMMENDATION_MICROSERVICE_PORT}"
+    networks:
+      - microservice
+      - recommendation_db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bash -c '</dev/tcp/127.0.0.1/${RECOMMENDATION_MICROSERVICE_PORT}'",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      recommendation_db:
+        condition: service_healthy
+
+  users_db:
+    image: postgres:15-alpine
+    ports:
+      - ${USERS_DB_PORT}:${USERS_DB_PORT}
+    environment:
+      POSTGRES_USER: ${USERS_DB_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${USERS_DB_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${USERS_DB_POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - users_db
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${USERS_DB_POSTGRES_USER} -d ${USERS_DB_POSTGRES_DB}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  recommendation_db:
+    container_name: recommendation_db
+    image: postgres:18.4-alpine3.23
+    ports:
+      - ${RECOMMENDATION_DB_PORT}:${RECOMMENDATION_DB_PORT}
+    environment:
+      POSTGRES_USER: ${RECOMMENDATION_DB_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${RECOMMENDATION_DB_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${RECOMMENDATION_DB_POSTGRES_DB}
+      PGDATA: /data/postgres
+    networks:
+      - recommendation_db
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${RECOMMENDATION_DB_POSTGRES_USER} -d ${RECOMMENDATION_DB_POSTGRES_DB}",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - recommendation_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:
+  recommendation_data:
+
+networks:
+  microservice:
+    driver: bridge
+  users_db:
+    driver: bridge
+  recommendation_db:
+    driver: bridge

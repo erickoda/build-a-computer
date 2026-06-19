@@ -5,20 +5,42 @@ use axum::{
 };
 use serde_json::json;
 use tonic::Status;
+use utoipa::ToSchema;
 
-#[derive(Debug)]
+/// Representa os erros globais que a aplicação pode assumir.
+///
+/// Estra estrutura centraliza o tratamento de erros da aplicação,
+/// lidando com eventuais erros advindos da comunicação com os microsserviços
+/// gRPC externos e transformando-os em mensagens HTTP. Além disso,
+/// trata possíveis erros que tenha origem no próprio Gateway.
+#[derive(Debug, ToSchema)]
 pub enum AppError {
+    /// Representa erros originários de uma comunicação gRPC.
+    #[schema(value_type = String)]
     Grpc(Status),
+
+    /// Representa erros internos arbitrários do API Gateway.
     InternalError(String),
+
+    /// Representa erro de acesso não autorizado por usuário
+    /// que tenta acessar uma rota que não possui acesso.
     Unauthorized(String),
 }
 
+/// Permite a conversão automática de erros gRPC para o formato do Gateway.
+///
+/// Graças a esta implementação, é possível utilizar o operador `?` diretamente
+/// nas chamadas do cliente `tonic` para realizar a conversão automática de erro.
 impl From<Status> for AppError {
     fn from(grpc_status: Status) -> Self {
         Self::Grpc(grpc_status)
     }
 }
 
+/// Define como o erro será formatado em texto para o usuário ou para os logs.
+///
+/// O comportamento é alterado com base na variante do enum, extraindo a
+/// mensagem legível do `Status` do gRPC ou repassando as strings internas do Gateway.
 impl std::fmt::Display for AppError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -29,6 +51,11 @@ impl std::fmt::Display for AppError {
     }
 }
 
+/// Expande o erro para se adequar à biblioteca padrão do Rust (`std::error::Error`).
+///
+/// Esta implementação é crucial para compatibilidade com ecossistemas de terceiros,
+/// como as bibliotecas de telemetry presentes neste projeto. Ela expõe a "causa raiz"
+/// (source) de um erro em cadeia.
 impl std::error::Error for AppError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
@@ -39,6 +66,11 @@ impl std::error::Error for AppError {
     }
 }
 
+/// Permite a conversão automática de erros do App para o formato de resposta HTTP.
+///
+/// Graças a esta implementação, é possível utilizar o operador `?` diretamente
+/// nas chamadas do cliente `tonic` para efetuar a conversão automática de erros
+/// do App, ou provindos da comunicação gRPC, para erros HTTP.
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let (status_code, error_message) = match self {

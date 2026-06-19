@@ -4,6 +4,7 @@ use crate::{
     users_grpc,
 };
 
+/// Converte o enum `UserStatus` para o formato esperado pelo gRPC.
 impl From<UserStatus> for users_grpc::Status {
     fn from(user_status: UserStatus) -> Self {
         match user_status {
@@ -14,6 +15,7 @@ impl From<UserStatus> for users_grpc::Status {
     }
 }
 
+/// Converte o enum `UserRole` para o formato esperado pelo gRPC.
 impl From<UserRole> for users_grpc::Role {
     fn from(user_role: UserRole) -> Self {
         match user_role {
@@ -24,6 +26,7 @@ impl From<UserRole> for users_grpc::Role {
     }
 }
 
+/// Converte o status vindo do gRPC de volta para o enum `UserStatus`.
 impl From<users_grpc::Status> for UserStatus {
     fn from(users_grpc_status: users_grpc::Status) -> Self {
         match users_grpc_status {
@@ -34,6 +37,7 @@ impl From<users_grpc::Status> for UserStatus {
     }
 }
 
+/// Converte o cargo/role vindo do gRPC de volta para o enum `UserRole`.
 impl From<users_grpc::Role> for UserRole {
     fn from(users_grpc_role: users_grpc::Role) -> Self {
         match users_grpc_role {
@@ -44,12 +48,19 @@ impl From<users_grpc::Role> for UserRole {
     }
 }
 
+/// Tenta converter uma entidade de usuário bruta do gRPC para o DTO de resposta final.
+///
+/// # Erros
+///
+/// Retorna [`AppError::InternalError`] caso a conversão dos enums `role` ou `status`
+/// ou o `id` falhe (por exemplo, se o microsserviço enviar um valor inteiro desconhecido).
 impl TryFrom<users_grpc::User> for UserDto {
     type Error = AppError;
 
     fn try_from(user_grpc: users_grpc::User) -> Result<UserDto, AppError> {
         Ok(UserDto::new(
-            uuid::Uuid::parse_str(&user_grpc.id).unwrap(),
+            uuid::Uuid::parse_str(&user_grpc.id)
+                .map_err(|_| AppError::InternalError("Internal conversion error".to_string()))?,
             user_grpc.username,
             user_grpc.email,
             UserRole::from(
@@ -66,6 +77,11 @@ impl TryFrom<users_grpc::User> for UserDto {
     }
 }
 
+/// Tenta converter uma lista inteira de usuários do gRPC para um vetor de DTOs.
+///
+/// Percorre todos os usuários e aplica a conversão de `UserDto` em cada um.
+/// Caso qualquer usuário da lista falhe na conversão, o processo é abortado
+/// e o erro é propagado.
 impl TryFrom<users_grpc::ListOfUsers> for Vec<UserDto> {
     type Error = AppError;
 

@@ -6,8 +6,8 @@ TODO List:
 - [ ] Create the proto file for benchmark microservice
 - [ ] Create the proto file for recommendation microservice
 - [ ] Create HTTP <--> gRPC parsers
-- [ ] Create the HTTP server
-- [ ] Create the gRPC client
+- [x] Create the HTTP server
+- [x] Create the gRPC client
 - [x] Create the auth extractor
 - [x] Mapping errors correctly
 
@@ -24,8 +24,9 @@ api-gateway/
     ├── telemetry.rs              # Todo: Telemetry should control the application logs
     ├── clients/                  # Handle the gRPC clients
     │   ├── mod.rs
-    │   ├── metadata.rs           # Insert auth metadata into gRPC request
+    │   ├── auth_client.rs        # gRPC Auth's Client Wrapper to isolate Tonic implementation 
     │   ├── channel.rs            # Create and configure the HTTP/2 connection that gRPC uses
+    │   ├── metadata.rs           # Insert auth metadata into gRPC request
     │   └── user_client.rs        # gRPC User's Client Wrapper to isolate Tonic implementation
     ├── extractor                 # Extract data from http requests
     │   ├── mod.rs
@@ -40,7 +41,10 @@ api-gateway/
     │   │       ├── mod.rs
     │   │       ├── request/
     │   │       │   ├── mod.rs
-    │   │       │   └── auth.rs
+    │   │       │   ├── forgot_password.rs
+    │   │       │   ├── reset_password.rs
+    │   │       │   ├── sign_in.rs
+    │   │       │   └── sign_up.rs
     │   │       └── response/
     │   │           ├── mod.rs
     │   │           └── auth.rs
@@ -55,14 +59,15 @@ api-gateway/
     │           ├── user_status.rs 
     │           ├── request/ 
     │           │   ├── mod.rs
-    │           │   └── create_user.rs 
+    │           │   ├── create_user.rs
+    │           │   └── update_user.rs 
     │           └── response/ 
     │               ├── mod.rs
     │               └── user.rs 
     ├── security/                 # Security
     │   ├── mod.rs
-    │   ├── jwt_adapter.rs        # 
-    │   └── token.rs              # 
+    │   ├── jwt_adapter.rs        # Implements the contract token contract via JWT logic
+    │   └── token.rs              # Defines the contract that validates the authentication token
     └── middleware/               # TODO: middlewares for traffic control and log http requests
         ├── mod.rs
         ├── rate_limit.rs         # Controle de tráfego por IP/Token

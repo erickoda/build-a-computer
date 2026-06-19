@@ -5,3 +5,7 @@
 /*/.idea
 .env
 /*/**.env
+/*/**/build
+/*/**/.gradle
+/*/**/.idea
+/*/**/HELP.md

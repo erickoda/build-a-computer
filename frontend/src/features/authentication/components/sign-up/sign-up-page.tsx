@@ -15,6 +15,8 @@ import { useForm } from 'react-hook-form';
 import { LoginFormValues, loginSchema } from '../../schemas/signUp';
 import { SignUpRequestDto } from '../../types/dtos';
 import useSignUp from '../../hooks/signUpHook';
+import { getRoleFromToken } from '@/src/utils/jwt';
+import { roleDefaultRedirect } from '@/src/utils/redirect';
 
 const SignUpPage = () => {
   const router = useRouter();
@@ -35,11 +37,14 @@ const SignUpPage = () => {
       password: data.password,
     };
 
-    const isSuccess: boolean = await signUp(dto);
+    const { ok, token } = await signUp(dto);
 
-    if (isSuccess) {
+    if (ok && token) {
       toast.success("Account created successfully!");
-      router.push("/benchmarks");
+
+      const role = getRoleFromToken(token);
+
+      router.push(role ? roleDefaultRedirect[role] : '/');
     } else {
       toast.danger('An error occurred while signing up', {
         description: error?.message || "Please check your details and try again.",
@@ -50,87 +55,83 @@ const SignUpPage = () => {
   const isBusy = isLoading || isSubmitting;
 
   return (
-    <div className="flex flex-col justify-center items-center w-full min-h-screen p-4 bg-background">
-      <div className="flex flex-col space-y-6 w-full max-w-sm p-8 border border-default-200 rounded-2xl shadow-xl bg-content1">
+    <>
+      <div className="flex flex-col space-y-1 text-center">
+        <h1 className="text-3xl font-bold tracking-tight">Welcome!</h1>
+        <p className="text-sm text-default-500">
+          Enter your details to register a new account.
+        </p>
+      </div>
 
-        <div className="flex flex-col space-y-1 text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Welcome!</h1>
-          <p className="text-sm text-default-500">
-            Enter your details to register a new account.
-          </p>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col space-y-4 font-sans"
+      >
+        <div className="flex flex-col space-y-1">
+          <TextField>
+            <Label className="text-xs font-bold tracking-wide">Username</Label>
+            <Input
+              variant="primary"
+              placeholder="Cool Username"
+              disabled={isBusy}
+              {...register('username')}
+            />
+          </TextField>
+          <ErrorMessage className="text-xs text-danger">
+            {errors.username && <>{errors.username.message}</>}
+          </ErrorMessage>
         </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col space-y-4 font-sans"
+        <div className="flex flex-col space-y-1">
+          <TextField>
+            <Label className="text-xs font-bold tracking-wide">Email</Label>
+            <Input
+              type="email"
+              variant="primary"
+              placeholder="you@example.com"
+              disabled={isBusy}
+              {...register('email')}
+            />
+          </TextField>
+          <ErrorMessage className="text-xs text-danger">
+            {errors.email && <>{errors.email.message}</>}
+          </ErrorMessage>
+        </div>
+
+        <div className="flex flex-col space-y-1">
+          <TextField>
+            <Label className="text-xs font-bold tracking-wide">Password</Label>
+            <Input
+              type="password"
+              variant="primary"
+              placeholder="Enter your password"
+              disabled={isBusy}
+              {...register('password')}
+            />
+          </TextField>
+          <ErrorMessage className="text-xs text-danger">
+            {errors.password && <>{errors.password.message}</>}
+          </ErrorMessage>
+        </div>
+
+        <Button
+          type="submit"
+          variant="outline"
+          className="w-full font-medium mt-2"
+          size="lg"
+          isDisabled={isBusy}
         >
-          <div className="flex flex-col space-y-1">
-            <TextField>
-              <Label className="text-xs font-bold tracking-wide">Username</Label>
-              <Input
-                variant="primary"
-                placeholder="Cool Username"
-                disabled={isBusy}
-                {...register('username')}
-              />
-            </TextField>
-            <ErrorMessage className="text-xs text-danger">
-              {errors.username && <>{errors.username.message}</>}
-            </ErrorMessage>
-          </div>
+          {isBusy ? "Signing Up..." : "Sign Up"}
+        </Button>
+      </form>
 
-          <div className="flex flex-col space-y-1">
-            <TextField>
-              <Label className="text-xs font-bold tracking-wide">Email</Label>
-              <Input
-                type="email"
-                variant="primary"
-                placeholder="you@example.com"
-                disabled={isBusy}
-                {...register('email')}
-              />
-            </TextField>
-            <ErrorMessage className="text-xs text-danger">
-              {errors.email && <>{errors.email.message}</>}
-            </ErrorMessage>
-          </div>
-
-          <div className="flex flex-col space-y-1">
-            <TextField>
-              <Label className="text-xs font-bold tracking-wide">Password</Label>
-              <Input
-                type="password"
-                variant="primary"
-                placeholder="Enter your password"
-                disabled={isBusy}
-                {...register('password')}
-              />
-            </TextField>
-            <ErrorMessage className="text-xs text-danger">
-              {errors.password && <>{errors.password.message}</>}
-            </ErrorMessage>
-          </div>
-
-          <Button
-            type="submit"
-            variant="outline"
-            className="w-full font-medium mt-2"
-            size="lg"
-            isDisabled={isBusy}
-          >
-            {isBusy ? "Signing Up..." : "Sign Up"}
-          </Button>
-        </form>
-
-        <p className="text-center text-sm text-default-500">
-          Already have an account?{' '}
-          <Link href="/sign-in" className="font-semibold cursor-pointer">
-            Sign in
-          </Link>
-        </p>
-
-      </div>
-    </div>
+      <p className="text-center text-sm text-default-500">
+        Already have an account?{' '}
+        <Link href="/sign-in" className="font-semibold cursor-pointer">
+          Sign in
+        </Link>
+      </p>
+    </>
   );
 };
 

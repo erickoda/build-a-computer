@@ -1,3 +1,5 @@
+import { getCookie } from "../utils/cookies.client";
+
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE' | 'HEAD';
 
 export class HttpError extends Error {
@@ -17,12 +19,19 @@ export type ApiResult<T> = { ok: true; data: T } | { ok: false; error: HttpError
 export default async function api<TResponse, TRequest = undefined>(endpoint: string, options: ApiOptions<TRequest>): Promise<ApiResult<TResponse>> {
   const baseUrl = "http://localhost:3000/api/v1/";
   const url = baseUrl + endpoint;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string>)
+  };
+
+  const token = getCookie('access_token');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const config: RequestInit = {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers
-    }
+    headers
   };
 
   if (options.payload && (options.method === 'GET' || options.method === 'HEAD')) {
@@ -48,7 +57,7 @@ export default async function api<TResponse, TRequest = undefined>(endpoint: str
 
       throw new HttpError(
         response.status,
-        errorData?.message || `Unexpected HTTP error ${response.status}`
+        errorData?.error?.message || `Unexpected HTTP error ${response.status}`
       );
     }
 
