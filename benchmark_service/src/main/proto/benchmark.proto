@@ -11,10 +11,13 @@ import "hardware.proto";
 
 // --- Service ---
 service BenchmarkService {
-  rpc CreateBenchmark (CreateBenchmarkRequest)  returns (BenchmarkResponse);
-  rpc GetBenchmark    (GetBenchmarkRequest)     returns (BenchmarkResponse);
-  rpc ListBenchmarks  (ListBenchmarkRequest)    returns (ListBenchmarkResponse);
-  rpc DeleteBenchmark (DeleteBenchmarkRequest)  returns (DeleteBenchmarkResponse);
+  rpc CreateBenchmark (CreateBenchmarkRequest)      returns (BenchmarkResponse);
+  rpc GetBenchmark    (GetBenchmarkRequest)         returns (BenchmarkResponse);
+  rpc ListBenchmarks  (ListBenchmarkRequest)        returns (ListBenchmarkResponse);
+  rpc DeleteBenchmark (DeleteBenchmarkRequest)      returns (DeleteBenchmarkResponse);
+  rpc GetWithFilters  (GetBenchmarkWithFilters)     returns (ListBenchmarkResponse);
+  rpc GetOfAnUser     (GetBenchmarksOfAnUser)       returns (ListBenchmarkResponse);
+  rpc ListByTitle      (ListBenchmarksByTitleRequest)   returns (ListBenchmarkResponse);
 }
 
 // --- Request Messages---
@@ -40,12 +43,28 @@ message GetBenchmarkRequest {
     string id = 1;
 }
 
+message ListBenchmarksByTitleRequest {
+    string title = 1;
+}
+
 message ListBenchmarkRequest {
 
 }
 
 message DeleteBenchmarkRequest {
     string id = 1;
+}
+
+message GetBenchmarkWithFilters{
+    repeated string cpu_id = 1;
+    repeated string gpu_id = 2;
+    repeated string ram_id = 3;
+    repeated string game_id = 4;
+    repeated string user_id = 5;
+}
+
+message GetBenchmarksOfAnUser {
+    string user_id = 1;
 }
 
 // --- Response Messages---
