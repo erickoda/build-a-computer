@@ -129,7 +129,7 @@ message CreateMotherBoardRequest {
   string ddr = 4;
   int32 memory_slots = 5;
   int32 max_ram = 6;
-  int32 max_ram_frequency_mhz = 7;
+  float max_ram_frequency_mhz = 7;
   int32 m2_slots = 8;
   int32 pci_express_x16 = 9;
   int32 vrm = 10;
@@ -268,7 +268,7 @@ message MotherBoardResponse {
   string ddr = 5;
   int32 memory_slots = 6;
   int32 max_ram = 7;
-  int32 max_ram_frequency_mhz = 8;
+  float max_ram_frequency_mhz = 8;
   int32 m2_slots = 9;
   int32 pci_express_x16 = 10;
   int32 vrm = 11;

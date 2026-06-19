@@ -28,7 +28,6 @@ public class Storage {
 	private String series;
 	private Integer amount;
 
-	//TODO: set column name equal pc-builder service
 	@Type(SSDTypeUserType.class)
 	@Column(name = "type", columnDefinition = "ssd_type")
 	private SSDType type;

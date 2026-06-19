@@ -27,8 +27,8 @@ public class RAM {
 	private Integer frequencyMhz;
 	private String series;
 	private String ddr;
-	private Float averagePrice;
-	private byte[] image;
+	private Float avgPrice;
+	private byte[] img;
 
 	@LastModifiedDate
 	private LocalDateTime updatedAt;

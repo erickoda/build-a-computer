@@ -36,7 +36,7 @@ message CreateBenchmarkRequest {
 
     string game_id = 10;
     string user_id = 11;
-    optional float score = 12;
+    optional int32 score = 12;
 }
 
 message GetBenchmarkRequest {
@@ -84,7 +84,7 @@ message BenchmarkResponse {
 
     string game_id = 11;
     string user_id = 12;
-    optional float score = 13;
+    optional int32 score = 13;
 
     google.protobuf.Timestamp created_at = 14;
     optional google.protobuf.Timestamp updated_at = 15;

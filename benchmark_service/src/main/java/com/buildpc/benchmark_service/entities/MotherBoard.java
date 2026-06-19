@@ -27,8 +27,10 @@ public class MotherBoard {
 	private String socket;
 	private String ddr;
 	private Integer memorySlots;
+
+	@Column(name = "max_ram")
 	private Integer maxRAM;
-	private Integer maxRamMemoryFrequencyMhz;
+	private Float maxRamMemoryFrequencyMhz;
 	private Integer pciExpress;
 	private Integer M2Slots;
 	private Integer vrm;
