@@ -1,150 +1,230 @@
-export type Benchmark = {
+// ─── Hardware sub-types (from hardwares.proto) ───────────────────────────────
+
+export type CPU = {
   id: string
-  name: string
   brand: string
-  category: string
-  price: number
-  rating: number
-  image: string
-  inStock: boolean
+  gen: string
+  family: string
+  series: string
+  cores: number
+  threads: number
+  base_clock: number
+  max_clock: number
+  cache: number
+  socket: string
+  graphics: boolean
+  oc: boolean
+  recommended_power: number
+  avg_price: number
 }
 
-export const categories = [
-  "Audio",
-  "Wearables",
-  "Footwear",
-  "Cameras",
-  "Bags",
-  "Accessories",
-] as const
+export type GPU = {
+  id: string
+  brand: string
+  family: string
+  series: string
+  memory_amount: number
+  memory_gen: string
+  cores: number
+  pci_express: number
+  recommended_power: number
+  avg_price: number
+}
 
-export const brands = [
-  "Acme",
-  "Northwind",
-  "Globex",
-  "Initech",
-  "Umbrella",
-] as const
+export type RAMMemory = {
+  id: string
+  brand: string
+  ddr: string
+  memory_amount: number
+  avg_price: number
+  frequency_mhz: number
+  series: string
+}
 
-export const benchmark: Benchmark[] = [
+// ─── Benchmark (from benchmark.proto) ────────────────────────────────────────
+
+export type Benchmark = {
+  id: string
+  title: string
+  resolution: number
+  graphics_quality: string
+
+  cpu_id: string
+  gpu_id: string
+  ram_id: string
+
+  avg_fps: number
+  min_fps: number
+  max_fps: number
+
+  game_id: string
+  user_id: string
+  score?: number
+}
+
+// ─── Static lookup maps ───────────────────────────────────────────────────────
+
+export const cpus: Record<string, CPU> = {
+  "cpu-1": {
+    id: "cpu-1", brand: "Intel", gen: "13th", family: "Core i9", series: "13900K",
+    cores: 24, threads: 32, base_clock: 3.0, max_clock: 5.8, cache: 36,
+    socket: "LGA1700", graphics: true, oc: true, recommended_power: 125, avg_price: 549,
+  },
+  "cpu-2": {
+    id: "cpu-2", brand: "AMD", gen: "Ryzen 7000", family: "Ryzen 9", series: "7950X",
+    cores: 16, threads: 32, base_clock: 4.5, max_clock: 5.7, cache: 64,
+    socket: "AM5", graphics: false, oc: true, recommended_power: 170, avg_price: 699,
+  },
+  "cpu-3": {
+    id: "cpu-3", brand: "Intel", gen: "13th", family: "Core i5", series: "13600K",
+    cores: 14, threads: 20, base_clock: 3.5, max_clock: 5.1, cache: 24,
+    socket: "LGA1700", graphics: true, oc: true, recommended_power: 125, avg_price: 319,
+  },
+  "cpu-4": {
+    id: "cpu-4", brand: "AMD", gen: "Ryzen 7000", family: "Ryzen 5", series: "7600X",
+    cores: 6, threads: 12, base_clock: 4.7, max_clock: 5.3, cache: 32,
+    socket: "AM5", graphics: false, oc: true, recommended_power: 105, avg_price: 249,
+  },
+}
+
+export const gpus: Record<string, GPU> = {
+  "gpu-1": {
+    id: "gpu-1", brand: "NVIDIA", family: "GeForce RTX", series: "4090",
+    memory_amount: 24, memory_gen: "GDDR6X", cores: 16384, pci_express: 4,
+    recommended_power: 450, avg_price: 1599,
+  },
+  "gpu-2": {
+    id: "gpu-2", brand: "AMD", family: "Radeon RX", series: "7900 XTX",
+    memory_amount: 24, memory_gen: "GDDR6", cores: 6144, pci_express: 4,
+    recommended_power: 355, avg_price: 999,
+  },
+  "gpu-3": {
+    id: "gpu-3", brand: "NVIDIA", family: "GeForce RTX", series: "4070 Ti",
+    memory_amount: 12, memory_gen: "GDDR6X", cores: 7680, pci_express: 4,
+    recommended_power: 285, avg_price: 799,
+  },
+  "gpu-4": {
+    id: "gpu-4", brand: "AMD", family: "Radeon RX", series: "6800 XT",
+    memory_amount: 16, memory_gen: "GDDR6", cores: 4608, pci_express: 4,
+    recommended_power: 300, avg_price: 549,
+  },
+}
+
+export const rams: Record<string, RAMMemory> = {
+  "ram-1": {
+    id: "ram-1", brand: "Corsair", ddr: "DDR5", memory_amount: 32,
+    avg_price: 129, frequency_mhz: 6000, series: "Vengeance",
+  },
+  "ram-2": {
+    id: "ram-2", brand: "G.Skill", ddr: "DDR5", memory_amount: 32,
+    avg_price: 119, frequency_mhz: 5600, series: "Trident Z5",
+  },
+  "ram-3": {
+    id: "ram-3", brand: "Corsair", ddr: "DDR4", memory_amount: 16,
+    avg_price: 59, frequency_mhz: 3600, series: "Vengeance LPX",
+  },
+  "ram-4": {
+    id: "ram-4", brand: "Kingston", ddr: "DDR4", memory_amount: 32,
+    avg_price: 79, frequency_mhz: 3200, series: "Fury Beast",
+  },
+}
+
+export const games: Record<string, string> = {
+  "game-1": "Elden Ring",
+  "game-2": "Cyberpunk 2077",
+  "game-3": "GTA V",
+  "game-4": "Red Dead Redemption 2",
+  "game-5": "Fortnite",
+}
+
+export const graphicsQualities = ["Low", "Medium", "High", "Ultra"] as const
+export const resolutions = [1080, 1440, 2160] as const
+
+// ─── Sample benchmark data ────────────────────────────────────────────────────
+
+export const benchmarks: Benchmark[] = [
   {
-    id: "1",
-    name: "Studio Wireless Headphones",
-    brand: "Acme",
-    category: "Audio",
-    price: 249,
-    rating: 4.7,
-    image: "/products/headphones.png",
-    inStock: true,
+    id: "b-1", title: "RTX 4090 — Elden Ring 4K Ultra",
+    resolution: 2160, graphics_quality: "Ultra",
+    cpu_id: "cpu-1", gpu_id: "gpu-1", ram_id: "ram-1",
+    avg_fps: 142, min_fps: 118, max_fps: 167,
+    game_id: "game-1", user_id: "u-1", score: 9.4,
   },
   {
-    id: "2",
-    name: "Pulse Smartwatch",
-    brand: "Globex",
-    category: "Wearables",
-    price: 199,
-    rating: 4.4,
-    image: "/products/watch.png",
-    inStock: true,
+    id: "b-2", title: "RX 7900 XTX — Cyberpunk 2077 4K Ultra",
+    resolution: 2160, graphics_quality: "Ultra",
+    cpu_id: "cpu-2", gpu_id: "gpu-2", ram_id: "ram-2",
+    avg_fps: 89, min_fps: 64, max_fps: 114,
+    game_id: "game-2", user_id: "u-2", score: 8.1,
   },
   {
-    id: "3",
-    name: "Cloud Runner Sneakers",
-    brand: "Northwind",
-    category: "Footwear",
-    price: 129,
-    rating: 4.6,
-    image: "/products/sneaker.png",
-    inStock: false,
+    id: "b-3", title: "RTX 4070 Ti — GTA V 1440p High",
+    resolution: 1440, graphics_quality: "High",
+    cpu_id: "cpu-3", gpu_id: "gpu-3", ram_id: "ram-3",
+    avg_fps: 178, min_fps: 152, max_fps: 211,
+    game_id: "game-3", user_id: "u-3", score: 9.0,
   },
   {
-    id: "4",
-    name: "Mirrorless Camera X",
-    brand: "Initech",
-    category: "Cameras",
-    price: 899,
-    rating: 4.8,
-    image: "/products/camera.png",
-    inStock: true,
+    id: "b-4", title: "RX 6800 XT — RDR2 1440p High",
+    resolution: 1440, graphics_quality: "High",
+    cpu_id: "cpu-4", gpu_id: "gpu-4", ram_id: "ram-4",
+    avg_fps: 97, min_fps: 71, max_fps: 128,
+    game_id: "game-4", user_id: "u-1", score: 7.8,
   },
   {
-    id: "5",
-    name: "Trail Daypack",
-    brand: "Umbrella",
-    category: "Bags",
-    price: 89,
-    rating: 4.2,
-    image: "/products/backpack.png",
-    inStock: true,
+    id: "b-5", title: "RTX 4090 — Cyberpunk 2077 4K Ultra",
+    resolution: 2160, graphics_quality: "Ultra",
+    cpu_id: "cpu-1", gpu_id: "gpu-1", ram_id: "ram-1",
+    avg_fps: 107, min_fps: 88, max_fps: 131,
+    game_id: "game-2", user_id: "u-2", score: 9.2,
   },
   {
-    id: "6",
-    name: "Portable Boom Speaker",
-    brand: "Acme",
-    category: "Audio",
-    price: 79,
-    rating: 4.1,
-    image: "/products/speaker.png",
-    inStock: true,
+    id: "b-6", title: "RTX 4070 Ti — Elden Ring 1080p Ultra",
+    resolution: 1080, graphics_quality: "Ultra",
+    cpu_id: "cpu-3", gpu_id: "gpu-3", ram_id: "ram-2",
+    avg_fps: 214, min_fps: 187, max_fps: 248,
+    game_id: "game-1", user_id: "u-3", score: 9.1,
   },
   {
-    id: "7",
-    name: "Eclipse Sunglasses",
-    brand: "Globex",
-    category: "Accessories",
-    price: 149,
-    rating: 4.3,
-    image: "/products/sunglasses.png",
-    inStock: false,
+    id: "b-7", title: "RX 7900 XTX — GTA V 4K High",
+    resolution: 2160, graphics_quality: "High",
+    cpu_id: "cpu-2", gpu_id: "gpu-2", ram_id: "ram-1",
+    avg_fps: 131, min_fps: 108, max_fps: 159,
+    game_id: "game-3", user_id: "u-4", score: 8.7,
   },
   {
-    id: "8",
-    name: "Compact Mechanical Keyboard",
-    brand: "Initech",
-    category: "Accessories",
-    price: 119,
-    rating: 4.9,
-    image: "/products/keyboard.png",
-    inStock: true,
+    id: "b-8", title: "RX 6800 XT — Fortnite 1080p Medium",
+    resolution: 1080, graphics_quality: "Medium",
+    cpu_id: "cpu-4", gpu_id: "gpu-4", ram_id: "ram-3",
+    avg_fps: 241, min_fps: 198, max_fps: 289,
+    game_id: "game-5", user_id: "u-1", score: 8.3,
   },
   {
-    id: "9",
-    name: "Bass Earbuds Pro",
-    brand: "Northwind",
-    category: "Audio",
-    price: 159,
-    rating: 4.5,
-    image: "/products/headphones.png",
-    inStock: true,
+    id: "b-9", title: "RTX 4090 — RDR2 4K Ultra",
+    resolution: 2160, graphics_quality: "Ultra",
+    cpu_id: "cpu-1", gpu_id: "gpu-1", ram_id: "ram-2",
+    avg_fps: 96, min_fps: 74, max_fps: 119,
+    game_id: "game-4", user_id: "u-3", score: 9.3,
   },
   {
-    id: "10",
-    name: "Fit Band Lite",
-    brand: "Umbrella",
-    category: "Wearables",
-    price: 59,
-    rating: 3.9,
-    image: "/products/watch.png",
-    inStock: true,
+    id: "b-10", title: "RX 7900 XTX — Fortnite 1440p High",
+    resolution: 1440, graphics_quality: "High",
+    cpu_id: "cpu-2", gpu_id: "gpu-2", ram_id: "ram-4",
+    avg_fps: 298, min_fps: 244, max_fps: 341,
+    game_id: "game-5", user_id: "u-2", score: 8.9,
   },
   {
-    id: "11",
-    name: "Street Low Sneakers",
-    brand: "Acme",
-    category: "Footwear",
-    price: 99,
-    rating: 4.0,
-    image: "/products/sneaker.png",
-    inStock: true,
+    id: "b-11", title: "RTX 4070 Ti — Cyberpunk 2077 1440p Ultra",
+    resolution: 1440, graphics_quality: "Ultra",
+    cpu_id: "cpu-3", gpu_id: "gpu-3", ram_id: "ram-1",
+    avg_fps: 74, min_fps: 55, max_fps: 98,
+    game_id: "game-2", user_id: "u-4", score: 7.6,
   },
   {
-    id: "12",
-    name: "Voyager Camera Bag",
-    brand: "Initech",
-    category: "Bags",
-    price: 69,
-    rating: 4.4,
-    image: "/products/backpack.png",
-    inStock: true,
+    id: "b-12", title: "RX 6800 XT — Elden Ring 1440p High",
+    resolution: 1440, graphics_quality: "High",
+    cpu_id: "cpu-4", gpu_id: "gpu-4", ram_id: "ram-3",
+    avg_fps: 118, min_fps: 93, max_fps: 147,
+    game_id: "game-1", user_id: "u-1", score: 8.0,
   },
 ]
