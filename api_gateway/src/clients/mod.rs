@@ -1,5 +1,13 @@
 pub mod auth_client;
+pub mod benchmark_client;
 pub mod channel;
+pub mod cpu_client;
+pub mod game_client;
+pub mod gpu_client;
 pub mod metadata;
+pub mod motherboard_client;
+pub mod psu_client;
+pub mod ram_client;
 pub mod recommendation_client;
+pub mod ssd_client;
 pub mod users_client;
