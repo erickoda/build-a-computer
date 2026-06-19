@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk-alpine AS build
+FROM eclipse-temurin:21-jdk AS build
 WORKDIR /workspace
 
 COPY gradlew .
@@ -13,22 +13,12 @@ COPY src src
 
 RUN ./gradlew clean bootJar --no-daemon -x test
 
-FROM eclipse-temurin:21-jre-alpine AS extract
-
-WORKDIR /app
-COPY --from=build /workspace/build/libs/*.jar application.jar
-
-RUN java -Djarmode=tools -jar application.jar extract --layers --destination extracted
-
 FROM eclipse-temurin:21-jre-alpine AS runtime
 WORKDIR /app
 
 RUN addgroup -S app && adduser -S app -G app
 
-COPY --from=extract /app/extracted/dependencies/ ./
-COPY --from=extract /app/extracted/spring-boot-loader/ ./
-COPY --from=extract /app/extracted/snapshot-dependencies/ ./
-COPY --from=extract /app/extracted/application/ ./
+COPY --from=build /workspace/build/libs/*.jar application.jar
 
 USER app
 
@@ -37,4 +27,5 @@ EXPOSE 9090
 ENTRYPOINT ["java", \
   "-XX:+UseContainerSupport", \
   "-XX:MaxRAMPercentage=75.0", \
-  "org.springframework.boot.loader.launch.JarLauncher"]
+  "-jar", \
+  "application.jar"]

@@ -19,12 +19,15 @@ services:
       - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL}
       - USERS_MICROSERVICE_URL=${USERS_MICROSERVICE_URL}
       - RECOMMENDATION_MICROSERVICE_URL=${RECOMMENDATION_MICROSERVICE_URL}
+      - BENCHMARK_MICROSERVICE_URL=${BENCHMARK_MICROSERVICE_URL}
     networks:
       - microservice
     depends_on:
       authentication_microservice:
         condition: service_healthy
       recommendation_microservice:
+        condition: service_healthy
+      benchmark_microservice:
         condition: service_healthy
 
   authentication_microservice:
@@ -103,6 +106,41 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    depends_on:
+      recommendation_db:
+        condition: service_healthy
+
+  benchmark_microservice:
+    container_name: benchmark-microservice
+    build:
+      context: ./benchmark_service
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: "0.6"
+          memory: 512M
+        reservations:
+          cpus: "0.4"
+          memory: 256M
+    environment:
+      - SPRING_GRPC_SERVER_PORT=${BENCHMARK_MICROSERVICE_PORT}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://recommendation_db:${RECOMMENDATION_PGPORT}/${RECOMMENDATION_PGDATABASE}
+      - SPRING_DATASOURCE_USERNAME=${RECOMMENDATION_PGUSER}
+      - SPRING_DATASOURCE_PASSWORD=${RECOMMENDATION_PGPASSWORD}
+    ports:
+      - "${BENCHMARK_MICROSERVICE_PORT}"
+    networks:
+      - microservice
+      - recommendation_db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 ${BENCHMARK_MICROSERVICE_PORT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     depends_on:
       recommendation_db:
         condition: service_healthy
