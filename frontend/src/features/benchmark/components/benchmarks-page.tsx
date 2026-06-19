@@ -1,9 +1,15 @@
 'use client';
 
 import { benchmarks, cpus, gpus, rams } from '@/src/utils/benchmarks';
-import { Bars3Icon, PlusIcon, Squares2X2Icon } from '@heroicons/react/16/solid';
+import {
+  ArrowLeftIcon,
+  Bars3Icon,
+  PlusIcon,
+  Squares2X2Icon,
+} from '@heroicons/react/16/solid';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import { MoteField } from '../../home/components/mote-field';
 import { DEFAULT_FILTERS, FilterPanel, type Filters } from './filter-panel';
 import { BenchmarkCard, LIST_GRID_COLS } from './product-card';
 import {
@@ -154,11 +160,28 @@ const BenchmarksPage = () => {
 
   return (
     <>
+      {/* Ambient base gradient — gives the motes a dark field to glow against,
+      		and a faint vignette so the corners stay calm. */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'radial-gradient(circle at 50% 45%, rgba(120,108,80,0.10), transparent 60%), linear-gradient(180deg, rgba(10,10,12,0.02), rgba(10,10,12,0.06))',
+        }}
+      />
+      <MoteField />
       <ResizablePanelGroup
         direction="horizontal"
-        className="h-screen w-full items-stretch"
+        className="h-screen w-full items-stretch backdrop-blur-[10px]"
       >
         <ResizablePanel defaultSize={22} minsize={16}>
+          <Link
+            href="/"
+            className="top-15 left-6 z-20 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-105 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <ArrowLeftIcon className="size-4" />
+            Back
+          </Link>
           <FilterPanel
             filters={filters}
             onChange={setFilters}
