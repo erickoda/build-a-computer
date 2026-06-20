@@ -50,6 +50,19 @@ impl PsuClientWrapper {
         Ok(client.list_ps_us(payload).await?.into_inner())
     }
 
+    /// Atualiza uma fonte de alimentação existente no catálogo do microsserviço de benchmark.
+    pub async fn update_psu(
+        &self,
+        payload: benchmark_grpc::UpdatePsuRequest,
+        authenticated_user: &AuthenticatedUser,
+    ) -> Result<benchmark_grpc::PsuResponse, AppError> {
+        let grpc_request = with_auth_metadata(payload, authenticated_user)?;
+
+        let mut client = self.inner_client.clone();
+
+        Ok(client.update_psu(grpc_request).await?.into_inner())
+    }
+
     /// Remove uma fonte de alimentação do catálogo com base no seu ID.
     pub async fn delete_psu(
         &self,

@@ -7,7 +7,13 @@ use axum::{
 use crate::{
     AppState,
     errors::AppError,
-    modules::hardware::gpu::dtos::{request::create_gpu::CreateGpuRequestDto, response::gpu::GpuDto},
+    modules::hardware::gpu::{
+        dtos::{
+            request::{create_gpu::CreateGpuRequestDto, update_gpu::UpdateGpuRequestDto},
+            response::gpu::GpuDto,
+        },
+        mappers::update_gpu_request,
+    },
     security::token::AuthenticatedUser,
 };
 
@@ -70,6 +76,38 @@ pub async fn list_gpus(
     State(app_state): State<AppState>,
 ) -> Result<(StatusCode, Json<Vec<GpuDto>>), AppError> {
     let grpc_response = app_state.gpu_client.list_gpus().await?;
+
+    Ok((StatusCode::OK, Json(grpc_response.into())))
+}
+
+/// Atualiza uma GPU existente no catálogo do microsserviço de benchmark.
+#[utoipa::path(
+    patch,
+    path = "/api/v1/hardware/gpus/{id}",
+    params(("id" = String, Path, description = "Identificador único da GPU")),
+    request_body = UpdateGpuRequestDto,
+    responses(
+        (status = 200, description = "GPU atualizada com sucesso", body = GpuDto),
+        (status = 400, description = "Requisição inválida", body = AppError),
+        (status = 401, description = "Acesso negado: Token ausente ou inválido", body = AppError),
+        (status = 403, description = "Acesso negado: Privilégios insuficientes (requer supervisor ou admin)", body = AppError),
+        (status = 404, description = "GPU não encontrada", body = AppError)
+    ),
+    security(
+        ("bearer_auth" = [])
+    ),
+    tag = "Hardware - GPU"
+)]
+pub async fn update_gpu(
+    State(app_state): State<AppState>,
+    user: AuthenticatedUser,
+    Path(id): Path<String>,
+    Json(dto): Json<UpdateGpuRequestDto>,
+) -> Result<(StatusCode, Json<GpuDto>), AppError> {
+    let grpc_response = app_state
+        .gpu_client
+        .update_gpu(update_gpu_request(id, dto), &user)
+        .await?;
 
     Ok((StatusCode::OK, Json(grpc_response.into())))
 }

@@ -1,7 +1,10 @@
 use chrono::{DateTime, Utc};
 use prost_types::Timestamp as ProstTimestamp;
 
-use crate::{benchmark_grpc, modules::hardware::cpu::dtos::request::create_cpu::CreateCpuRequestDto};
+use crate::{
+    benchmark_grpc,
+    modules::hardware::cpu::dtos::request::{create_cpu::CreateCpuRequestDto, update_cpu::UpdateCpuRequestDto},
+};
 
 use super::dtos::response::cpu::CpuDto;
 
@@ -36,6 +39,28 @@ impl From<CreateCpuRequestDto> for benchmark_grpc::CreateCpuRequest {
             release_date: Some(to_prost_timestamp(dto.release_date())),
             img: dto.img(),
         }
+    }
+}
+
+pub fn update_cpu_request(id: String, dto: UpdateCpuRequestDto) -> benchmark_grpc::UpdateCpuRequest {
+    benchmark_grpc::UpdateCpuRequest {
+        id,
+        brand: dto.brand().to_string(),
+        r#gen: dto.generation().to_string(),
+        family: dto.family().to_string(),
+        series: dto.series().to_string(),
+        cores: dto.cores(),
+        threads: dto.threads(),
+        base_clock: dto.base_clock(),
+        max_clock: dto.max_clock(),
+        cache: dto.cache(),
+        socket: dto.socket().to_string(),
+        graphics: dto.graphics(),
+        oc: dto.oc(),
+        recommended_power: dto.recommended_power(),
+        avg_price: dto.avg_price(),
+        release_date: Some(to_prost_timestamp(dto.release_date())),
+        img: dto.img(),
     }
 }
 

@@ -8,10 +8,12 @@ use crate::modules::hardware::psu::{dtos, handlers};
         handlers::create_psu,
         handlers::get_psu,
         handlers::list_psus,
+        handlers::update_psu,
         handlers::delete_psu
     ),
     components(schemas(
         dtos::request::create_psu::CreatePsuRequestDto,
+        dtos::request::update_psu::UpdatePsuRequestDto,
         dtos::response::psu::PsuDto,
     ))
 )]

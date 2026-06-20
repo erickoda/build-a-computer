@@ -50,6 +50,19 @@ impl GpuClientWrapper {
         Ok(client.list_gp_us(payload).await?.into_inner())
     }
 
+    /// Atualiza uma GPU existente no catálogo do microsserviço de benchmark.
+    pub async fn update_gpu(
+        &self,
+        payload: benchmark_grpc::UpdateGpuRequest,
+        authenticated_user: &AuthenticatedUser,
+    ) -> Result<benchmark_grpc::GpuResponse, AppError> {
+        let grpc_request = with_auth_metadata(payload, authenticated_user)?;
+
+        let mut client = self.inner_client.clone();
+
+        Ok(client.update_gpu(grpc_request).await?.into_inner())
+    }
+
     /// Remove uma GPU do catálogo com base no seu ID.
     pub async fn delete_gpu(
         &self,

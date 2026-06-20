@@ -50,6 +50,19 @@ impl RamClientWrapper {
         Ok(client.list_ra_ms(payload).await?.into_inner())
     }
 
+    /// Atualiza uma memória RAM existente no catálogo do microsserviço de benchmark.
+    pub async fn update_ram(
+        &self,
+        payload: benchmark_grpc::UpdateRamRequest,
+        authenticated_user: &AuthenticatedUser,
+    ) -> Result<benchmark_grpc::RamResponse, AppError> {
+        let grpc_request = with_auth_metadata(payload, authenticated_user)?;
+
+        let mut client = self.inner_client.clone();
+
+        Ok(client.update_ram(grpc_request).await?.into_inner())
+    }
+
     /// Remove uma memória RAM do catálogo com base no seu ID.
     pub async fn delete_ram(
         &self,

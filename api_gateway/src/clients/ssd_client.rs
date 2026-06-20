@@ -50,6 +50,19 @@ impl SsdClientWrapper {
         Ok(client.list_ss_ds(payload).await?.into_inner())
     }
 
+    /// Atualiza um SSD existente no catálogo do microsserviço de benchmark.
+    pub async fn update_ssd(
+        &self,
+        payload: benchmark_grpc::UpdateSsdRequest,
+        authenticated_user: &AuthenticatedUser,
+    ) -> Result<benchmark_grpc::SsdResponse, AppError> {
+        let grpc_request = with_auth_metadata(payload, authenticated_user)?;
+
+        let mut client = self.inner_client.clone();
+
+        Ok(client.update_ssd(grpc_request).await?.into_inner())
+    }
+
     /// Remove um SSD do catálogo com base no seu ID.
     pub async fn delete_ssd(
         &self,

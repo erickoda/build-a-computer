@@ -3,7 +3,9 @@ use prost_types::Timestamp as ProstTimestamp;
 
 use crate::{
     benchmark_grpc,
-    modules::hardware::motherboard::dtos::request::create_motherboard::CreateMotherBoardRequestDto,
+    modules::hardware::motherboard::dtos::request::{
+        create_motherboard::CreateMotherBoardRequestDto, update_motherboard::UpdateMotherBoardRequestDto,
+    },
 };
 
 use super::dtos::response::motherboard::MotherBoardDto;
@@ -29,6 +31,28 @@ impl From<CreateMotherBoardRequestDto> for benchmark_grpc::CreateMotherBoardRequ
             score: dto.score(),
             img: dto.img(),
         }
+    }
+}
+
+pub fn update_motherboard_request(
+    id: String,
+    dto: UpdateMotherBoardRequestDto,
+) -> benchmark_grpc::UpdateMotherBoardRequest {
+    benchmark_grpc::UpdateMotherBoardRequest {
+        id,
+        brand: dto.brand().to_string(),
+        series: dto.series().to_string(),
+        socket: dto.socket().to_string(),
+        ddr: dto.ddr().to_string(),
+        memory_slots: dto.memory_slots(),
+        max_ram: dto.max_ram(),
+        max_ram_frequency_mhz: dto.max_ram_frequency_mhz(),
+        m2_slots: dto.m2_slots(),
+        pci_express_x16: dto.pci_express_x16(),
+        vrm: dto.vrm(),
+        avg_price: dto.avg_price(),
+        score: dto.score(),
+        img: dto.img(),
     }
 }
 

@@ -1,7 +1,10 @@
 use chrono::{DateTime, Utc};
 use prost_types::Timestamp as ProstTimestamp;
 
-use crate::{benchmark_grpc, modules::hardware::ram::dtos::request::create_ram::CreateRamRequestDto};
+use crate::{
+    benchmark_grpc,
+    modules::hardware::ram::dtos::request::{create_ram::CreateRamRequestDto, update_ram::UpdateRamRequestDto},
+};
 
 use super::dtos::response::ram::RamDto;
 
@@ -20,6 +23,19 @@ impl From<CreateRamRequestDto> for benchmark_grpc::CreateRamRequest {
             series: dto.series().to_string(),
             img: dto.img(),
         }
+    }
+}
+
+pub fn update_ram_request(id: String, dto: UpdateRamRequestDto) -> benchmark_grpc::UpdateRamRequest {
+    benchmark_grpc::UpdateRamRequest {
+        id,
+        brand: dto.brand().to_string(),
+        ddr: dto.ddr().to_string(),
+        memory_amount: dto.memory_amount(),
+        avg_price: dto.avg_price(),
+        frequency_mhz: dto.frequency_mhz(),
+        series: dto.series().to_string(),
+        img: dto.img(),
     }
 }
 
