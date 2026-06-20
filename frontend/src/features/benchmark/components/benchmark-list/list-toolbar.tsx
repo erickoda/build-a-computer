@@ -1,4 +1,3 @@
-import AuthButton from '@/src/components/auth-button';
 import { Bars3Icon, Squares2X2Icon } from '@heroicons/react/16/solid';
 import {
   ListBox,
@@ -85,8 +84,6 @@ export function ListToolbar({
             <Bars3Icon className="size-4" />
           </ToggleButton>
         </ToggleButtonGroup>
-
-        <AuthButton className="flex z-20" />
       </div>
     </header>
   );

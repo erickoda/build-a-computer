@@ -3,8 +3,13 @@ import { useMemo } from 'react';
 import type { BenchmarkResponseDto, GameResponseDto } from '../../types/dtos';
 import { CheckRow } from './check-row';
 import { FilterSection } from './filter-section';
+import {
+  DEFAULT_FILTERS,
+  deriveFilterOptions,
+  FPS_FLOOR,
+  type Filters,
+} from './filter-types';
 import { SubSection } from './sub-section';
-import { DEFAULT_FILTERS, deriveFilterOptions, FPS_FLOOR, type Filters } from './filter-types';
 
 export { DEFAULT_FILTERS, FPS_FLOOR } from './filter-types';
 export type { Filters } from './filter-types';
@@ -64,13 +69,18 @@ export function FilterPanel({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between gap-2 px-4 py-4">
+      <div className="flex items-center justify-center gap-2 px-4 py-5.5">
         <div>
           <h2 className="text-sm font-semibold">Filters</h2>
           <p className="text-xs text-muted-foreground">{resultCount} results</p>
         </div>
         {hasActiveFilters && (
-          <Button variant="ghost" size="sm" onPress={reset} className="h-7 text-xs">
+          <Button
+            variant="ghost"
+            size="sm"
+            onPress={reset}
+            className="h-7 text-xs"
+          >
             Clear
           </Button>
         )}

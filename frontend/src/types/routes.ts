@@ -9,14 +9,26 @@ export type RouteItems = {
 };
 
 export const routesInfos: RouteItems[] = [
-  { label: 'Sign In', href: '/sign-in', allowedRoles: [], isPublic: true, isInNavbar: false },
-  { label: 'Sign Up', href: '/sign-up', allowedRoles: [], isPublic: true, isInNavbar: false },
+  {
+    label: 'Sign In',
+    href: '/sign-in',
+    allowedRoles: [],
+    isPublic: true,
+    isInNavbar: false,
+  },
+  {
+    label: 'Sign Up',
+    href: '/sign-up',
+    allowedRoles: [],
+    isPublic: true,
+    isInNavbar: false,
+  },
   {
     label: 'Forgot Password',
     href: '/forgot-password',
     allowedRoles: [],
     isPublic: true,
-    isInNavbar: false
+    isInNavbar: false,
   },
   {
     label: 'Home',
@@ -36,7 +48,7 @@ export const routesInfos: RouteItems[] = [
     label: 'Benchmarks',
     href: '/benchmarks',
     allowedRoles: ['admin', 'supervisor', 'common'],
-    isPublic: false,
+    isPublic: true,
     isInNavbar: true,
   },
   {

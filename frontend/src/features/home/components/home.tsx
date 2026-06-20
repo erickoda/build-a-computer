@@ -1,8 +1,9 @@
 'use client';
 
-import AuthButton from '@/src/components/auth-button';
+import { MilkyWayField } from '@/src/components/milky-way-field';
 import Link from 'next/link';
-import { MoteField } from './mote-field';
+import { MoteField } from '../../../components/mote-field';
+import { SplitFieldBackground } from './split-field';
 
 export function LandingPage() {
   return (
@@ -16,7 +17,8 @@ export function LandingPage() {
             'radial-gradient(circle at 50% 45%, rgba(120,108,80,0.10), transparent 60%), linear-gradient(180deg, rgba(10,10,12,0.02), rgba(10,10,12,0.06))',
         }}
       />
-      <MoteField />
+
+      <SplitFieldBackground right={<MoteField />} left={<MilkyWayField />} />
 
       {/* Left: Build a Computer */}
       <Link
@@ -30,7 +32,7 @@ export function LandingPage() {
             'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
             'group-hover:border-white/8 group-hover:bg-black/75',
             'group-hover:backdrop-blur-[50px]',
-            'group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,110,0.25)]',
+            'group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(110,175,212,0.25)]',
           ].join(' ')}
         >
           <h1 className="text-5xl font-black tracking-tight text-foreground">
@@ -46,16 +48,17 @@ export function LandingPage() {
 
       {/* Divider */}
       {/*<div className="relative z-10 w-px bg-border" />*/}
-      <div
-        className="relative z-10 h-full pointer-events-none"
+      {/*<div
+        className="relative z-15 h-full pointer-events-none"
         style={{
-          width: 80,
-          transition: 'left 600ms cubic-bezier(0.4,0,0.2,1)',
-          background: '#59595920',
-          // 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.65) 45%, rgba(0,0,0,0.65) 55%, transparent 100%)',
-          filter: 'blur(30px)',
+          width: 40,
+          // transition: 'left 600ms cubic-bezier(0.4,0,0.2,1)',
+          background: '#040404ff',
+          // background:
+          //   'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.65) 45%, rgba(0,0,0,0.65) 55%, transparent 100%)',
+          filter: 'blur(10px)',
         }}
-      />
+      />*/}
 
       {/* Right: Search Benchmarks */}
       <Link
@@ -82,7 +85,6 @@ export function LandingPage() {
           </p>
         </div>
       </Link>
-      <AuthButton className="absolute right-6 top-5 z-20" />
     </div>
   );
 }

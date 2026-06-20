@@ -2,7 +2,6 @@
 
 import { getRoleFromToken } from '@/src/utils/jwt';
 import { roleDefaultRedirect } from '@/src/utils/redirect';
-import { HomeIcon } from '@heroicons/react/16/solid';
 import { Button, ErrorMessage, Input, Link, toast } from '@heroui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -49,14 +48,6 @@ const SignInPage = () => {
 
   return (
     <>
-      <Link
-        href="/"
-        className="absolute self-center top-5 z-20 flex items-center gap-1.5 rounded-lg border border-white/20 bg-black/30 px-3 py-2 text-sm font-medium text-white backdrop-blur-md transition-all duration-200 hover:border-white/40 hover:bg-black/50 active:scale-95"
-      >
-        <HomeIcon className="size-3.5" />
-        Home
-      </Link>
-
       <div className="flex flex-col space-y-1 text-center">
         <h1 className="text-3xl font-bold tracking-tight">Welcome Back!</h1>
         <p className="text-sm text-default-500">

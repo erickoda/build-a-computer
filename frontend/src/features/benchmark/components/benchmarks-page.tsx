@@ -2,11 +2,11 @@
 
 import { useCurrentUserId } from '@/src/hooks/use-current-user-id';
 import { useRole } from '@/src/hooks/use-role';
-import { ArrowLeftIcon, PlusIcon } from '@heroicons/react/16/solid';
+import { PlusIcon } from '@heroicons/react/16/solid';
 import { toast } from '@heroui/react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
-import { MoteField } from '../../home/components/mote-field';
+import { MoteField } from '../../../components/mote-field';
 import useDeleteBenchmark from '../hooks/deleteBenchmark';
 import useFetchBenchmarks from '../hooks/fetchBenchmarks';
 import useFetchGames from '../hooks/fetchGames';
@@ -196,13 +196,6 @@ const BenchmarksPage = () => {
         className="h-screen w-full items-stretch backdrop-blur-[10px]"
       >
         <ResizablePanel defaultSize={22} minsize={16}>
-          <Link
-            href="/"
-            className="top-15 left-6 z-20 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-105 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <ArrowLeftIcon className="size-4" />
-            Back
-          </Link>
           <FilterPanel
             benchmarks={benchmarks}
             games={games}
@@ -243,7 +236,16 @@ const BenchmarksPage = () => {
 
       <Link
         href="/benchmarks/create"
-        className="fixed bottom-6 right-6 z-20 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-105 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={[
+          'fixed bottom-6 right-6 z-20 inline-flex items-center gap-2 px-5 py-3 rounded-lg',
+          'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
+          'hover:border-white/25 hover:bg-black/40',
+          'border-white/8 bg-black',
+          'backdrop-blur-[50px]',
+          'hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,110,0.35)]',
+          'shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_16px_rgba(212,175,110,0.25)]',
+        ].join(' ')}
+        // className="fixed bottom-6 right-6 z-20 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-105 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <PlusIcon className="size-4" />
         Add Benchmark

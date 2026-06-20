@@ -18,14 +18,37 @@ export default function HamburgerMenu() {
     <Drawer>
       <Drawer.Trigger
         aria-label="Open menu"
-        className="fixed top-3 left-3 z-50 flex items-center justify-center rounded-md border border-border bg-surface/80 p-2 text-foreground backdrop-blur-md hover:bg-accent hover:text-accent-foreground"
+        className={[
+          'fixed top-3 left-3 z-50 flex items-center justify-center gap-2 px-2 py-2 rounded-lg border ',
+          'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
+          'hover:border-white/25 hover:bg-black/40',
+          'border-white/8 bg-black',
+          'backdrop-blur-[50px]',
+          'hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(175,175,175,0.35)]',
+          'shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_16px_rgba(175,175,175,0.25)]',
+        ].join(' ')} //"fixed top-3 left-3 z-50 flex items-center justify-center rounded-md border border-border bg-surface/80 p-2 text-foreground backdrop-blur-md hover:bg-accent hover:text-accent-foreground"
       >
         <Bars3Icon className="size-6" />
       </Drawer.Trigger>
 
       <Drawer.Backdrop>
-        <Drawer.Content placement="left" className="w-64">
-          <Drawer.Dialog>
+        <Drawer.Content
+          placement="left"
+          className={[
+            'gap-2 px-5 py-5 rounded-lg w-94',
+            'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
+          ].join(' ')} //"w-64"
+        >
+          <Drawer.Dialog
+            className={[
+              'rounded-lg',
+              'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
+              'border-white/8 bg-black/20',
+              'backdrop-blur-[20px]',
+              'hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(175,175,175,0.35)]',
+              'shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_16px_rgba(175,175,175,0.25)]',
+            ].join(' ')}
+          >
             <Drawer.Header className="flex flex-row items-center justify-between">
               <Drawer.Heading className="font-mono text-sm font-bold">
                 BUILD A PC GAMER
@@ -61,10 +84,11 @@ export default function HamburgerMenu() {
                       key={item.href}
                       href={item.href}
                       slot="close"
-                      className={`font-mono text-sm px-3 py-2 rounded-md transition-colors ${isActive
-                        ? 'bg-accent text-accent-foreground font-medium'
-                        : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-                        }`}
+                      className={`font-mono text-sm px-3 py-2 rounded-md transition-colors ${
+                        isActive
+                          ? 'bg-neutral-400/30 text-accent-foreground hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.55),0_2px_4px_rgba(175,175,175,0.55)] shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_4px_rgba(175,175,175,0.35)] font-medium'
+                          : 'text-foreground border-white/8 hover:bg-neutral-400/10 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_4px_rgba(175,175,175,0.25)] hover:text-accent-foreground'
+                      }`}
                     >
                       {item.label}
                     </Link>
@@ -76,6 +100,15 @@ export default function HamburgerMenu() {
               <ToggleTheme />
               {role ? (
                 <Button
+                  className={[
+                    'fixed bottom-6 right-6 z-20 inline-flex items-center gap-2 px-5 py-3 rounded-lg',
+                    'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
+                    'hover:border-white/25 hover:bg-black/40',
+                    'border-white/8 bg-black',
+                    'backdrop-blur-[50px]',
+                    'hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,110,0.35)]',
+                    'shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_16px_rgba(212,175,110,0.25)]',
+                  ].join(' ')}
                   size="sm"
                   variant="outline"
                   onPress={async () => await logout()}
@@ -84,6 +117,15 @@ export default function HamburgerMenu() {
                 </Button>
               ) : (
                 <Button
+                  className={[
+                    'fixed bottom-6 right-6 z-20 inline-flex items-center gap-2 px-5 py-3 rounded-lg',
+                    'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
+                    'hover:border-white/25 hover:bg-black/40',
+                    'border-white/8 bg-black',
+                    'backdrop-blur-[50px]',
+                    'hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(175,175,175,0.35)]',
+                    'shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_16px_rgba(175,175,175,0.25)]',
+                  ].join(' ')}
                   size="sm"
                   variant="outline"
                   slot="close"

@@ -1,6 +1,6 @@
 'use client';
 
-import AuthButton from '@/src/components/auth-button';
+import { MilkyWayField } from '@/src/components/milky-way-field';
 import {
   type Game,
   games,
@@ -8,13 +8,11 @@ import {
   resolutions,
 } from '@/src/utils/benchmarks';
 import {
-  ArrowLeftIcon,
   CheckCircleIcon,
   CheckIcon,
   ChevronUpDownIcon,
 } from '@heroicons/react/16/solid';
-import { Button } from '@heroui/react';
-import { useCallback, useEffect, useId, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 
 // ─── Banner hook ──────────────────────────────────────────────────────────────
 //
@@ -24,12 +22,145 @@ import { useCallback, useEffect, useId, useState } from 'react';
 
 type BannerSize = 'desktop' | 'tablet' | 'mobile';
 
-function useGameBanner(
-  banner: string | undefined,
-  size: BannerSize = 'desktop',
-): string | null {
-  if (!banner) return null;
-  return `/banners/${banner}-${size}.png`;
+// ─── useAverageColor ──────────────────────────────────────────────────────────
+// Samples the bottom strip of each selected game's banner, averages the RGB
+// values weighted equally per panel, and returns a bg color + contrasting text.
+// Falls back to transparent/white while loading or when no games are selected.
+
+type AverageColor = { bg: string; text: 'white' | 'black' };
+
+function luminance(r: number, g: number, b: number): number {
+  const lin = (c: number) => {
+    const s = c / 255;
+    return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+// Takes game IDs (stable state primitives, not derived objects) so the effect
+// dependency never produces a new reference on every render.
+function useAverageColor(gameIds: string[]): AverageColor {
+  const [color, setColor] = useState<AverageColor>({
+    bg: 'transparent',
+    text: 'white',
+  });
+  const cacheRef = useRef<Map<string, [number, number, number]>>(new Map());
+
+  // Stable string key — only changes when the actual selection changes.
+  // Using this as the effect dependency avoids the infinite-loop caused by
+  // depending on a derived Game[] array (new reference every render).
+  const idsKey = gameIds.join(',');
+
+  useEffect(() => {
+    // No games selected — skip async work entirely.
+    // Do NOT call setColor here synchronously; instead let the async path
+    // handle the empty case so React never sees a setState in the effect body.
+    if (idsKey === '') {
+      // Schedule the reset after the current render cycle to avoid the
+      // "setState synchronously within an effect" warning.
+      const id = setTimeout(() => {
+        setColor({ bg: 'transparent', text: 'white' });
+      }, 0);
+      return () => clearTimeout(id);
+    }
+
+    let cancelled = false;
+
+    async function sample() {
+      const ids = idsKey.split(',');
+      const gameList = ids.map((id) => games[id]).filter(Boolean) as Game[];
+      if (gameList.length === 0) return;
+
+      const SAMPLE_W = 64,
+        SAMPLE_H = 1;
+      const canvas = document.createElement('canvas');
+      canvas.width = SAMPLE_W;
+      canvas.height = SAMPLE_H;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return;
+
+      let totalR = 0,
+        totalG = 0,
+        totalB = 0,
+        totalWeight = 0;
+      const w = 1 / gameList.length;
+
+      await Promise.all(
+        gameList.map(async (game) => {
+          const url = `/${game.banner}-desktop.png`;
+          if (cacheRef.current.has(url)) {
+            const [r, g, b] = cacheRef.current.get(url)!;
+            totalR += r * w;
+            totalG += g * w;
+            totalB += b * w;
+            totalWeight += w;
+            return;
+          }
+          await new Promise<void>((resolve) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+              const srcY = Math.floor(img.naturalHeight * 0.75);
+              const srcH = Math.max(1, Math.floor(img.naturalHeight * 0.05));
+              ctx.clearRect(0, 0, SAMPLE_W, SAMPLE_H);
+              ctx.drawImage(
+                img,
+                0,
+                srcY,
+                img.naturalWidth,
+                srcH,
+                0,
+                0,
+                SAMPLE_W,
+                SAMPLE_H,
+              );
+              const px = ctx.getImageData(0, 0, SAMPLE_W, SAMPLE_H).data;
+              let r = 0,
+                g = 0,
+                b = 0;
+              const n = SAMPLE_W * SAMPLE_H;
+              for (let i = 0; i < px.length; i += 4) {
+                r += px[i];
+                g += px[i + 1];
+                b += px[i + 2];
+              }
+              r = Math.round(r / n);
+              g = Math.round(g / n);
+              b = Math.round(b / n);
+              cacheRef.current.set(url, [r, g, b]);
+              totalR += r * w;
+              totalG += g * w;
+              totalB += b * w;
+              totalWeight += w;
+              resolve();
+            };
+            img.onerror = () => resolve();
+            img.src = url;
+          });
+        }),
+      );
+
+      if (cancelled || totalWeight === 0) return;
+
+      const blend = 0.55;
+      const fr = Math.round((totalR / totalWeight) * blend);
+      const fg = Math.round((totalG / totalWeight) * blend);
+      const fb = Math.round((totalB / totalWeight) * blend);
+      const lum = luminance(fr, fg, fb);
+      setColor({
+        bg: `rgb(${fr},${fg},${fb})`,
+        text: lum > 0.35 ? 'black' : 'white',
+      });
+    }
+
+    sample();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idsKey]); // stable string — no new reference on every render
+
+  return color;
 }
 
 // ─── Derived data ─────────────────────────────────────────────────────────────
@@ -98,13 +229,13 @@ function SplitBackground({ games: selectedGames }: SplitBackgroundProps) {
       ))}
 
       {/* Black cover that fades away once any game is selected */}
-      <div
+      {/*<div
         className="absolute inset-0 bg-black pointer-events-none"
         style={{
           opacity: count > 0 ? 0 : 1,
           transition: 'opacity 600ms ease',
         }}
-      />
+      />*/}
     </div>
   );
 }
@@ -526,6 +657,11 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
   const canSubmit =
     selectedGameIds.length > 0 && resolution !== null && !!quality;
 
+  const [btnHovered, setBtnHovered] = useState(false);
+  // Pass the stable ID array (not the derived Game[] object) to avoid
+  // a new array reference on every render triggering the effect infinitely.
+  const accentColor = useAverageColor(selectedGameIds);
+
   const handleConfirm = useCallback(() => {
     setShowConfirm(false);
     setSubmitted(true);
@@ -546,6 +682,8 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-black">
+      <MilkyWayField />
+
       {/* ── Split game cover background ────────────────────────────────── */}
       <SplitBackground games={selectedGames} />
 
@@ -576,16 +714,16 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
       />
 
       {/* ── Back button — z-20 so it sits above all overlays ──────────── */}
-      <Button
+      {/*<Button
         type="button"
         onClick={onBack}
         className="absolute left-5 top-5 z-20 flex items-center gap-1.5 rounded-lg border border-white/20 bg-black/30 px-3 py-2 text-sm font-medium text-white backdrop-blur-md transition-all duration-200 hover:border-white/40 hover:bg-black/50 active:scale-95"
       >
         <ArrowLeftIcon className="size-3.5" />
         Back
-      </Button>
+      </Button>*/}
 
-      <AuthButton className="absolute right-5 top-5 z-20" />
+      {/*<AuthButton className="absolute right-5 top-5 z-20" />*/}
 
       {/* ── Centered form — pb-28 keeps content clear of the fixed button */}
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 pb-28">
@@ -595,7 +733,7 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
             'px-5 py-5 rounded-lg',
             'border-white/8 bg-black/30',
             'backdrop-blur-[30px]',
-            'shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,110,0.25)]',
+            'shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(110,175,212,0.25)]',
           ].join(' ')}
         >
           {/* 1. Game */}
@@ -653,8 +791,43 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
           type="button"
           onClick={() => canSubmit && setShowConfirm(true)}
           disabled={!canSubmit}
-          className="h-12 w-full max-w-md rounded-2xl bg-white text-sm font-bold text-black shadow-lg transition-all duration-200 hover:bg-white/90 hover:shadow-xl active:scale-[0.98] disabled:pointer-events-none disabled:opacity-30"
+          onMouseEnter={() => setBtnHovered(true)}
+          onMouseLeave={() => setBtnHovered(false)}
+          className={[
+            'h-14 w-full max-w-md rounded-2xl text-base font-bold shadow-lg backdrop-blur-[50px]',
+            'active:scale-[0.98] disabled:pointer-events-none disabled:opacity-30',
+          ].join(' ')}
+          style={{
+            // Sampled from the game banner(s) — transitions smoothly as games change
+            backgroundColor:
+              accentColor.bg === 'transparent'
+                ? 'rgba(255,255,255,0.15)'
+                : accentColor.bg,
+            color: accentColor.text,
+            filter: btnHovered ? 'brightness(1.08)' : 'brightness(1)',
+            // Smooth color transition as games are added/removed/changed
+            transition: [
+              'background-color 800ms cubic-bezier(0.4,0,0.2,1)',
+              'color 400ms ease',
+              'filter 200ms ease',
+              'box-shadow 200ms ease',
+              'transform 150ms ease',
+            ].join(', '),
+            boxShadow: btnHovered
+              ? '0 0px 24px rgba(255,255,255,0.25), inset 0 1px 0 rgba(110,175,212,0.25)'
+              : '0 0px 24px rgba(255,255,255,0.15), inset 0 1px 0 rgba(110,175,212,0.15)',
+          }}
         >
+          {/*'h-12 w-full max-w-md rounded-2xl text-sm font-bold',
+            'hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(110,175,212,0.25)]',
+            'hover:bg-mist-800/85',
+            'duration-200 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-30',
+            // 'flex flex-col items-center gap-3 px-3 py-10 text-center rounded-lg',
+            // 'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
+            'border-white/8 bg-mist-800/75',
+            'backdrop-blur-[50px]',
+            'shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_2px_16px_rgba(110,175,212,0.15)]'
+            */}
           Find my build
         </button>
       </div>
