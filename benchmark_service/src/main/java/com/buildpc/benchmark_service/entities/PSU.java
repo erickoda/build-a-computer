@@ -2,20 +2,13 @@ package com.buildpc.benchmark_service.entities;
 
 import com.buildpc.benchmark_service.entities.valueObjects.PSURanking;
 import com.buildpc.benchmark_service.entities.valueObjects.PSURankingUserType;
-import com.google.type.DateTime;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.ColumnTransformer;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
-import org.hibernate.dialect.type.PostgreSQLEnumJdbcType;
-import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -34,7 +27,7 @@ public class PSU {
 	private String series;
 	private Integer powerAmount;
 
-	//TODO: set column name equal pc-builder service
+	// TODO: set column name equal pc-builder service
 	@Type(PSURankingUserType.class)
 	@Column(name = "ranking", columnDefinition = "psu_ranking")
 	private PSURanking ranking;

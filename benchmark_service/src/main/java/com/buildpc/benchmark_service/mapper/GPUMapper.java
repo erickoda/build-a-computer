@@ -6,7 +6,6 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -40,7 +39,7 @@ public class GPUMapper {
         return builder.build();
     }
 
-    public ListGPUResponse createListGPUResponse(List<GPUResponse> gpuResponses){
+    public ListGPUResponse createListGPUResponse(List<GPUResponse> gpuResponses) {
         return ListGPUResponse.newBuilder()
                 .addAllGpu(gpuResponses)
                 .build();

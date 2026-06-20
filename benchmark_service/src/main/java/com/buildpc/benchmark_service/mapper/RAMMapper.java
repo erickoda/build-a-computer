@@ -9,7 +9,6 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -45,7 +44,7 @@ public class RAMMapper {
                 .build();
     }
 
-    public DeleteRAMResponse createDeleteRAMResponse(boolean deletedSuccess){
+    public DeleteRAMResponse createDeleteRAMResponse(boolean deletedSuccess) {
         return DeleteRAMResponse.newBuilder()
                 .setSuccess(deletedSuccess)
                 .build();

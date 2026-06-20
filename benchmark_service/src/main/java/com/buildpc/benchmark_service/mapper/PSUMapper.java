@@ -7,7 +7,6 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -39,7 +38,7 @@ public class PSUMapper {
         return builder.build();
     }
 
-    public ListPSUResponse createListPSUResponse(List<PSUResponse> psuResponses){
+    public ListPSUResponse createListPSUResponse(List<PSUResponse> psuResponses) {
         return ListPSUResponse.newBuilder()
                 .addAllPsu(psuResponses)
                 .build();
