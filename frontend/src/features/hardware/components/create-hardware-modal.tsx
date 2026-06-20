@@ -50,7 +50,7 @@ export function CreateHardwareModal<TCreate>({
 
       <Modal.Backdrop>
         <Modal.Container>
-          <Modal.Dialog className="sm:max-w-[480px]">
+          <Modal.Dialog className="sm:max-w-120">
             <Modal.CloseTrigger />
 
             <form onSubmit={handleSubmit(onSubmit)} className="font-sans">
