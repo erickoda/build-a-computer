@@ -80,6 +80,30 @@ public class PSUGrpcService extends PSUServiceGrpc.PSUServiceImplBase {
     }
 
     @Override
+    public void updatePSU(UpdatePSURequest request, StreamObserver<PSUResponse> responseObserver) {
+        log.info("gRPC Update PSU called");
+
+        try {
+            PSU updatedPSU = psuService.updatePSU(UUID.fromString(request.getId()), psuMapper.toEntity(request));
+
+            responseObserver.onNext(psuMapper.toProto(updatedPSU));
+            responseObserver.onCompleted();
+        } catch (PSUNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asException());
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
+
+    @Override
     public void deletePSU(DeletePSURequest request, StreamObserver<DeletePSUResponse> responseObserver) {
         log.info("gRPC Delete PSU called");
 

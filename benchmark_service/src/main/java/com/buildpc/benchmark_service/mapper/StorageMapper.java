@@ -6,6 +6,7 @@ import com.buildpc.benchmark_service.grpc.generated.DeleteSSDResponse;
 import com.buildpc.benchmark_service.grpc.generated.ListSSDResponse;
 import com.buildpc.benchmark_service.grpc.generated.SSDResponse;
 import com.buildpc.benchmark_service.grpc.generated.CreateSSDRequest;
+import com.buildpc.benchmark_service.grpc.generated.UpdateSSDRequest;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
@@ -54,6 +55,24 @@ public class StorageMapper {
     }
 
     public Storage toEntity(CreateSSDRequest request) {
+        Storage ssd = new Storage();
+        ssd.setBrand(request.getBrand());
+        ssd.setSeries(request.getSeries());
+        ssd.setAmount(request.getAmount());
+        ssd.setType(SSDType.fromDatabaseValue(request.getType()));
+        ssd.setReading(request.getReading());
+        ssd.setWriting(request.getWriting());
+        ssd.setAvgPrice(request.getAvgPrice());
+        ssd.setScore(request.getScore());
+
+        if (request.hasImg()) {
+            ssd.setImg(request.getImg().toByteArray());
+        }
+
+        return ssd;
+    }
+
+    public Storage toEntity(UpdateSSDRequest request) {
         Storage ssd = new Storage();
         ssd.setBrand(request.getBrand());
         ssd.setSeries(request.getSeries());

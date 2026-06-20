@@ -107,6 +107,30 @@ public class GameGrpcService extends GameServiceGrpc.GameServiceImplBase {
     }
 
     @Override
+    public void updateGame(UpdateGameRequest request, StreamObserver<GameResponse> responseObserver) {
+        log.info("gRPC Update game called");
+
+        try {
+            Game updatedGame = gameService.updateGame(UUID.fromString(request.getId()), gameMapper.toEntity(request));
+
+            responseObserver.onNext(gameMapper.createGameResponse(updatedGame));
+            responseObserver.onCompleted();
+        } catch (GameNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asException());
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
+
+    @Override
     public void deleteGame(DeleteGameRequest request, StreamObserver<DeleteGameResponse> responseObserver) {
         log.info("gRPC delete game called");
 

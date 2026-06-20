@@ -42,6 +42,17 @@ public class GameService {
         return foundGame.orElseThrow(() -> new GameNotFoundException("Can't find this Game"));
     }
 
+    public Game updateGame(UUID id, Game game) throws GameNotFoundException {
+        Game existing = gameRepository.findById(id)
+                .orElseThrow(() -> new GameNotFoundException("Can't find this Game"));
+
+        existing.setName(game.getName());
+        existing.setNecessaryDisk(game.getNecessaryDisk());
+        existing.setImg(game.getImg());
+
+        return gameRepository.save(existing);
+    }
+
     public void deleteById(UUID id) throws GameNotFoundException {
         if (!gameRepository.existsById(id))
             throw new GameNotFoundException("Can't find this game in data base");

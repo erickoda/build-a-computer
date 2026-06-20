@@ -37,6 +37,21 @@ public class RAMService {
         return rams;
     }
 
+    public RAM updateRAM(UUID id, RAM ram) {
+        RAM existing = ramRepository.findById(id)
+                .orElseThrow(() -> new RAMNotFoundException("Can't find this RAM memory in data base"));
+
+        existing.setBrand(ram.getBrand());
+        existing.setDdr(ram.getDdr());
+        existing.setMemoryAmount(ram.getMemoryAmount());
+        existing.setAvgPrice(ram.getAvgPrice());
+        existing.setFrequencyMhz(ram.getFrequencyMhz());
+        existing.setSeries(ram.getSeries());
+        existing.setImg(ram.getImg());
+
+        return ramRepository.save(existing);
+    }
+
     public void deleteById(UUID id) {
         if(!ramRepository.existsById(id))
             throw new RAMNotFoundException("Can't find this RAM memory in data base");

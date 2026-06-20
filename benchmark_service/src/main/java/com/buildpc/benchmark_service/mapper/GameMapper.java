@@ -55,6 +55,18 @@ public class GameMapper {
         return game;
     }
 
+    public Game toEntity(UpdateGameRequest request) {
+        Game game = new Game();
+
+        game.setName(request.getName());
+        game.setNecessaryDisk(request.getNecessaryDisk());
+
+        if (request.hasImg())
+            game.setImg(request.getImg().toByteArray());
+
+        return game;
+    }
+
     private Timestamp dateToTimestamp(LocalDateTime dateTime) {
         Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
 

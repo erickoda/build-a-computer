@@ -71,6 +71,26 @@ public class GPUMapper {
         return gpu;
     }
 
+    public GPU toEntity(UpdateGPURequest request) {
+        GPU gpu = new GPU();
+        gpu.setBrand(request.getBrand());
+        gpu.setFamily(request.getFamily());
+        gpu.setSeries(request.getSeries());
+        gpu.setMemoryAmount(request.getMemoryAmount());
+        gpu.setMemoryGen(request.getMemoryGen());
+        gpu.setCores(request.getCores());
+        gpu.setPciExpress(request.getPciExpress());
+        gpu.setRecommendedPower(request.getRecommendedPower());
+        gpu.setAvgPrice(request.getAvgPrice());
+        gpu.setReleaseDate(timestampToDate(request.getReleaseDate()));
+
+        if (request.hasImg()) {
+            gpu.setImg(request.getImg().toByteArray());
+        }
+
+        return gpu;
+    }
+
     private Timestamp dateToTimestamp(LocalDateTime dateTime) {
         Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
 

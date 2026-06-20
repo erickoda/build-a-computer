@@ -5,6 +5,7 @@ import com.buildpc.benchmark_service.grpc.generated.DeleteRAMResponse;
 import com.buildpc.benchmark_service.grpc.generated.ListRAMResponse;
 import com.buildpc.benchmark_service.grpc.generated.RAMResponse;
 import com.buildpc.benchmark_service.grpc.generated.CreateRAMRequest;
+import com.buildpc.benchmark_service.grpc.generated.UpdateRAMRequest;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
@@ -51,6 +52,22 @@ public class RAMMapper {
     }
 
     public RAM toEntity(CreateRAMRequest request) {
+        RAM ram = new RAM();
+        ram.setBrand(request.getBrand());
+        ram.setDdr(request.getDdr());
+        ram.setMemoryAmount(request.getMemoryAmount());
+        ram.setAvgPrice(request.getAvgPrice());
+        ram.setFrequencyMhz(request.getFrequencyMhz());
+        ram.setSeries(request.getSeries());
+
+        if (request.hasImg()) {
+            ram.setImg(request.getImg().toByteArray());
+        }
+
+        return ram;
+    }
+
+    public RAM toEntity(UpdateRAMRequest request) {
         RAM ram = new RAM();
         ram.setBrand(request.getBrand());
         ram.setDdr(request.getDdr());

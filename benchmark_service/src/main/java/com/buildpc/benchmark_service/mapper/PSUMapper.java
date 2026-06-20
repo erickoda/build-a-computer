@@ -67,6 +67,23 @@ public class PSUMapper {
         return psu;
     }
 
+    public PSU toEntity(UpdatePSURequest request) {
+        PSU psu = new PSU();
+        psu.setBrand(request.getBrand());
+        psu.setSeries(request.getSeries());
+        psu.setPowerAmount(request.getPowerAmount());
+        psu.setRanking(PSURanking.fromDatabaseValue(request.getRanking()));
+        psu.setScore(request.getScore());
+        psu.setEightyPlusCert(request.getEightyPlusCert());
+        psu.setAvgPrice(request.getAvgPrice());
+
+        if (request.hasImg()) {
+            psu.setImg(request.getImg().toByteArray());
+        }
+
+        return psu;
+    }
+
     private Timestamp dateToTimestamp(LocalDateTime dateTime) {
         Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
 

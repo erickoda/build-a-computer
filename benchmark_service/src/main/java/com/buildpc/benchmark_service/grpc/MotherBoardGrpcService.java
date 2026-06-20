@@ -90,6 +90,33 @@ public class MotherBoardGrpcService extends MotherBoardServiceGrpc.MotherBoardSe
     }
 
     @Override
+    public void updateMotherBoard(UpdateMotherBoardRequest request, StreamObserver<MotherBoardResponse> responseObserver) {
+        log.info("gRPC Update Mother Board called");
+
+        try{
+            MotherBoard updatedMb = motherBoardService.update(UUID.fromString(request.getId()), motherBoardMapper.toEntity(request));
+
+            responseObserver.onNext(motherBoardMapper.toProto(updatedMb));
+            responseObserver.onCompleted();
+        }
+        catch(MotherBoardNotFoundException e){
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(IllegalArgumentException e){
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
+
+    @Override
     public void deleteMotherBoard(DeleteMotherBoardRequest request, StreamObserver<DeleteMotherBoardResponse> responseObserver) {
         log.info("gRPC Delete Mother Board called");
 
