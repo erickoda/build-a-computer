@@ -65,6 +65,13 @@ export const routesInfos: RouteItems[] = [
     isPublic: false,
     isInNavbar: true,
   },
+  {
+    label: 'Games',
+    href: '/games',
+    allowedRoles: ['admin', 'supervisor', 'common'],
+    isPublic: false,
+    isInNavbar: true,
+  },
 ];
 
 export function matchesRoute(pathname: string, href: string): boolean {
