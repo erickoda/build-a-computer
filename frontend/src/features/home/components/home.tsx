@@ -27,8 +27,8 @@ export function LandingPage() {
           className={[
             'flex flex-col items-center gap-3 px-3 py-10 text-center rounded-lg',
             'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            'group-hover:border-white/8 group-hover:bg-white/5',
-            'group-hover:backdrop-blur-[20px]',
+            'group-hover:border-white/8 group-hover:bg-black/75',
+            'group-hover:backdrop-blur-[50px]',
             'group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,110,0.25)]',
           ].join(' ')}
         >
@@ -56,7 +56,17 @@ export function LandingPage() {
       </Link>
 
       {/* Divider */}
-      <div className="relative z-10 w-px bg-border" />
+      {/*<div className="relative z-10 w-px bg-border" />*/}
+      <div
+        className="relative z-10 h-full pointer-events-none"
+        style={{
+          width: 80,
+          transition: 'left 600ms cubic-bezier(0.4,0,0.2,1)',
+          background: '#59595920',
+          // 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.65) 45%, rgba(0,0,0,0.65) 55%, transparent 100%)',
+          filter: 'blur(30px)',
+        }}
+      />
 
       {/* Right: Search Benchmarks */}
       <Link
@@ -68,8 +78,8 @@ export function LandingPage() {
           className={[
             'flex flex-col items-center gap-3 px-3 py-10 text-center rounded-lg',
             'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            'group-hover:border-white/8 group-hover:bg-white/5',
-            'group-hover:backdrop-blur-[20px]',
+            'group-hover:border-white/8 group-hover:bg-black/75',
+            'group-hover:backdrop-blur-[50px]',
             'group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,110,0.25)]',
           ].join(' ')}
         >

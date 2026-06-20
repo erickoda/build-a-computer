@@ -1,5 +1,6 @@
 'use client';
 
+import AuthButton from '@/src/components/auth-button';
 import {
   type Game,
   games,
@@ -12,20 +13,14 @@ import {
   CheckIcon,
   ChevronUpDownIcon,
 } from '@heroicons/react/16/solid';
-import { useId, useState } from 'react';
+import { Button } from '@heroui/react';
+import { useCallback, useEffect, useId, useState } from 'react';
 
 // ─── Banner hook ──────────────────────────────────────────────────────────────
 //
-// Resolves a game's banner stem to a full image path.
-//
-// Convention: /src/app/banners/<banner>-<size>.png
-//   where <size> is "desktop" | "tablet" | "mobile"
-//
-// Usage:
-//   const src = useGameBanner('elden-ring', 'desktop');
-//   // → "/src/app/banners/elden-ring-desktop.png"
-//
-// Update the template string below if your file naming differs.
+// Files must live in /public/banners/ at the project root.
+// Next.js serves /public/ at the URL root, so:
+//   /public/banners/elden-ring-desktop.png  →  /banners/elden-ring-desktop.png
 
 type BannerSize = 'desktop' | 'tablet' | 'mobile';
 
@@ -34,7 +29,7 @@ function useGameBanner(
   size: BannerSize = 'desktop',
 ): string | null {
   if (!banner) return null;
-  return `/${banner}-${size}.png`;
+  return `/banners/${banner}-${size}.png`;
 }
 
 // ─── Derived data ─────────────────────────────────────────────────────────────
@@ -50,14 +45,74 @@ const RESOLUTION_LABELS: Record<number, string> = {
 // ─── Budget constants ─────────────────────────────────────────────────────────
 
 const BUDGET_MIN = 500;
-const BUDGET_MAX = 5000;
+const BUDGET_MAX = 10000;
 const BUDGET_STEP = 50;
+
+// ─── Split background ─────────────────────────────────────────────────────────
+// Renders one panel per selected game, equally wide, side by side.
+// Each panel animates its width and opacity independently.
+
+type SplitBackgroundProps = { games: Game[] };
+
+// Seam width in px — straddles each boundary equally on both sides
+const SEAM_WIDTH = 80;
+
+function SplitBackground({ games: selectedGames }: SplitBackgroundProps) {
+  const count = selectedGames.length;
+  const widthPct = count > 0 ? 100 / count : 100;
+
+  return (
+    <div aria-hidden className="absolute inset-0 overflow-hidden">
+      {/* One panel per game */}
+      {selectedGames.map((game, i) => (
+        <div
+          key={game.id}
+          className="absolute top-0 h-full bg-cover bg-center"
+          style={{
+            backgroundImage: `url('/${game.banner}-desktop.png')`,
+            width: `${widthPct}%`,
+            left: `${i * widthPct}%`,
+            transition:
+              'width 800ms cubic-bezier(0.4,0,0.2,1), left 600ms cubic-bezier(0.4,0,0.2,1)',
+          }}
+        />
+      ))}
+
+      {/* Seams — one per internal boundary, rendered as siblings so they are
+          never clipped by a panel's own box. Each seam is centred on the
+          boundary using calc() so it tracks the % position during the
+          CSS transition without needing JS scroll listeners. */}
+      {selectedGames.slice(0, -1).map((game, i) => (
+        <div
+          key={`seam-${game.id}`}
+          className="absolute -top-10 h-full pointer-events-none"
+          style={{
+            width: SEAM_WIDTH,
+            left: `calc(${(i + 1) * widthPct}% - ${SEAM_WIDTH / 2}px)`,
+            transition: 'left 600ms cubic-bezier(0.4,0,0.2,1)',
+            background: 'black',
+            // 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.65) 45%, rgba(0,0,0,0.65) 55%, transparent 100%)',
+            filter: 'blur(21px)',
+          }}
+        />
+      ))}
+
+      {/* Black cover that fades away once any game is selected */}
+      <div
+        className="absolute inset-0 bg-black pointer-events-none"
+        style={{
+          opacity: count > 0 ? 0 : 1,
+          transition: 'opacity 600ms ease',
+        }}
+      />
+    </div>
+  );
+}
 
 // ─── Glass multi-select combobox ──────────────────────────────────────────────
 
 type GlassComboboxProps = {
   options: { value: string; label: string }[];
-  /** Selected values — always an array for multi-select. */
   value: string[];
   onChange: (v: string[]) => void;
   placeholder?: string;
@@ -80,7 +135,6 @@ function GlassCombobox({
     o.label.toLowerCase().includes(query.toLowerCase()),
   );
 
-  /** Toggle a single option in/out of the selection. Keep dropdown open. */
   function handleToggle(v: string) {
     onChange(value.includes(v) ? value.filter((x) => x !== v) : [...value, v]);
   }
@@ -110,11 +164,13 @@ function GlassCombobox({
         <span className={value.length > 0 ? 'text-white' : 'text-white/50'}>
           {triggerLabel}
         </span>
-        <ChevronUpDownIcon className="size-4 shrink-0 text-white/50" />
+        <ChevronUpDownIcon
+          className={`size-4 shrink-0 text-white/50 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-white/20 bg-black/60 shadow-2xl backdrop-blur-xl">
+        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-white/20 bg-black/60 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-150">
           <div className="border-b border-white/10 px-3 py-2">
             <input
               autoFocus
@@ -137,9 +193,8 @@ function GlassCombobox({
                     onClick={() => handleToggle(o.value)}
                     className={`flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm text-white transition-colors hover:bg-white/10 ${isSelected ? 'bg-white/5' : ''}`}
                   >
-                    {/* Checkbox indicator */}
                     <span
-                      className={`flex size-4 shrink-0 items-center justify-center rounded border transition-colors ${isSelected ? 'border-white bg-white' : 'border-white/30'}`}
+                      className={`flex size-4 shrink-0 items-center justify-center rounded border transition-all duration-150 ${isSelected ? 'border-white bg-white' : 'border-white/30'}`}
                     >
                       {isSelected && (
                         <CheckIcon className="size-3 text-black" />
@@ -151,9 +206,8 @@ function GlassCombobox({
               })
             )}
           </ul>
-          {/* Footer: shows count + done button when something is selected */}
           {value.length > 0 && (
-            <div className="flex items-center justify-between border-t border-white/10 px-4 py-2.5">
+            <div className="flex items-center justify-between border-t border-white/10 px-4 py-2.5 animate-in fade-in duration-150">
               <span className="text-xs text-white/50">
                 {value.length} selected
               </span>
@@ -192,9 +246,9 @@ function PillGroup({ options, value, onChange, formatLabel }: PillGroupProps) {
           key={opt}
           type="button"
           onClick={() => onChange(opt)}
-          className={`h-9 rounded-lg border px-4 text-sm font-medium transition-all ${
+          className={`h-9 rounded-lg border px-4 text-sm font-medium transition-all duration-200 ${
             value === opt
-              ? 'border-white bg-white text-black'
+              ? 'border-white bg-white text-black scale-105'
               : 'border-white/20 bg-black/30 text-white/70 backdrop-blur-md hover:border-white/40 hover:text-white'
           }`}
         >
@@ -207,13 +261,9 @@ function PillGroup({ options, value, onChange, formatLabel }: PillGroupProps) {
 
 // ─── Dual-thumb budget range slider ──────────────────────────────────────────
 //
-// Both <input type="range"> are stacked absolutely. Without pointer-events
-// isolation, the top input intercepts all clicks across the full track width,
-// making the lower thumb unreachable on the left side.
-//
-// Fix: pointer-events:none on both inputs; pointer-events:auto on thumbs only
-// (via the ::-webkit-slider-thumb / ::-moz-range-thumb pseudo-elements).
-// Each thumb then only captures events when the cursor is directly over it.
+// Both inputs are stacked absolutely. Without pointer-events isolation, the top
+// input intercepts all clicks — making the low thumb unreachable on the left.
+// Fix: pointer-events:none on inputs, pointer-events:auto on thumbs only.
 
 type BudgetSliderProps = {
   value: [number, number];
@@ -234,14 +284,11 @@ function BudgetSlider({ value, onChange }: BudgetSliderProps) {
     onChange([value[0], v]);
   }
 
-  // Shared Tailwind classes for both range inputs.
-  // Key rule: pointer-events-none on the input, pointer-events-auto on thumb.
   const rangeClass = [
     'absolute w-full appearance-none bg-transparent',
-    'pointer-events-none', // ← input ignores mouse
-    // WebKit thumb
+    'pointer-events-none',
     '[&::-webkit-slider-thumb]:appearance-none',
-    '[&::-webkit-slider-thumb]:pointer-events-auto', // ← thumb captures mouse
+    '[&::-webkit-slider-thumb]:pointer-events-auto',
     '[&::-webkit-slider-thumb]:size-4',
     '[&::-webkit-slider-thumb]:rounded-full',
     '[&::-webkit-slider-thumb]:bg-white',
@@ -251,8 +298,7 @@ function BudgetSlider({ value, onChange }: BudgetSliderProps) {
     '[&::-webkit-slider-thumb]:cursor-grab',
     '[&::-webkit-slider-thumb]:active:cursor-grabbing',
     '[&::-webkit-slider-runnable-track]:bg-transparent',
-    // Firefox thumb
-    '[&::-moz-range-thumb]:pointer-events-auto', // ← thumb captures mouse
+    '[&::-moz-range-thumb]:pointer-events-auto',
     '[&::-moz-range-thumb]:size-4',
     '[&::-moz-range-thumb]:rounded-full',
     '[&::-moz-range-thumb]:bg-white',
@@ -264,16 +310,12 @@ function BudgetSlider({ value, onChange }: BudgetSliderProps) {
 
   return (
     <div className="flex w-full flex-col gap-3">
-      {/* Track + thumbs */}
       <div className="relative flex h-5 items-center">
-        {/* Base track */}
         <div className="absolute h-1 w-full rounded-full bg-white/20" />
-        {/* Active fill between the two thumbs */}
         <div
-          className="absolute h-1 rounded-full bg-white"
+          className="absolute h-1 rounded-full bg-white transition-all duration-75"
           style={{ left: `${pctLow}%`, right: `${100 - pctHigh}%` }}
         />
-        {/* Low thumb — z-index raised when near the ceiling to stay hittable */}
         <input
           type="range"
           min={BUDGET_MIN}
@@ -284,7 +326,6 @@ function BudgetSlider({ value, onChange }: BudgetSliderProps) {
           style={{ zIndex: value[0] >= value[1] - BUDGET_STEP ? 5 : 3 }}
           className={rangeClass}
         />
-        {/* High thumb */}
         <input
           type="range"
           min={BUDGET_MIN}
@@ -296,7 +337,6 @@ function BudgetSlider({ value, onChange }: BudgetSliderProps) {
           className={rangeClass}
         />
       </div>
-      {/* Floor / ceiling labels */}
       <div className="flex justify-between text-xs text-white/40">
         <span>${BUDGET_MIN.toLocaleString()}</span>
         <span>${BUDGET_MAX.toLocaleString()}</span>
@@ -324,6 +364,15 @@ function ConfirmationOverlay({
   onConfirm,
   onCancel,
 }: ConfirmationProps) {
+  // ESC to close
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onCancel();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onCancel]);
+
   const gamesLabel =
     selectedGames.length === 0
       ? '—'
@@ -347,12 +396,18 @@ function ConfirmationOverlay({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-sm rounded-2xl border border-white/20 bg-black/70 p-8 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 fade-in duration-200">
+    // Backdrop: click outside to cancel
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={onCancel}
+    >
+      <div
+        className="w-full max-w-sm rounded-2xl border border-white/20 bg-black/70 p-8 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 fade-in duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h2 className="mb-6 text-lg font-bold text-white">
           Confirm your build
         </h2>
-
         <div className="mb-8 flex flex-col gap-3">
           {rows.map(({ label, value }) => (
             <div
@@ -360,11 +415,12 @@ function ConfirmationOverlay({
               className="flex items-baseline justify-between gap-4"
             >
               <span className="text-sm text-white/50">{label}</span>
-              <span className="text-sm font-medium text-white">{value}</span>
+              <span className="text-right text-sm font-medium text-white">
+                {value}
+              </span>
             </div>
           ))}
         </div>
-
         <div className="flex gap-3">
           <button
             type="button"
@@ -389,9 +445,25 @@ function ConfirmationOverlay({
 // ─── Success overlay ──────────────────────────────────────────────────────────
 
 function SuccessOverlay({ onDone }: { onDone: () => void }) {
+  // Close on ESC
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onDone();
+    }
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onDone]);
+
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="flex flex-col items-center gap-5 text-center animate-in zoom-in-95 fade-in duration-300">
+    // Backdrop: click outside to close
+    <div
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-300 cursor-pointer"
+      onClick={onDone}
+    >
+      <div
+        className="flex flex-col items-center gap-5 text-center animate-in zoom-in-95 fade-in duration-300 cursor-default"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex size-20 items-center justify-center rounded-full border border-white/20 bg-white/10">
           <CheckCircleIcon className="size-10 text-white" />
         </div>
@@ -401,13 +473,16 @@ function SuccessOverlay({ onDone }: { onDone: () => void }) {
             We'll find the best builds for your configuration.
           </p>
         </div>
-        <button
+        {/*<button
           type="button"
           onClick={onDone}
           className="mt-2 h-10 rounded-xl bg-white px-8 text-sm font-bold text-black transition-colors hover:bg-white/90"
         >
           Done
-        </button>
+        </button>*/}
+        <p className="text-xs text-white/30">
+          Click anywhere or press ESC to close
+        </p>
       </div>
     </div>
   );
@@ -426,7 +501,6 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export type BuildPcSubmitData = {
-  /** One or more selected games. */
   games: Game[];
   resolution: number;
   quality: string;
@@ -448,16 +522,11 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
   const [submitted, setSubmitted] = useState(false);
 
   const selectedGames = selectedGameIds.map((id) => games[id]).filter(Boolean);
-
-  // Show the banner of the first selected game (or none)
-  const bannerSrc = useGameBanner(selectedGames[0]?.banner, 'desktop');
-
   const gameOptions = GAME_LIST.map((g) => ({ value: g.id, label: g.name }));
-
   const canSubmit =
     selectedGameIds.length > 0 && resolution !== null && !!quality;
 
-  function handleConfirm() {
+  const handleConfirm = useCallback(() => {
     setShowConfirm(false);
     setSubmitted(true);
     if (selectedGames.length > 0 && resolution !== null) {
@@ -469,25 +538,24 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
         budgetMax: budget[1],
       });
     }
-  }
-  console.log(bannerSrc);
+  }, [selectedGames, resolution, quality, budget, onSubmit]);
+
+  const handleDone = useCallback(() => {
+    setSubmitted(false);
+  }, []);
+
   return (
     <div className="relative h-screen w-full overflow-hidden bg-black">
-      {/* ── Game cover background ──────────────────────────────────────── */}
+      {/* ── Split game cover background ────────────────────────────────── */}
+      <SplitBackground games={selectedGames} />
+
+      {/* Overall dim — keeps content legible regardless of art brightness */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-cover bg-center transition-opacity duration-700"
-        style={{
-          backgroundImage: bannerSrc ? `url('${bannerSrc}')` : 'none',
-          opacity: bannerSrc ? 1 : 0,
-        }}
+        className="pointer-events-none absolute inset-0 bg-black/45"
       />
 
-      {/* Overall dim — keeps text legible regardless of cover brightness */}
-      <div aria-hidden className="absolute inset-0 bg-black/45" />
-
-      {/* ── Bottom blur-gradient (bottom 65% of screen) ───────────────── */}
-      {/* Gradient layer: dark at bottom, transparent at top */}
+      {/* ── Bottom blur-gradient ───────────────────────────────────────── */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%]"
@@ -496,7 +564,6 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
             'linear-gradient(to top, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.72) 40%, transparent 100%)',
         }}
       />
-      {/* Blur layer: masked so blur only appears in the lower half */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%] backdrop-blur-xl"
@@ -508,19 +575,29 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
         }}
       />
 
-      {/* ── Back button ─────────────────────────────────────────────────── */}
-      <button
+      {/* ── Back button — z-20 so it sits above all overlays ──────────── */}
+      <Button
         type="button"
         onClick={onBack}
-        className="absolute left-5 top-5 z-10 flex items-center gap-1.5 rounded-lg border border-white/20 bg-black/30 px-3 py-2 text-sm font-medium text-white backdrop-blur-md transition-colors hover:border-white/40 hover:bg-black/40"
+        className="absolute left-5 top-5 z-20 flex items-center gap-1.5 rounded-lg border border-white/20 bg-black/30 px-3 py-2 text-sm font-medium text-white backdrop-blur-md transition-all duration-200 hover:border-white/40 hover:bg-black/50 active:scale-95"
       >
         <ArrowLeftIcon className="size-3.5" />
         Back
-      </button>
+      </Button>
 
-      {/* ── Centered form ────────────────────────────────────────────────── */}
-      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6">
-        <div className="flex w-full max-w-md flex-col gap-8">
+      <AuthButton className="absolute right-5 top-5 z-20" />
+
+      {/* ── Centered form — pb-28 keeps content clear of the fixed button */}
+      <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 pb-28">
+        <div
+          className={[
+            'flex w-full max-w-md flex-col gap-8',
+            'px-5 py-5 rounded-lg',
+            'border-white/8 bg-black/30',
+            'backdrop-blur-[30px]',
+            'shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,110,0.25)]',
+          ].join(' ')}
+        >
           {/* 1. Game */}
           <div>
             <FieldLabel>Game</FieldLabel>
@@ -570,13 +647,13 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
         </div>
       </div>
 
-      {/* ── Submit ───────────────────────────────────────────────────────── */}
-      <div className="absolute inset-x-0 bottom-8 z-10 flex justify-center px-6">
+      {/* ── Submit — fixed so it's always visible ─────────────────────── */}
+      <div className="fixed inset-x-0 bottom-8 z-20 flex justify-center px-6">
         <button
           type="button"
           onClick={() => canSubmit && setShowConfirm(true)}
           disabled={!canSubmit}
-          className="h-12 w-full max-w-md rounded-2xl bg-white text-sm font-bold text-black shadow-lg transition-all hover:bg-white/90 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-30"
+          className="h-12 w-full max-w-md rounded-2xl bg-white text-sm font-bold text-black shadow-lg transition-all duration-200 hover:bg-white/90 hover:shadow-xl active:scale-[0.98] disabled:pointer-events-none disabled:opacity-30"
         >
           Find my build
         </button>
@@ -594,7 +671,7 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
         />
       )}
 
-      {submitted && <SuccessOverlay onDone={onBack} />}
+      {submitted && <SuccessOverlay onDone={handleDone} />}
     </div>
   );
 }
