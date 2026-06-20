@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { publicRoutes, routesInfos } from './types/routes';
+import { matchesRoute, routesInfos } from './types/routes';
 import { getRoleFromToken } from './utils/jwt';
 import { roleDefaultRedirect } from './utils/redirect';
 
@@ -8,11 +8,8 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('access_token')?.value;
 
-  const isPublicRoute = publicRoutes.some((route) =>
-    pathname.startsWith(route),
-  );
-  const matchedRoute = routesInfos.find((route) =>
-    pathname.startsWith(route.href),
+  const matchedRoute = routesInfos.find(
+    (route) => !route.isPublic && matchesRoute(pathname, route.href),
   );
   const isProtectedRoute = !!matchedRoute;
 
@@ -30,12 +27,6 @@ export function proxy(request: NextRequest) {
 
   if (!role) {
     return NextResponse.redirect(new URL('/sign-in', request.url));
-  }
-
-  if (isPublicRoute) {
-    return NextResponse.redirect(
-      new URL(roleDefaultRedirect[role], request.url),
-    );
   }
 
   if (isProtectedRoute && !matchedRoute.allowedRoles.includes(role)) {
