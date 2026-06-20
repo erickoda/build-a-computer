@@ -2,6 +2,7 @@
 /*/**/target
 /*/**.env
 /.idea
+/*/.idea
 .env
 /*/**.env
 /*/**/build

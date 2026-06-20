@@ -10,7 +10,7 @@ type MotherBoard struct {
 	ID 								uuid.UUID 			`gorm:"type:uuid;primary_key"`
 	Brand 							string 				`gorm:"type:varchar(255);not null"`
 	Series 							string 				`gorm:"type:varchar(255);not null"`
-	Socket 							string 				`gorm:"type:varchar(31);not null"`
+	Socket 							string 				`gorm:"type:varchar(255);not null"`
 	DDR 							string 				`gorm:"type:varchar(255);not null"`
 	MemorySlots 					int32 				`gorm:"type:integer;not null"`
 	MaxRam 							int32 				`gorm:"type:integer;not null"`

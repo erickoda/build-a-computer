@@ -1,10 +1,8 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { routesInfos } from './types/routes';
+import { publicRoutes, routesInfos } from './types/routes';
 import { getRoleFromToken } from './utils/jwt';
 import { roleDefaultRedirect } from './utils/redirect';
-
-const publicRoutes = ['/sign-in', '/sign-up'];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;

@@ -7,10 +7,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.30'
+          cpus: "0.30"
           memory: 512M
         reservations:
-          cpus: '0.15'
+          cpus: "0.15"
           memory: 128M
     ports:
       - ${API_GATEWAY_PORT}:${API_GATEWAY_PORT}
@@ -18,8 +18,16 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - AUTH_MICROSERVICE_URL=${AUTH_MICROSERVICE_URL}
       - USERS_MICROSERVICE_URL=${USERS_MICROSERVICE_URL}
+      - RECOMMENDATION_MICROSERVICE_URL=${RECOMMENDATION_MICROSERVICE_URL}
+      - BENCHMARK_MICROSERVICE_URL=${BENCHMARK_MICROSERVICE_URL}
+    networks:
+      - microservice
     depends_on:
       authentication_microservice:
+        condition: service_healthy
+      recommendation_microservice:
+        condition: service_healthy
+      benchmark_microservice:
         condition: service_healthy
 
   authentication_microservice:
@@ -30,10 +38,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.60'
+          cpus: "0.60"
           memory: 512M
         reservations:
-          cpus: '0.15'
+          cpus: "0.15"
           memory: 128M
     ports:
       - ${AUTH_MICROSERVICE_PORT}
@@ -44,48 +52,57 @@ services:
       - SMTP_USERNAME=${AUTH_MICROSERVICE_SMTP_USERNAME}
       - SMTP_PASSWORD=${AUTH_MICROSERVICE_SMTP_PASSWORD}
     healthcheck:
-      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/${AUTH_MICROSERVICE_PORT}'"]
+      test:
+        ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/${AUTH_MICROSERVICE_PORT}'"]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - microservice
+      - users_db
     depends_on:
       users_db:
         condition: service_healthy
 
-  computer_builder_microservice:
-    container_name: computer_builder_microservice
+  recommendation_microservice:
+    container_name: recommendation_microservice
     build:
       context: ./pc_builder_service
       dockerfile: Dockerfile
-      network: host
       target: run-stage
       additional_contexts:
         protos: ./proto
     deploy:
       resources:
         limits:
-          cpus: '0.6'
+          cpus: "0.6"
           memory: 512M
         reservations:
-          cpus: '0.4'
+          cpus: "0.4"
           memory: 256M
     env_file:
       - .env
     environment:
-      - ADDR:${PC_BUILDER_MICROSERVICE_ADDR}
-      - PGHOST=${PC_BUILDER_PGHOST}
-      - PGUSER=${PC_BUILDER_PGUSER}
-      - PGPASSWORD=${PC_BUILDER_PGPASSWORD}
-      - PGDATABASE=${PC_BUILDER_PGDATABASE}
-      - PGSSLMODE=${PC_BUILDER_PGSSLMODE}
+      - ADDR=${RECOMMENDATION_MICROSERVICE_ADDR}
+      - PGHOST=${RECOMMENDATION_PGHOST}
+      - PGPORT=${RECOMMENDATION_PGPORT}
+      - PGUSER=${RECOMMENDATION_PGUSER}
+      - PGPASSWORD=${RECOMMENDATION_PGPASSWORD}
+      - PGDATABASE=${RECOMMENDATION_PGDATABASE}
+      - PGSSLMODE=${RECOMMENDATION_PGSSLMODE}
     ports:
-      - "${PC_BUILDER_MICROSERVICE_PORT}:${PC_BUILDER_MICROSERVICE_PORT}"
+      - "${RECOMMENDATION_MICROSERVICE_PORT}"
     networks:
-      - computer_builder_db
+      - microservice
+      - recommendation_db
     extra_hosts:
       - "host.docker.internal:host-gateway"
     healthcheck:
-      test: ["CMD", "grpc_health_probe", "-addr=${PC_BUILDER_MICROSERVICE_ADDR}", "-service=builder.BuilderService"]
+      test:
+        [
+          "CMD-SHELL",
+          "bash -c '</dev/tcp/127.0.0.1/${RECOMMENDATION_MICROSERVICE_PORT}'",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -93,8 +110,43 @@ services:
       recommendation_db:
         condition: service_healthy
 
+  benchmark_microservice:
+    container_name: benchmark-microservice
+    build:
+      context: ./benchmark_service
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        limits:
+          cpus: "0.6"
+          memory: 512M
+        reservations:
+          cpus: "0.4"
+          memory: 256M
+    environment:
+      - SPRING_GRPC_SERVER_PORT=${BENCHMARK_MICROSERVICE_PORT}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://recommendation_db:${RECOMMENDATION_PGPORT}/${RECOMMENDATION_PGDATABASE}
+      - SPRING_DATASOURCE_USERNAME=${RECOMMENDATION_PGUSER}
+      - SPRING_DATASOURCE_PASSWORD=${RECOMMENDATION_PGPASSWORD}
+    ports:
+      - "${BENCHMARK_MICROSERVICE_PORT}"
+    networks:
+      - microservice
+      - recommendation_db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 ${BENCHMARK_MICROSERVICE_PORT}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      recommendation_db:
+        condition: service_healthy
+
   users_db:
-    image: postgres:15-alpine
+    image: postgres:18.4-alpine3.23
     ports:
       - ${USERS_DB_PORT}
     environment:
@@ -102,9 +154,15 @@ services:
       POSTGRES_PASSWORD: ${USERS_DB_POSTGRES_PASSWORD}
       POSTGRES_DB: ${USERS_DB_POSTGRES_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - users_db
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${USERS_DB_POSTGRES_USER} -d ${USERS_DB_POSTGRES_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${USERS_DB_POSTGRES_USER} -d ${USERS_DB_POSTGRES_DB}",
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -120,10 +178,14 @@ services:
       POSTGRES_DB: ${RECOMMENDATION_DB_POSTGRES_DB}
       PGDATA: /data/postgres
     networks:
-      - computer_builder_db
+      - recommendation_db
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${RECOMMENDATION_DB_POSTGRES_USER} -d ${RECOMMENDATION_DB_POSTGRES_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${RECOMMENDATION_DB_POSTGRES_USER} -d ${RECOMMENDATION_DB_POSTGRES_DB}",
+        ]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -135,5 +197,9 @@ volumes:
   recommendation_data:
 
 networks:
-  computer_builder_db:
+  microservice:
+    driver: bridge
+  users_db:
+    driver: bridge
+  recommendation_db:
     driver: bridge

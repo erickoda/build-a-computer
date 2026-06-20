@@ -1,0 +1,77 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.0.6'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.google.protobuf' version '0.9.5'
+}
+
+group = 'com.buildpc'
+version = '0.0.1-SNAPSHOT'
+description = 'benchmark_service'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('springGrpcVersion', "1.0.3")
+    grpcVersion         = '1.63.0'
+    protobufVersion     = '3.25.3'
+    grpcSpringBoot      = '3.1.0.RELEASE'
+    set('flyway.version', '12.7.0')
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'io.grpc:grpc-services'
+    implementation 'org.springframework.grpc:spring-grpc-server-spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-flyway'
+    implementation 'org.flywaydb:flyway-database-postgresql'
+    compileOnly 'org.projectlombok:lombok'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+    testImplementation 'org.springframework.grpc:spring-grpc-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
+    implementation 'org.postgresql:postgresql'
+    testCompileOnly 'org.projectlombok:lombok'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.grpc:spring-grpc-dependencies:${springGrpcVersion}"
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc'
+    }
+    plugins {
+        grpc {
+            artifact = 'io.grpc:protoc-gen-grpc-java'
+        }
+    }
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {
+//                option '@generated=omit'
+            }
+        }
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

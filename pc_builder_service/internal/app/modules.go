@@ -10,7 +10,6 @@ import (
 	"go.uber.org/zap"
 
 	pb "github.com/erickoda/build-a-computer/pc_builder_service/pkg/protos"
-	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 
 	"github.com/erickoda/build-a-computer/pc_builder_service/internal/adapters/db"
@@ -21,34 +20,32 @@ import (
 var Module = fx.Options(
 	fx.Provide(
 		db.NewDataBase,
-		
+
 		db.NewBenchmarkRepositoryImpl,
-		
+
 		db.NewCPURepositoryImpl,
-		
+
 		db.NewGPURepositoryImpl,
-		
+
 		db.NewRAMMemoryRepositoryImpl,
-		
+
 		db.NewMotherBoardRepositoryImpl,
-		
+
 		db.NewPowerSourceRepositoryImpl,
-		
+
 		db.NewSSDRepositoryImpl,
-		
+
 		db.NewGameRepositoryImpl,
 
 		zap.NewDevelopment,
-		
+
 		services.NewBuilderService,
-		
+
 		grpcHandler.NewBuilderHandler,
-		
+
 		NewGRPCServer,
 	),
 	fx.Invoke(
-		db.ExecOperationBeforeMigration,
-		db.Migrate,
 		RegisterServer,
 	),
 )
@@ -57,7 +54,7 @@ func NewGRPCServer() *grpc.Server {
 	return grpc.NewServer()
 }
 
-func recoverServer(){
+func recoverServer() {
 	if r := recover(); r != nil {
 		log.Println("server recovered from panic:", r)
 	}
@@ -71,9 +68,7 @@ func RegisterServer(
 
 	pb.RegisterBuilderServiceServer(server, handler)
 
-	_ = godotenv.Load(".env")
-
-	var addr string = os.Getenv("PC_BUILDER_MICROSERVICE_ADDR")
+	var addr string = os.Getenv("ADDR")
 
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
@@ -85,7 +80,7 @@ func RegisterServer(
 			defer recoverServer()
 
 			go func() {
-				
+
 				if err := server.Serve(lis); err != nil {
 					log.Fatal(err)
 				}

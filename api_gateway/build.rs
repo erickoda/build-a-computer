@@ -5,11 +5,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             &[
                 "../proto/auth/auth.proto",
                 "../proto/user/user.proto",
-                "../proto/recommendation/game.proto",
                 "../proto/recommendation/builder.proto",
-                "../proto/recommendation/benchmark.proto",
+                "../proto/benchmark/benchmark.proto",
+                "../proto/benchmark/game.proto",
             ],
-            &["../proto", "../proto/recommendation"],
+            &["../proto", "../proto/recommendation", "../proto/benchmark"],
         )?;
 
     Ok(())

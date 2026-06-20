@@ -19,3 +19,5 @@ export const routesInfos: RouteItems[] = [
     allowedRoles: ['admin', 'supervisor'],
   },
 ];
+
+export const publicRoutes = ['/sign-in', '/sign-up', '/forgot-password'];

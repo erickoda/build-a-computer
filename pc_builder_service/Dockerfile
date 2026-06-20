@@ -1,10 +1,10 @@
 FROM golang:1.26.3-alpine AS build-stage
 
-RUN apk update && \
-    apk add --no-cache protoc protobuf-dev curl unzip git
+# RUN apk update && \
+#     apk add --no-cache protoc protobuf-dev curl unzip git
 
-RUN GOPROXY=direct go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
-    && GOPROXY=direct go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+# RUN GOPROXY=direct go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
+#     && GOPROXY=direct go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 WORKDIR /app
 
@@ -13,18 +13,20 @@ RUN go mod download
 
 COPY . .
 
-RUN protoc -I pkg/protos --experimental_allow_proto3_optional --go_out=. \
-    --go_opt=module=github.com/erickoda/build-a-computer/pc_builder_service \
-    --go-grpc_out=. \
-    --go-grpc_opt=module=github.com/erickoda/build-a-computer/pc_builder_service \
-    pkg/protos/*.proto
+# RUN protoc -I pkg/protos --experimental_allow_proto3_optional --go_out=. \
+#  --go_opt=module=github.com/erickoda/build-a-computer/pc_builder_service \
+#   --go-grpc_out=. \
+#    --go-grpc_opt=module=github.com/erickoda/build-a-computer/pc_builder_service \
+#    pkg/protos/*.proto
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o pc_builder_service cmd/server/main.go
 
 FROM alpine:3.23 AS security-provider
 RUN adduser -D -g '' -u 10001 appuser
 
-FROM scratch AS run-stage
+FROM alpine:3.23 AS run-stage
+
+RUN apk add --no-cache bash
 
 WORKDIR /app
 
