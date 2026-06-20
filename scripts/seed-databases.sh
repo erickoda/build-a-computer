@@ -142,18 +142,20 @@ AUTH_HEADER="Authorization: Bearer $TOKEN"
 
 post() {
   local path="$1" body="$2"
+  # REMOVED: 2>/dev/null || true
   curl -fsS -X POST "$API_BASE$path" \
     -H "$AUTH_HEADER" \
     -H "Content-Type: application/json" \
-    -d "$body" 2>/dev/null || true
+    -d "$body"
 }
 
 create_or_find() {
   local path="$1" body="$2" find_filter="$3"
   local id
+  # REMOVED silencing filters here too
   id="$(post "$path" "$body" | jq -r '.id // empty' 2>/dev/null || true)"
   if [ -z "$id" ]; then
-    id="$(curl -fsS "$API_BASE$path" 2>/dev/null | jq -r "$find_filter" 2>/dev/null | head -1 || true)"
+    id="$(curl -fsS "$API_BASE$path" | jq -r "$find_filter" 2>/dev/null || true)"
   fi
   echo "$id"
 }

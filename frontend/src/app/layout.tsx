@@ -1,6 +1,7 @@
+import HamburgerMenu from '@/src/components/hamburger-menu';
 import type { Metadata } from 'next';
 import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
-import HamburgerMenu from '@/src/components/hamburger-menu';
+import BackButton from '../components/back-button';
 import './globals.css';
 import { Providers } from './providers';
 
@@ -8,13 +9,13 @@ const ibmPlexSans = IBM_Plex_Sans({
   variable: '--font-ibm-plex-sans',
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
-})
+});
 
 const ibmPlexMono = IBM_Plex_Mono({
   variable: '--font-ibm-plex-mono',
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
-})
+});
 
 export const metadata: Metadata = {
   title: 'Create Next App',
@@ -35,6 +36,18 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <Providers>
           <HamburgerMenu />
+          <BackButton
+            fallbackHref="/"
+            className={[
+              'fixed top-3 left-15 z-50 flex items-center justify-center gap-2 px-2 py-5 rounded-lg border ',
+              'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
+              'hover:border-white/25 hover:bg-black/40',
+              'border-white/8 bg-black',
+              'backdrop-blur-[50px]',
+              'hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(175,175,175,0.35)]',
+              'shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_16px_rgba(175,175,175,0.25)]',
+            ].join(' ')}
+          />
           {children}
         </Providers>
       </body>
