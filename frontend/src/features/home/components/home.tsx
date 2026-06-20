@@ -1,8 +1,8 @@
 'use client';
 
-import { MilkyWayField } from '@/src/components/milky-way-field';
+import { milkyWayLayer } from '@/src/components/milky-way-field';
+import { moteLayer } from '@/src/components/mote-field';
 import Link from 'next/link';
-import { MoteField } from '../../../components/mote-field';
 import { SplitFieldBackground } from './split-field';
 
 export function LandingPage() {
@@ -18,13 +18,13 @@ export function LandingPage() {
         }}
       />
 
-      <SplitFieldBackground right={<MoteField />} left={<MilkyWayField />} />
+      <SplitFieldBackground right={moteLayer} left={milkyWayLayer} />
 
       {/* Left: Build a Computer */}
       <Link
         href={'/build-pc'}
         type="button"
-        className="group relative z-10 flex-1 flex flex-col items-center justify-center gap-6 px-8 transition-colors hover:backdrop-blur-[3px] active:bg-muted/10"
+        className="group relative z-10 flex-1 flex flex-col items-center justify-center gap-6 px-8 transition-colors backdrop-blur-[1px] hover:backdrop-blur-[3px] active:bg-muted/10"
       >
         <div
           className={[
@@ -48,17 +48,17 @@ export function LandingPage() {
 
       {/* Divider */}
       {/*<div className="relative z-10 w-px bg-border" />*/}
-      {/*<div
+      <div
         className="relative z-15 h-full pointer-events-none"
         style={{
-          width: 40,
+          width: 80,
           // transition: 'left 600ms cubic-bezier(0.4,0,0.2,1)',
-          background: '#040404ff',
+          background: '#040404f0',
           // background:
           //   'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.65) 45%, rgba(0,0,0,0.65) 55%, transparent 100%)',
-          filter: 'blur(10px)',
+          filter: 'blur(20px)',
         }}
-      />*/}
+      />
 
       {/* Right: Search Benchmarks */}
       <Link

@@ -41,6 +41,24 @@ export type CanvasLayer<State> = {
     elapsed: number,
     reduceMotion: boolean,
   ) => void;
+  /**
+   * Set this when the layer itself clears or fully repaints its own region
+   * every frame (e.g. milkyWayLayer's per-frame fade-to-black fillRect
+   * covers its entire size). For layers that draw additively without
+   * clearing first (e.g. moteLayer, designed to be stacked *on top of* a
+   * layer that already repainted the shared canvas), leave this false/unset
+   * so the driver clears that layer's own region before calling its draw —
+   * otherwise every frame's draws accumulate forever, which is wrong the
+   * moment nothing else is guaranteed to have painted over this layer's
+   * region first (e.g. running it alone, or side-by-side in its own
+   * viewport with nothing sharing that space).
+   *
+   * This lives on the layer itself (not on a per-position wrapper) because
+   * it's an intrinsic property of how that layer draws, independent of
+   * where or alongside what it's placed — milkyWayLayer paints its own
+   * base whether it's on the left, the right, or the only layer on screen.
+   */
+  paintsOwnBase?: boolean;
 };
 
 /**
@@ -183,9 +201,21 @@ export function CanvasLayerDriver({
           ctx!.rect(viewport.x, viewport.y, viewport.width, viewport.height);
           ctx!.clip();
           ctx!.translate(viewport.x, viewport.y);
+
+          // A layer that doesn't paint its own opaque/full-region base each
+          // frame (e.g. moteLayer, which only draws additively) needs its
+          // own region cleared first — see CanvasLayer.paintsOwnBase.
+          if (!layer.paintsOwnBase) {
+            ctx!.clearRect(0, 0, effectiveSize.width, effectiveSize.height);
+          }
+
           layer.draw(ctx!, state, effectiveSize, elapsed, reduceMotion);
           ctx!.restore();
         } else {
+          // No viewport (today's full-canvas stacked usage): unchanged
+          // behavior — a layer without a viewport is expected to either
+          // paint its own base (first in the stack) or rely on an earlier
+          // layer in the array having already done so.
           layer.draw(ctx!, state, effectiveSize, elapsed, reduceMotion);
         }
       }

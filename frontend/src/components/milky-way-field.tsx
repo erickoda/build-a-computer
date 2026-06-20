@@ -101,10 +101,16 @@ function makeParticles(count: number, maxRadius: number): Particle[] {
 }
 
 export const milkyWayLayer: CanvasLayer<GalaxyState> = {
+  // This layer repaints its entire region every frame (a near-opaque
+  // fade-to-black fillRect, see draw() below) — so the driver doesn't need
+  // to separately clear this layer's region before calling draw. See
+  // CanvasLayer.paintsOwnBase in canvas-layer-driver.tsx.
+  paintsOwnBase: true,
+
   setup(ctx, size) {
     const centerX = size.width / 2;
     const centerY = size.height / 2;
-    const maxRadius = Math.hypot(size.width, size.height) * 0.42;
+    const maxRadius = Math.hypot(size.width, size.height) * 0.52;
 
     const density = (size.width * size.height) / 2600;
     const count = Math.max(250, Math.min(1600, Math.round(density)));
