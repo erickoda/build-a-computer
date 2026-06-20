@@ -11,9 +11,9 @@ import useFetchRams from '../hooks/fetchRams';
 import { CreateBenchmarkFormValues, createBenchmarkSchema } from '../schemas/createBenchmarkSchema';
 import { CreateBenchmarkRequestDto, graphicsQualities, resolutions } from '../types/dtos';
 import { type ComboboxOption, HardwareCombobox } from './create-benchmark/hardware-combobox';
-import { Field } from './create-benchmark/form-field';
+import { Field } from '@/src/components/form-field';
 import { PageHeader } from './create-benchmark/page-header';
-import { SectionHeader } from './create-benchmark/section-header';
+import { SectionHeader } from '@/src/components/section-header';
 import { SuccessMessage } from './create-benchmark/success-message';
 
 // ─── Main page ────────────────────────────────────────────────────────────────
