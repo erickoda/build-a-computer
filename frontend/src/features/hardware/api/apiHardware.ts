@@ -17,6 +17,7 @@ import {
 export type HardwareResourceApi<TResponse, TCreate> = {
   list: () => Promise<ApiResult<TResponse[]>>;
   create: (dto: TCreate) => Promise<ApiResult<TResponse>>;
+  update: (id: string, dto: TCreate) => Promise<ApiResult<TResponse>>;
   remove: (id: string) => Promise<ApiResult<void>>;
 };
 
@@ -26,6 +27,8 @@ function createHardwareResourceApi<TResponse, TCreate>(
   return {
     list: () => api<TResponse[], void>(path, { method: 'GET' }),
     create: (dto: TCreate) => api<TResponse, TCreate>(path, { method: 'POST', payload: dto }),
+    update: (id: string, dto: TCreate) =>
+      api<TResponse, TCreate>(`${path}/${id}`, { method: 'PATCH', payload: dto }),
     remove: (id: string) => api<void, void>(`${path}/${id}`, { method: 'DELETE' }),
   };
 }

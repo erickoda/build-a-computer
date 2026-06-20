@@ -39,6 +39,31 @@ export function emptyValuesFor(fields: FieldConfig[]): Record<string, string | b
   return values;
 }
 
+export function valuesFor<TItem>(
+  fields: FieldConfig[],
+  item: TItem,
+): Record<string, string | boolean> {
+  const values: Record<string, string | boolean> = {};
+
+  for (const field of fields) {
+    const value = (item as Record<string, unknown>)[field.name];
+
+    switch (field.kind) {
+      case 'boolean':
+        values[field.name] = Boolean(value);
+        break;
+      case 'date':
+        values[field.name] = value ? String(value).slice(0, 10) : '';
+        break;
+      default:
+        values[field.name] = value === null || value === undefined ? '' : String(value);
+        break;
+    }
+  }
+
+  return values;
+}
+
 export function toPayload<TCreate>(fields: FieldConfig[], values: Record<string, string | boolean>): TCreate {
   const payload: Record<string, unknown> = {};
 

@@ -63,6 +63,12 @@ export type GameResponseDto = {
   updated_at?: string;
 };
 
+export type UpdateGameRequestDto = {
+  name: string;
+  img?: number[] | null;
+  necessary_disk: number;
+};
+
 // ─── Benchmark ────────────────────────────────────────────────────────────────
 
 export type CreateBenchmarkRequestDto = {

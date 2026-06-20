@@ -2,11 +2,12 @@
 
 import { ConfirmDeleteModal } from '@/src/components/confirm-delete-modal';
 import { Spinner, Table } from '@heroui/react';
-import { ColumnConfig } from '../types/fieldConfig';
+import { EditHardwareModal } from './edit-hardware-modal';
+import { ColumnConfig, FieldConfig } from '../types/fieldConfig';
 
 type HardwareItem = { id: string };
 
-type HardwareTableProps<T extends HardwareItem> = {
+type HardwareTableProps<T extends HardwareItem, TUpdate> = {
   items: T[];
   columns: ColumnConfig<T>[];
   isLoading: boolean;
@@ -15,9 +16,13 @@ type HardwareTableProps<T extends HardwareItem> = {
   isDeleting: boolean;
   onDelete: (id: string) => void;
   itemLabel: (item: T) => string;
+  resourceLabel: string;
+  editFields: FieldConfig[];
+  isUpdating: boolean;
+  onUpdate: (id: string, dto: TUpdate) => Promise<boolean>;
 };
 
-export function HardwareTable<T extends HardwareItem>({
+export function HardwareTable<T extends HardwareItem, TUpdate>({
   items,
   columns,
   isLoading,
@@ -26,7 +31,11 @@ export function HardwareTable<T extends HardwareItem>({
   isDeleting,
   onDelete,
   itemLabel,
-}: HardwareTableProps<T>) {
+  resourceLabel,
+  editFields,
+  isUpdating,
+  onUpdate,
+}: HardwareTableProps<T, TUpdate>) {
   if (isLoading) {
     return (
       <div className="flex min-h-[300px] w-full items-center justify-center">
@@ -74,7 +83,14 @@ export function HardwareTable<T extends HardwareItem>({
                   </Table.Cell>
                 ))}
                 {canDelete && (
-                  <Table.Cell className="px-4 py-4 text-center flex justify-center">
+                  <Table.Cell className="px-4 py-4 text-center flex justify-center gap-2">
+                    <EditHardwareModal<T, TUpdate>
+                      resourceLabel={resourceLabel}
+                      fields={editFields}
+                      item={item}
+                      onConfirm={(dto) => onUpdate(item.id, dto)}
+                      isLoading={isUpdating}
+                    />
                     <ConfirmDeleteModal
                       description={
                         <p>

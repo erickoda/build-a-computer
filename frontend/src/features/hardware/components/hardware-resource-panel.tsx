@@ -6,6 +6,7 @@ import { HardwareResourceConfig } from '../config';
 import { useCreateHardware } from '../hooks/useCreateHardware';
 import { useDeleteHardware } from '../hooks/useDeleteHardware';
 import { useHardwareList } from '../hooks/useHardwareList';
+import { useUpdateHardware } from '../hooks/useUpdateHardware';
 import { CreateHardwareModal } from './create-hardware-modal';
 import { HardwareTable } from './hardware-table';
 
@@ -22,6 +23,7 @@ export function HardwareResourcePanel<TResponse extends HardwareItem, TCreate>({
 }: HardwareResourcePanelProps<TResponse, TCreate>) {
   const { items, isLoading, error, fetchItems } = useHardwareList(resource.api.list);
   const { isLoading: isCreating, error: createError, createItem } = useCreateHardware(resource.api.create);
+  const { isLoading: isUpdating, error: updateError, updateItem } = useUpdateHardware(resource.api.update);
   const { isLoading: isDeleting, error: deleteError, deleteItem } = useDeleteHardware(resource.api.remove);
 
   const [search, setSearch] = useState('');
@@ -51,6 +53,21 @@ export function HardwareResourcePanel<TResponse extends HardwareItem, TCreate>({
 
     toast.danger(`Error while creating ${resource.label}`, {
       description: createError?.message || 'Verify the inputed data and try again.',
+    });
+    return false;
+  }
+
+  async function handleUpdate(id: string, dto: TCreate): Promise<boolean> {
+    const isSuccess = await updateItem(id, dto);
+
+    if (isSuccess) {
+      toast.success(`${resource.label} updated successfully!`);
+      await fetchItems();
+      return true;
+    }
+
+    toast.danger(`Error while updating ${resource.label}`, {
+      description: updateError?.message || 'Verify the inputed data and try again.',
     });
     return false;
   }
@@ -88,7 +105,7 @@ export function HardwareResourcePanel<TResponse extends HardwareItem, TCreate>({
         )}
       </div>
 
-      <HardwareTable
+      <HardwareTable<TResponse, TCreate>
         items={filteredItems}
         columns={resource.columns}
         isLoading={isLoading}
@@ -97,6 +114,10 @@ export function HardwareResourcePanel<TResponse extends HardwareItem, TCreate>({
         isDeleting={isDeleting}
         onDelete={handleDelete}
         itemLabel={(item) => resource.columns[0].render(item)?.toString() ?? resource.label}
+        resourceLabel={resource.label}
+        editFields={resource.fields}
+        isUpdating={isUpdating}
+        onUpdate={handleUpdate}
       />
     </div>
   );
