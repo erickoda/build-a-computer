@@ -1,6 +1,5 @@
 package com.buildpc.benchmark_service.entities;
 
-import com.buildpc.benchmark_service.entities.valueObjects.PSURankingUserType;
 import com.buildpc.benchmark_service.entities.valueObjects.SSDType;
 import com.buildpc.benchmark_service.entities.valueObjects.SSDTypeUserType;
 import jakarta.persistence.*;

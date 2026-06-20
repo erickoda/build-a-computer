@@ -1,8 +1,6 @@
 package com.buildpc.benchmark_service.services;
 
-import com.buildpc.benchmark_service.entities.CPU;
 import com.buildpc.benchmark_service.entities.Game;
-import com.buildpc.benchmark_service.exceptions.cpu.CPUNotFoundException;
 import com.buildpc.benchmark_service.exceptions.game.DuplicatedGameException;
 import com.buildpc.benchmark_service.exceptions.game.GameNotFoundException;
 import com.buildpc.benchmark_service.repository.GameRepository;
@@ -21,7 +19,7 @@ public class GameService {
     private final GameRepository gameRepository;
 
     public Game saveGame(Game game) throws DuplicatedGameException {
-        if(gameRepository.existsByNameAndNecessaryDisk(game.getName(), game.getNecessaryDisk())){
+        if (gameRepository.existsByNameAndNecessaryDisk(game.getName(), game.getNecessaryDisk())) {
             throw new DuplicatedGameException("This game already exists");
         }
 
@@ -31,7 +29,7 @@ public class GameService {
     public List<Game> searchAll() {
         List<Game> games = gameRepository.findAll();
 
-        if(games.isEmpty()){
+        if (games.isEmpty()) {
             throw new GameNotFoundException("None games was found");
         }
 
@@ -44,8 +42,8 @@ public class GameService {
         return foundGame.orElseThrow(() -> new GameNotFoundException("Can't find this Game"));
     }
 
-    public void deleteById(UUID id) throws GameNotFoundException{
-        if(!gameRepository.existsById(id))
+    public void deleteById(UUID id) throws GameNotFoundException {
+        if (!gameRepository.existsById(id))
             throw new GameNotFoundException("Can't find this game in data base");
 
         gameRepository.deleteById(id);

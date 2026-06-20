@@ -1,6 +1,5 @@
 package com.buildpc.benchmark_service.entities;
 
-import com.buildpc.benchmark_service.entities.valueObjects.PSURankingUserType;
 import com.buildpc.benchmark_service.entities.valueObjects.Performance;
 import com.buildpc.benchmark_service.entities.valueObjects.PerformanceUserType;
 import jakarta.persistence.*;
