@@ -13,6 +13,7 @@ service CPUService {
   rpc CreateCPU  (CreateCPURequest)  returns (CPUResponse);
   rpc GetCPU     (GetCPURequest)     returns (CPUResponse);
   rpc ListCPUs   (ListCPURequest)   returns (ListCPUResponse);
+  rpc UpdateCPU  (UpdateCPURequest)  returns (CPUResponse);
   rpc DeleteCPU  (DeleteCPURequest)  returns (DeleteCPUResponse);
 }
 
@@ -20,6 +21,7 @@ service GPUService {
   rpc CreateGPU  (CreateGPURequest)  returns (GPUResponse);
   rpc GetGPU     (GetGPURequest)     returns (GPUResponse);
   rpc ListGPUs   (ListGPURequest)   returns (ListGPUResponse);
+  rpc UpdateGPU  (UpdateGPURequest)  returns (GPUResponse);
   rpc DeleteGPU  (DeleteGPURequest)  returns (DeleteGPUResponse);
 }
 
@@ -27,6 +29,7 @@ service RAMService {
   rpc CreateRAM  (CreateRAMRequest)  returns (RAMResponse);
   rpc GetRAM     (GetRAMRequest)     returns (RAMResponse);
   rpc ListRAMs   (ListRAMRequest)   returns (ListRAMResponse);
+  rpc UpdateRAM  (UpdateRAMRequest)  returns (RAMResponse);
   rpc DeleteRAM  (DeleteRAMRequest)  returns (DeleteRAMResponse);
 }
 
@@ -34,6 +37,7 @@ service MotherBoardService {
   rpc CreateMotherBoard  (CreateMotherBoardRequest)  returns (MotherBoardResponse);
   rpc GetMotherBoard     (GetMotherBoardRequest)     returns (MotherBoardResponse);
   rpc ListMotherBoards   (ListMotherBoardRequest)   returns (ListMotherBoardResponse);
+  rpc UpdateMotherBoard  (UpdateMotherBoardRequest)  returns (MotherBoardResponse);
   rpc DeleteMotherBoard  (DeleteMotherBoardRequest)  returns (DeleteMotherBoardResponse);
 }
 
@@ -41,6 +45,7 @@ service PSUService {
   rpc CreatePSU  (CreatePSURequest)  returns (PSUResponse);
   rpc GetPSU     (GetPSURequest)     returns (PSUResponse);
   rpc ListPSUs   (ListPSURequest)   returns (ListPSUResponse);
+  rpc UpdatePSU  (UpdatePSURequest)  returns (PSUResponse);
   rpc DeletePSU  (DeletePSURequest)  returns (DeletePSUResponse);
 }
 
@@ -48,6 +53,7 @@ service SSDService {
   rpc CreateSSD  (CreateSSDRequest)  returns (SSDResponse);
   rpc GetSSD     (GetSSDRequest)     returns (SSDResponse);
   rpc ListSSDs   (ListSSDRequest)   returns (ListSSDResponse);
+  rpc UpdateSSD  (UpdateSSDRequest)  returns (SSDResponse);
   rpc DeleteSSD  (DeleteSSDRequest)  returns (DeleteSSDResponse);
 }
 
@@ -76,6 +82,25 @@ message GetCPURequest {
 message ListCPURequest {
 
 }
+message UpdateCPURequest {
+  string id = 1;
+  string brand = 2;
+  string gen = 3;
+  string family = 4;
+  string series = 5;
+  int32 cores = 6;
+  int32 threads = 7;
+  float base_clock = 8;
+  float max_clock = 9;
+  int32 cache = 10;
+  string socket = 11;
+  bool graphics = 12;
+  bool oc = 13;
+  int32 recommended_power = 14;
+  float avg_price = 15;
+  google.protobuf.Timestamp release_date = 16;
+  optional bytes img = 17;
+}
 message DeleteCPURequest {
     string id = 1;
 }
@@ -99,6 +124,20 @@ message GetGPURequest {
 message ListGPURequest {
 
 }
+message UpdateGPURequest {
+  string id = 1;
+  string brand = 2;
+  string family = 3;
+  string series = 4;
+  int32 memory_amount = 5;
+  string memory_gen = 6;
+  int32 cores = 7;
+  int32 pci_express = 8;
+  int32 recommended_power = 9;
+  float avg_price = 10;
+  google.protobuf.Timestamp release_date = 11;
+  optional bytes img = 12;
+}
 message DeleteGPURequest {
     string id = 1;
 }
@@ -117,6 +156,16 @@ message GetRAMRequest {
 }
 message ListRAMRequest {
 
+}
+message UpdateRAMRequest {
+  string id = 1;
+  string brand = 2;
+  string ddr = 3;
+  int32 memory_amount = 4;
+  float avg_price = 5;
+  int32 frequency_mhz = 6;
+  string series = 7;
+  optional bytes img = 8;
 }
 message DeleteRAMRequest {
     string id = 1;
@@ -143,6 +192,22 @@ message GetMotherBoardRequest {
 message ListMotherBoardRequest {
 
 }
+message UpdateMotherBoardRequest {
+  string id = 1;
+  string brand = 2;
+  string series = 3;
+  string socket = 4;
+  string ddr = 5;
+  int32 memory_slots = 6;
+  int32 max_ram = 7;
+  float max_ram_frequency_mhz = 8;
+  int32 m2_slots = 9;
+  int32 pci_express_x16 = 10;
+  int32 vrm = 11;
+  float avg_price = 12;
+  int32 score = 13;
+  optional bytes img = 14;
+}
 message DeleteMotherBoardRequest {
     string id = 1;
 }
@@ -162,6 +227,17 @@ message GetPSURequest {
 }
 message ListPSURequest {
 
+}
+message UpdatePSURequest {
+  string id = 1;
+  string brand = 2;
+  string series = 3;
+  int32 power_amount = 4;
+  string ranking = 5;
+  int32 score = 6;
+  bool eighty_plus_cert = 7;
+  float avg_price = 8;
+  optional bytes img = 9;
 }
 message DeletePSURequest {
     string id = 1;
@@ -183,6 +259,18 @@ message GetSSDRequest {
 }
 message ListSSDRequest {
 
+}
+message UpdateSSDRequest {
+  string id = 1;
+  string brand = 2;
+  string series = 3;
+  int32 amount = 4;
+  string type = 5;
+  int32 reading = 6;
+  int32 writing = 7;
+  float avg_price = 8;
+  int32 score = 9;
+  optional bytes img = 10;
 }
 message DeleteSSDRequest {
     string id = 1;

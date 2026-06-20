@@ -12,6 +12,7 @@ service GameService {
   rpc CreateGame (CreateGameRequest) returns (GameResponse);
   rpc GetGame (GetGameRequest) returns (GameResponse);
   rpc ListGames (ListGameRequest) returns (ListGameResponse);
+  rpc UpdateGame (UpdateGameRequest) returns (GameResponse);
   rpc DeleteGame (DeleteGameRequest) returns (DeleteGameResponse);
 }
 
@@ -27,6 +28,13 @@ message GetGameRequest {
 
 message ListGameRequest {
 
+}
+
+message UpdateGameRequest {
+  string id = 1;
+  string name = 2;
+  optional bytes img = 3;
+  int32 necessary_disk = 4;
 }
 
 message DeleteGameRequest {
