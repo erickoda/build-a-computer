@@ -11,6 +11,9 @@ type BenchmarkResultsProps = {
   gameName: (b: BenchmarkResponseDto) => string;
   selectedId: string | null;
   onToggleSelected: (id: string) => void;
+  canDelete?: (b: BenchmarkResponseDto) => boolean;
+  isDeleting?: boolean;
+  onDelete?: (id: string) => void;
 };
 
 export function BenchmarkResults({
@@ -21,6 +24,9 @@ export function BenchmarkResults({
   gameName,
   selectedId,
   onToggleSelected,
+  canDelete,
+  isDeleting,
+  onDelete,
 }: BenchmarkResultsProps) {
   if (isLoading) {
     return (
@@ -65,6 +71,9 @@ export function BenchmarkResults({
               view="list"
               expanded={selectedId === benchmark.id}
               onToggle={() => onToggleSelected(benchmark.id)}
+              canDelete={canDelete?.(benchmark)}
+              isDeleting={isDeleting}
+              onDelete={() => onDelete?.(benchmark.id)}
             />
           ))}
         </div>
@@ -82,6 +91,9 @@ export function BenchmarkResults({
           view="grid"
           expanded={selectedId === benchmark.id}
           onToggle={() => onToggleSelected(benchmark.id)}
+          canDelete={canDelete?.(benchmark)}
+          isDeleting={isDeleting}
+          onDelete={() => onDelete?.(benchmark.id)}
         />
       ))}
     </div>

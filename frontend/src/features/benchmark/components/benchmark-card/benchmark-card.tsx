@@ -19,6 +19,9 @@ type BenchmarkCardProps = {
   view?: 'grid' | 'list';
   expanded?: boolean;
   onToggle?: () => void;
+  canDelete?: boolean;
+  isDeleting?: boolean;
+  onDelete?: () => void;
 };
 
 export function BenchmarkCard({
@@ -27,6 +30,9 @@ export function BenchmarkCard({
   view = 'grid',
   expanded = false,
   onToggle,
+  canDelete,
+  isDeleting,
+  onDelete,
 }: BenchmarkCardProps) {
   const { gpu, cpu, ram } = b;
   const totalPrice = systemPrice(b);
@@ -145,7 +151,14 @@ export function BenchmarkCard({
             borderColor: expanded ? undefined : 'transparent',
           }}
         >
-          <HardwareDetail gpu={gpu} cpu={cpu} ram={ram} />
+          <HardwareDetail
+            gpu={gpu}
+            cpu={cpu}
+            ram={ram}
+            canDelete={canDelete}
+            isDeleting={isDeleting}
+            onDelete={onDelete}
+          />
         </div>
       </div>
     );
@@ -279,7 +292,14 @@ export function BenchmarkCard({
       {/* Expanded hardware detail panel — right side when in grid mode */}
       {expanded && (
         <div className="flex-1 overflow-auto animate-in fade-in slide-in-from-right-4 duration-300">
-          <HardwareDetail gpu={gpu} cpu={cpu} ram={ram} />
+          <HardwareDetail
+            gpu={gpu}
+            cpu={cpu}
+            ram={ram}
+            canDelete={canDelete}
+            isDeleting={isDeleting}
+            onDelete={onDelete}
+          />
         </div>
       )}
     </article>

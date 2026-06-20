@@ -1,9 +1,13 @@
 'use client';
 
+import { useCurrentUserId } from '@/src/hooks/use-current-user-id';
+import { useRole } from '@/src/hooks/use-role';
 import { ArrowLeftIcon, PlusIcon } from '@heroicons/react/16/solid';
+import { toast } from '@heroui/react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { MoteField } from '../../home/components/mote-field';
+import useDeleteBenchmark from '../hooks/deleteBenchmark';
 import useFetchBenchmarks from '../hooks/fetchBenchmarks';
 import useFetchGames from '../hooks/fetchGames';
 import type { BenchmarkResponseDto } from '../types/dtos';
@@ -18,6 +22,10 @@ import { ResizablePanelGroup } from './layout/resizable-panel-group';
 const BenchmarksPage = () => {
   const { benchmarks, isLoading: isLoadingBenchmarks, error: errorBenchmarks, fetchBenchmarks } = useFetchBenchmarks();
   const { games, fetchGames } = useFetchGames();
+  const { isLoading: isDeleting, error: errorDelete, deleteBenchmarkRequest } = useDeleteBenchmark();
+
+  const role = useRole();
+  const currentUserId = useCurrentUserId();
 
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [sort, setSort] = useState<SortKey>('avg-fps-desc');
@@ -28,6 +36,24 @@ const BenchmarksPage = () => {
     fetchBenchmarks();
     fetchGames();
   }, [fetchBenchmarks, fetchGames]);
+
+  function canDelete(b: BenchmarkResponseDto) {
+    return role === 'admin' || role === 'supervisor' || b.user_id === currentUserId;
+  }
+
+  async function handleDelete(id: string) {
+    const isSuccess = await deleteBenchmarkRequest(id);
+
+    if (isSuccess) {
+      toast.success('Benchmark deleted successfully!');
+      setSelectedId((prev) => (prev === id ? null : prev));
+      await fetchBenchmarks();
+    } else {
+      toast.danger('Failed to delete benchmark', {
+        description: errorDelete?.message || 'Please try again later.',
+      });
+    }
+  }
 
   const gameNameById = useMemo(
     () => new Map(games.map((g) => [g.id, g.name])),
@@ -187,6 +213,9 @@ const BenchmarksPage = () => {
                 gameName={gameName}
                 selectedId={selectedId}
                 onToggleSelected={toggleSelected}
+                canDelete={canDelete}
+                isDeleting={isDeleting}
+                onDelete={handleDelete}
               />
             </div>
           </div>
