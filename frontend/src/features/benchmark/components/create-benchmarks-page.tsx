@@ -89,7 +89,7 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
   }));
 
   const qualityOptions: ComboboxOption[] = graphicsQualities.map((q) => ({
-    value: q,
+    value: q.toLowerCase(),
     label: q,
   }));
 
