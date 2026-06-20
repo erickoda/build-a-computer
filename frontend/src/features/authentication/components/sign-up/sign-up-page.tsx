@@ -1,5 +1,8 @@
 'use client';
 
+import { getRoleFromToken } from '@/src/utils/jwt';
+import { roleDefaultRedirect } from '@/src/utils/redirect';
+import { HomeIcon } from '@heroicons/react/16/solid';
 import {
   Button,
   ErrorMessage,
@@ -12,11 +15,9 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import useSignUp from '../../hooks/signUpHook';
 import { LoginFormValues, loginSchema } from '../../schemas/signUp';
 import { SignUpRequestDto } from '../../types/dtos';
-import useSignUp from '../../hooks/signUpHook';
-import { getRoleFromToken } from '@/src/utils/jwt';
-import { roleDefaultRedirect } from '@/src/utils/redirect';
 
 const SignUpPage = () => {
   const router = useRouter();
@@ -27,7 +28,7 @@ const SignUpPage = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema)
+    resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormValues) => {
@@ -40,14 +41,15 @@ const SignUpPage = () => {
     const { ok, token } = await signUp(dto);
 
     if (ok && token) {
-      toast.success("Account created successfully!");
+      toast.success('Account created successfully!');
 
       const role = getRoleFromToken(token);
 
       router.push(role ? roleDefaultRedirect[role] : '/');
     } else {
       toast.danger('An error occurred while signing up', {
-        description: error?.message || "Please check your details and try again.",
+        description:
+          error?.message || 'Please check your details and try again.',
       });
     }
   };
@@ -56,6 +58,14 @@ const SignUpPage = () => {
 
   return (
     <>
+      <Link
+        href="/"
+        className="absolute self-center top-5 z-20 flex items-center gap-1.5 rounded-lg border border-white/20 bg-black/30 px-3 py-2 text-sm font-medium text-white backdrop-blur-md transition-all duration-200 hover:border-white/40 hover:bg-black/50 active:scale-95"
+      >
+        <HomeIcon className="size-3.5" />
+        Home
+      </Link>
+
       <div className="flex flex-col space-y-1 text-center">
         <h1 className="text-3xl font-bold tracking-tight">Welcome!</h1>
         <p className="text-sm text-default-500">
@@ -121,7 +131,7 @@ const SignUpPage = () => {
           size="lg"
           isDisabled={isBusy}
         >
-          {isBusy ? "Signing Up..." : "Sign Up"}
+          {isBusy ? 'Signing Up...' : 'Sign Up'}
         </Button>
       </form>
 

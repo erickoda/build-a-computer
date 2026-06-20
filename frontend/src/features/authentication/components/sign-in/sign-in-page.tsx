@@ -1,14 +1,15 @@
 'use client';
 
-import { toast, Button, ErrorMessage, Input, Link } from '@heroui/react';
-import { useForm } from 'react-hook-form';
+import { getRoleFromToken } from '@/src/utils/jwt';
+import { roleDefaultRedirect } from '@/src/utils/redirect';
+import { HomeIcon } from '@heroicons/react/16/solid';
+import { Button, ErrorMessage, Input, Link, toast } from '@heroui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import useSignIn from '../../hooks/signInHook';
 import { SignInFormValues, signInSchema } from '../../schemas/signIn';
 import { SignInRequestDto } from '../../types/dtos';
-import useSignIn from '../../hooks/signInHook';
-import { useRouter } from 'next/navigation';
-import { roleDefaultRedirect } from '@/src/utils/redirect';
-import { getRoleFromToken } from '@/src/utils/jwt';
 
 const SignInPage = () => {
   const { error, isLoading, signIn } = useSignIn();
@@ -17,28 +18,29 @@ const SignInPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm<SignInFormValues>({
-    resolver: zodResolver(signInSchema)
+    resolver: zodResolver(signInSchema),
   });
 
   const onSubmit = async (data: SignInFormValues) => {
     const dto: SignInRequestDto = {
       email: data.email,
-      password: data.password
+      password: data.password,
     };
 
     const { ok, token } = await signIn(dto);
 
     if (ok && token) {
-      toast.success("Signed in successfully!");
+      toast.success('Signed in successfully!');
 
       const role = getRoleFromToken(token);
 
       router.push(role ? roleDefaultRedirect[role] : '/');
     } else {
-      toast.danger("An error occurred while signing in", {
-        description: error?.message || "Please check your credentials and try again.",
+      toast.danger('An error occurred while signing in', {
+        description:
+          error?.message || 'Please check your credentials and try again.',
       });
     }
   };
@@ -47,6 +49,14 @@ const SignInPage = () => {
 
   return (
     <>
+      <Link
+        href="/"
+        className="absolute self-center top-5 z-20 flex items-center gap-1.5 rounded-lg border border-white/20 bg-black/30 px-3 py-2 text-sm font-medium text-white backdrop-blur-md transition-all duration-200 hover:border-white/40 hover:bg-black/50 active:scale-95"
+      >
+        <HomeIcon className="size-3.5" />
+        Home
+      </Link>
+
       <div className="flex flex-col space-y-1 text-center">
         <h1 className="text-3xl font-bold tracking-tight">Welcome Back!</h1>
         <p className="text-sm text-default-500">
@@ -54,8 +64,10 @@ const SignInPage = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4 font-sans">
-
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col space-y-4 font-sans"
+      >
         <div className="flex flex-col space-y-1">
           <Input
             type="email"
@@ -82,7 +94,10 @@ const SignInPage = () => {
           </ErrorMessage>
 
           <div className="flex justify-end w-full pt-1">
-            <Link href="/forgot-password" className="font-medium hover:opacity-80">
+            <Link
+              href="/forgot-password"
+              className="font-medium hover:opacity-80"
+            >
               Forgot password?
             </Link>
           </div>
@@ -95,7 +110,7 @@ const SignInPage = () => {
           size="lg"
           isDisabled={isBusy}
         >
-          {isBusy ? "Signing in..." : "Sign In"}
+          {isBusy ? 'Signing in...' : 'Sign In'}
         </Button>
       </form>
 

@@ -1,5 +1,11 @@
+import AuthButton from '@/src/components/auth-button';
 import { Bars3Icon, Squares2X2Icon } from '@heroicons/react/16/solid';
-import { ListBox, Select, ToggleButton, ToggleButtonGroup } from '@heroui/react';
+import {
+  ListBox,
+  Select,
+  ToggleButton,
+  ToggleButtonGroup,
+} from '@heroui/react';
 
 export type SortKey =
   | 'avg-fps-desc'
@@ -79,6 +85,8 @@ export function ListToolbar({
             <Bars3Icon className="size-4" />
           </ToggleButton>
         </ToggleButtonGroup>
+
+        <AuthButton className="flex z-20" />
       </div>
     </header>
   );

@@ -13,16 +13,33 @@ import useFetchGames from '../hooks/fetchGames';
 import type { BenchmarkResponseDto } from '../types/dtos';
 import { systemPrice } from './benchmark-card/format';
 import { BenchmarkResults } from './benchmark-list/benchmark-results';
-import { type Density, ListToolbar, type SortKey } from './benchmark-list/list-toolbar';
-import { DEFAULT_FILTERS, FilterPanel, type Filters } from './filters/filter-panel';
+import {
+  type Density,
+  ListToolbar,
+  type SortKey,
+} from './benchmark-list/list-toolbar';
+import {
+  DEFAULT_FILTERS,
+  FilterPanel,
+  type Filters,
+} from './filters/filter-panel';
 import { ResizableHandle } from './layout/resizable-handle';
 import { ResizablePanel } from './layout/resizable-panel';
 import { ResizablePanelGroup } from './layout/resizable-panel-group';
 
 const BenchmarksPage = () => {
-  const { benchmarks, isLoading: isLoadingBenchmarks, error: errorBenchmarks, fetchBenchmarks } = useFetchBenchmarks();
+  const {
+    benchmarks,
+    isLoading: isLoadingBenchmarks,
+    error: errorBenchmarks,
+    fetchBenchmarks,
+  } = useFetchBenchmarks();
   const { games, fetchGames } = useFetchGames();
-  const { isLoading: isDeleting, error: errorDelete, deleteBenchmarkRequest } = useDeleteBenchmark();
+  const {
+    isLoading: isDeleting,
+    error: errorDelete,
+    deleteBenchmarkRequest,
+  } = useDeleteBenchmark();
 
   const role = useRole();
   const currentUserId = useCurrentUserId();
@@ -38,7 +55,9 @@ const BenchmarksPage = () => {
   }, [fetchBenchmarks, fetchGames]);
 
   function canDelete(b: BenchmarkResponseDto) {
-    return role === 'admin' || role === 'supervisor' || b.user_id === currentUserId;
+    return (
+      role === 'admin' || role === 'supervisor' || b.user_id === currentUserId
+    );
   }
 
   async function handleDelete(id: string) {

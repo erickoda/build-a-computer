@@ -1,5 +1,6 @@
 'use client';
 
+import AuthButton from '@/src/components/auth-button';
 import Link from 'next/link';
 import { MoteField } from './mote-field';
 
@@ -41,18 +42,6 @@ export function LandingPage() {
             Find the right components for your gaming needs.
           </p>
         </div>
-        {/*<div
-          className={[
-            'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-foreground',
-            'border border-white/15 bg-white/10 backdrop-blur-md backdrop-saturate-150',
-            'shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_1px_8px_rgba(0,0,0,0.08)]',
-            'transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            'group-hover:border-white/30 group-hover:bg-white/20',
-            'group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,110,0.25)]',
-          ].join(' ')}
-        >
-          Enter <ArrowRightIcon className="size-3.5 ml-1" />
-        </div>*/}
       </Link>
 
       {/* Divider */}
@@ -92,19 +81,8 @@ export function LandingPage() {
             Compare performance across hardware configurations and games.
           </p>
         </div>
-        {/*<div
-          className={[
-            'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-foreground',
-            'border border-white/15 bg-white/10 backdrop-blur-md backdrop-saturate-150',
-            'shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_1px_8px_rgba(0,0,0,0.08)]',
-            'transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            'group-hover:border-white/30 group-hover:bg-white/20',
-            'group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(206,212,222,0.3)]',
-          ].join(' ')}
-        >
-          Enter <ArrowRightIcon className="size-3.5 ml-1" />
-        </div>*/}
       </Link>
+      <AuthButton className="absolute right-6 top-5 z-20" />
     </div>
   );
 }
