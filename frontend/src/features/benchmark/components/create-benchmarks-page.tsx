@@ -1,9 +1,5 @@
-'use client';
-
 import { useCurrentUserId } from '@/src/hooks/use-current-user-id';
-import { ArrowLeftIcon, CheckCircleIcon } from '@heroicons/react/16/solid';
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
-import Link from 'next/link';
+import { Button, Input, Separator } from '@heroui/react';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,150 +10,11 @@ import useFetchGpus from '../hooks/fetchGpus';
 import useFetchRams from '../hooks/fetchRams';
 import { CreateBenchmarkFormValues, createBenchmarkSchema } from '../schemas/createBenchmarkSchema';
 import { CreateBenchmarkRequestDto, graphicsQualities, resolutions } from '../types/dtos';
-import { Combobox, type ComboboxOption } from './ui/combobox';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Separator } from './ui/separator';
-
-// ─── Field wrapper ────────────────────────────────────────────────────────────
-
-function Field({
-  label,
-  htmlFor,
-  error,
-  required,
-  children,
-}: {
-  label: string;
-  htmlFor?: string;
-  error?: string;
-  required?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={htmlFor} className="text-sm font-medium">
-        {label}
-        {required && <span className="ml-0.5 text-destructive">*</span>}
-      </Label>
-      {children}
-      {error && (
-        <p role="alert" className="text-xs text-destructive">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
-// ─── Section header ──────────────────────────────────────────────────────────
-
-function SectionHeader({
-  title,
-  subtitle,
-}: {
-  title: string;
-  subtitle?: string;
-}) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-        {title}
-      </h2>
-      {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
-    </div>
-  );
-}
-
-// ─── Success overlay ─────────────────────────────────────────────────────────
-
-function SuccessMessage({ onAnother }: { onAnother: () => void }) {
-  return (
-    <div className="flex h-full flex-col items-center justify-center gap-6 px-6 py-12 text-center animate-in fade-in zoom-in-95 duration-300">
-      <div className="flex size-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-        <CheckCircleIcon className="size-9 text-emerald-600 dark:text-emerald-400" />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <h2 className="text-xl font-semibold">Benchmark saved</h2>
-        <p className="text-sm text-muted-foreground">
-          Your benchmark has been submitted and will appear once indexed.
-        </p>
-      </div>
-      <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={onAnother}
-          className="rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
-        >
-          Add another
-        </button>
-        <Link
-          href={'/benchmarks'}
-          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          Back to benchmarks
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-// ─── Confirm back dialog ────────────────────────────────────────────────────
-
-function ConfirmBackDialog({
-  open,
-  onCancel,
-}: {
-  open: boolean;
-  onCancel: () => void;
-}) {
-  if (!open) return null;
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 animate-in fade-in duration-150"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirm-back-title"
-      onClick={onCancel}
-    >
-      <div
-        className="w-full max-w-sm rounded-xl border bg-background p-6 shadow-lg animate-in zoom-in-95 duration-150"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex gap-3">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/30">
-            <ExclamationTriangleIcon className="size-5 text-amber-600 dark:text-amber-400" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <h2 id="confirm-back-title" className="text-sm font-semibold">
-              Leave this page?
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              Your benchmark hasn&apos;t been saved yet. Going back will discard
-              everything you&apos;ve entered.
-            </p>
-          </div>
-        </div>
-        <div className="mt-5 flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-lg border border-input bg-background px-3.5 py-2 text-sm font-medium transition-colors hover:bg-muted"
-          >
-            Stay on page
-          </button>
-          <Link
-            href="/benchmarks"
-            className="rounded-lg bg-destructive px-3.5 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
-          >
-            Discard &amp; go back
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
+import { type ComboboxOption, HardwareCombobox } from './create-benchmark/hardware-combobox';
+import { Field } from './create-benchmark/form-field';
+import { PageHeader } from './create-benchmark/page-header';
+import { SectionHeader } from './create-benchmark/section-header';
+import { SuccessMessage } from './create-benchmark/success-message';
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
@@ -189,7 +46,6 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
   const { isLoading: isSubmitting, error: submitError, createBenchmarkRequest } = useCreateBenchmark();
 
   const [submitted, setSubmitted] = useState(false);
-  const [confirmBackOpen, setConfirmBackOpen] = useState(false);
 
   useEffect(() => {
     fetchGpus();
@@ -247,14 +103,6 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
           : '1080p · 1920 × 1080',
   }));
 
-  function requestBack() {
-    setConfirmBackOpen(true);
-  }
-
-  function cancelBack() {
-    setConfirmBackOpen(false);
-  }
-
   const onSubmit = async (data: CreateBenchmarkFormValues) => {
     if (!userId) return;
 
@@ -296,9 +144,7 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
 
   return (
     <div className="flex h-screen flex-col bg-background">
-      <PageHeader onBack={requestBack} />
-
-      <ConfirmBackDialog open={confirmBackOpen} onCancel={cancelBack} />
+      <PageHeader onBack={onBack} />
 
       <div className="flex-1 overflow-y-auto">
         <form
@@ -352,14 +198,13 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
                   name="gpu_id"
                   control={control}
                   render={({ field }) => (
-                    <Combobox
+                    <HardwareCombobox
                       id="gpu_id"
                       options={gpuOptions}
                       value={field.value}
                       onChange={field.onChange}
                       disabled={isSubmitting}
                       placeholder="Select a GPU…"
-                      searchPlaceholder="Search GPUs…"
                       emptyMessage="No GPUs match your search."
                     />
                   )}
@@ -376,14 +221,13 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
                   name="cpu_id"
                   control={control}
                   render={({ field }) => (
-                    <Combobox
+                    <HardwareCombobox
                       id="cpu_id"
                       options={cpuOptions}
                       value={field.value}
                       onChange={field.onChange}
                       disabled={isSubmitting}
                       placeholder="Select a CPU…"
-                      searchPlaceholder="Search CPUs…"
                       emptyMessage="No CPUs match your search."
                     />
                   )}
@@ -400,14 +244,13 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
                   name="ram_id"
                   control={control}
                   render={({ field }) => (
-                    <Combobox
+                    <HardwareCombobox
                       id="ram_id"
                       options={ramOptions}
                       value={field.value}
                       onChange={field.onChange}
                       disabled={isSubmitting}
                       placeholder="Select RAM…"
-                      searchPlaceholder="Search RAM…"
                       emptyMessage="No RAM modules match your search."
                     />
                   )}
@@ -434,14 +277,13 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
                   name="game_id"
                   control={control}
                   render={({ field }) => (
-                    <Combobox
+                    <HardwareCombobox
                       id="game_id"
                       options={gameOptions}
                       value={field.value}
                       onChange={field.onChange}
                       disabled={isSubmitting}
                       placeholder="Select a game…"
-                      searchPlaceholder="Search games…"
                       emptyMessage="No games match your search."
                     />
                   )}
@@ -459,14 +301,13 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
                     name="resolution"
                     control={control}
                     render={({ field }) => (
-                      <Combobox
+                      <HardwareCombobox
                         id="resolution"
                         options={resolutionOptions}
                         value={field.value}
                         onChange={field.onChange}
                         disabled={isSubmitting}
                         placeholder="Select…"
-                        searchPlaceholder="Search…"
                         emptyMessage="No resolutions found."
                       />
                     )}
@@ -483,14 +324,13 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
                     name="graphics_quality"
                     control={control}
                     render={({ field }) => (
-                      <Combobox
+                      <HardwareCombobox
                         id="graphics_quality"
                         options={qualityOptions}
                         value={field.value}
                         onChange={field.onChange}
                         disabled={isSubmitting}
                         placeholder="Select…"
-                        searchPlaceholder="Search…"
                         emptyMessage="No presets found."
                       />
                     )}
@@ -529,9 +369,9 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
                         disabled={isSubmitting}
                         className={errors.avg_fps ? 'border-destructive' : ''}
                         name={field.name}
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
                       />
                     )}
                   />
@@ -557,9 +397,9 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
                         disabled={isSubmitting}
                         className={errors.min_fps ? 'border-destructive' : ''}
                         name={field.name}
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
                       />
                     )}
                   />
@@ -585,9 +425,9 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
                         disabled={isSubmitting}
                         className={errors.max_fps ? 'border-destructive' : ''}
                         name={field.name}
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
                       />
                     )}
                   />
@@ -614,9 +454,9 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
                         disabled={isSubmitting}
                         className={`max-w-[120px] ${errors.score ? 'border-destructive' : ''}`}
                         name={field.name}
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
                       />
                     )}
                   />
@@ -638,64 +478,18 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
           </p>
         )}
         <div className="mx-auto max-w-2xl">
-          <button
+          <Button
             type="submit"
-            onClick={handleSubmit(onSubmit)}
-            disabled={isSubmitting || !isValid}
-            className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60"
+            variant="primary"
+            fullWidth
+            onPress={() => void handleSubmit(onSubmit)()}
+            isPending={isSubmitting}
+            isDisabled={isSubmitting || !isValid}
           >
-            {isSubmitting ? (
-              <>
-                <svg
-                  className="size-4 animate-spin"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                  />
-                </svg>
-                Saving…
-              </>
-            ) : (
-              'Save Benchmark'
-            )}
-          </button>
+            Save Benchmark
+          </Button>
         </div>
       </div>
     </div>
-  );
-}
-
-// ─── Page header ──────────────────────────────────────────────────────────────
-
-function PageHeader({ onBack }: { onBack: () => void }) {
-  return (
-    <header className="flex items-center gap-3 border-b px-6 py-4">
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex items-center gap-1.5 rounded-lg p-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground -ml-1.5"
-      >
-        <ArrowLeftIcon className="size-4" />
-        <span>Back</span>
-      </button>
-      <Separator orientation="vertical" className="h-4" />
-      <div>
-        <h1 className="text-sm font-semibold">Add Benchmark</h1>
-        <p className="text-xs text-muted-foreground">Admin only</p>
-      </div>
-    </header>
   );
 }

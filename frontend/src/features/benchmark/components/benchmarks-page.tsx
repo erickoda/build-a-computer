@@ -1,40 +1,19 @@
 'use client';
 
-import {
-  ArrowLeftIcon,
-  Bars3Icon,
-  PlusIcon,
-  Squares2X2Icon,
-} from '@heroicons/react/16/solid';
+import { ArrowLeftIcon, PlusIcon } from '@heroicons/react/16/solid';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { MoteField } from '../../home/components/mote-field';
 import useFetchBenchmarks from '../hooks/fetchBenchmarks';
 import useFetchGames from '../hooks/fetchGames';
-import { BenchmarkResponseDto } from '../types/dtos';
-import { DEFAULT_FILTERS, FilterPanel, type Filters } from './filter-panel';
-import { BenchmarkCard, LIST_GRID_COLS, systemPrice } from './product-card';
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from './ui/resizable';
-import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
-
-type SortKey =
-  | 'avg-fps-desc'
-  | 'min-fps-desc'
-  | 'max-fps-desc'
-  | 'price-asc'
-  | 'price-desc';
-
-const sortOptions: { value: SortKey; label: string }[] = [
-  { value: 'avg-fps-desc', label: 'Avg FPS: High to Low' },
-  { value: 'min-fps-desc', label: 'Min FPS: High to Low' },
-  { value: 'max-fps-desc', label: 'Max FPS: High to Low' },
-  { value: 'price-asc', label: 'System Price: Low to High' },
-  { value: 'price-desc', label: 'System Price: High to Low' },
-];
+import type { BenchmarkResponseDto } from '../types/dtos';
+import { systemPrice } from './benchmark-card/format';
+import { BenchmarkResults } from './benchmark-list/benchmark-results';
+import { type Density, ListToolbar, type SortKey } from './benchmark-list/list-toolbar';
+import { DEFAULT_FILTERS, FilterPanel, type Filters } from './filters/filter-panel';
+import { ResizableHandle } from './layout/resizable-handle';
+import { ResizablePanel } from './layout/resizable-panel';
+import { ResizablePanelGroup } from './layout/resizable-panel-group';
 
 const BenchmarksPage = () => {
   const { benchmarks, isLoading: isLoadingBenchmarks, error: errorBenchmarks, fetchBenchmarks } = useFetchBenchmarks();
@@ -42,9 +21,7 @@ const BenchmarksPage = () => {
 
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [sort, setSort] = useState<SortKey>('avg-fps-desc');
-  const [density, setDensity] = useState<'comfortable' | 'compact'>(
-    'comfortable',
-  );
+  const [density, setDensity] = useState<Density>('comfortable');
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -194,124 +171,23 @@ const BenchmarksPage = () => {
 
         <ResizablePanel defaultSize={78} minsize={40}>
           <div className="flex h-full flex-col">
-            <header className="flex flex-wrap items-center justify-between gap-4 border-b px-6 py-4">
-              <div>
-                <h1 className="text-lg font-semibold">Benchmarks</h1>
-                <p className="text-sm text-muted-foreground">
-                  Drag the divider to resize the filters.
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <label htmlFor="sort" className="sr-only">
-                  Sort by
-                </label>
-                <select
-                  id="sort"
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value as SortKey)}
-                  className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  {sortOptions.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-                <ToggleGroup
-                  type="single"
-                  value={density}
-                  onValueChange={(v) =>
-                    v && setDensity(v as 'comfortable' | 'compact')
-                  }
-                  variant="outline"
-                  size="sm"
-                >
-                  <ToggleGroupItem
-                    value="comfortable"
-                    aria-label="Comfortable grid"
-                  >
-                    <Squares2X2Icon className="size-4" />
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="compact" aria-label="Compact grid">
-                    <Bars3Icon className="size-4" />
-                  </ToggleGroupItem>
-                </ToggleGroup>
-              </div>
-            </header>
+            <ListToolbar
+              sort={sort}
+              onSortChange={setSort}
+              density={density}
+              onDensityChange={setDensity}
+            />
 
             <div className="flex-1 overflow-y-auto p-6">
-              {isLoadingBenchmarks ? (
-                <div className="flex h-full flex-col items-center justify-center text-center">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Loading benchmarks…
-                  </p>
-                </div>
-              ) : errorBenchmarks ? (
-                <div className="flex h-full flex-col items-center justify-center text-center">
-                  <p className="text-sm font-medium">
-                    Failed to load benchmarks
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {errorBenchmarks.message}
-                  </p>
-                </div>
-              ) : filtered.length === 0 ? (
-                <div className="flex h-full flex-col items-center justify-center text-center">
-                  <p className="text-sm font-medium">
-                    No benchmarks match your filters
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Try adjusting or clearing your filters.
-                  </p>
-                </div>
-              ) : density === 'compact' ? (
-                <div className="flex flex-col gap-0">
-                  {/* Sticky list header */}
-                  <div
-                    className="sticky top-0 z-10 grid border-b border-t bg-muted/80 backdrop-blur-sm text-[10px] font-semibold uppercase tracking-wider text-muted-foreground rounded-t-lg overflow-hidden"
-                    style={{ gridTemplateColumns: LIST_GRID_COLS }}
-                  >
-                    <div className="px-3 py-2">Game</div>
-                    <div className="px-2 py-2 text-center">Res</div>
-                    <div className="px-2 py-2 text-center">Quality</div>
-                    <div className="py-2" />
-                    <div className="px-2 py-2 text-center">Avg</div>
-                    <div className="px-2 py-2 text-center">Min</div>
-                    <div className="px-2 py-2 text-center">Max</div>
-                    <div className="px-3 py-2">GPU</div>
-                    <div className="px-3 py-2">CPU</div>
-                    <div className="px-3 py-2">RAM</div>
-                    <div className="px-2 py-2 text-center">Score</div>
-                    <div className="px-3 py-2 text-right">Price</div>
-                  </div>
-                  {/* Rows */}
-                  <div className="flex flex-col gap-1 pt-1">
-                    {filtered.map((benchmark) => (
-                      <BenchmarkCard
-                        key={benchmark.id}
-                        benchmark={benchmark}
-                        gameName={gameName(benchmark)}
-                        view="list"
-                        expanded={selectedId === benchmark.id}
-                        onToggle={() => toggleSelected(benchmark.id)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-                  {filtered.map((benchmark) => (
-                    <BenchmarkCard
-                      key={benchmark.id}
-                      benchmark={benchmark}
-                      gameName={gameName(benchmark)}
-                      view="grid"
-                      expanded={selectedId === benchmark.id}
-                      onToggle={() => toggleSelected(benchmark.id)}
-                    />
-                  ))}
-                </div>
-              )}
+              <BenchmarkResults
+                isLoading={isLoadingBenchmarks}
+                error={errorBenchmarks}
+                benchmarks={filtered}
+                density={density}
+                gameName={gameName}
+                selectedId={selectedId}
+                onToggleSelected={toggleSelected}
+              />
             </div>
           </div>
         </ResizablePanel>

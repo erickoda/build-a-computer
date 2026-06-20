@@ -1,192 +1,17 @@
-'use client';
-
-import type { BenchmarkResponseDto, CpuResponseDto, GpuResponseDto, RamResponseDto } from '../types/dtos';
 import { cn } from '@/src/utils/utils';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
-import { Badge } from './ui/badge';
+import { Chip } from '@heroui/react';
+import type { BenchmarkResponseDto } from '../../types/dtos';
+import { HardwareDetail } from './hardware-detail';
+import {
+  brandGradient,
+  fpsColorStyle,
+  LIST_GRID_COLS,
+  resolutionLabel,
+  systemPrice,
+} from './format';
 
-// ─── Shared column layout for list view ──────────────────────────────────────
-
-export const LIST_GRID_COLS =
-  'minmax(160px,1fr) 56px 72px 16px 60px 60px 60px 120px 110px 80px 70px 80px';
-//  Game              Res  Qual  —   Avg  Min  Max  GPU    CPU   RAM  Score Price
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function resolutionLabel(r: number) {
-  if (r >= 2160) return '4K';
-  if (r >= 1440) return '1440p';
-  return '1080p';
-}
-
-export function systemPrice(benchmark: BenchmarkResponseDto): number {
-  return (
-    (benchmark.gpu?.avg_price ?? 0) +
-    (benchmark.cpu?.avg_price ?? 0) +
-    (benchmark.ram?.avg_price ?? 0)
-  );
-}
-
-// ─── Brand color mapping ──────────────────────────────────────────────────────
-// Intel → blue, AMD → red, NVIDIA → green. Anything else falls back to a
-// neutral gray so the gradient stays subtle rather than breaking.
-
-const BRAND_RGB: Record<string, string> = {
-  INTEL: '45, 70, 125', // blue-600
-  AMD: '150, 59, 59', // red-600
-  NVIDIA: '46, 128, 76', // green-600
-};
-
-const NEUTRAL_RGB = '120, 120, 128';
-
-function brandRgb(brand: string | undefined): string {
-  if (!brand) return NEUTRAL_RGB;
-  return BRAND_RGB[brand.toUpperCase()] ?? NEUTRAL_RGB;
-}
-
-/**
- * Builds a subtle, desaturated side-to-side gradient: GPU brand color bleeds
- * in from the left, CPU brand color bleeds in from the right, fading to
- * transparent toward the middle so the card's own background shows through.
- */
-function brandGradient(gpu?: GpuResponseDto, cpu?: CpuResponseDto): React.CSSProperties {
-  const left = brandRgb(gpu?.brand);
-  const right = brandRgb(cpu?.brand);
-
-  return {
-    backgroundImage: `linear-gradient(to right, rgba(${left}, 0.16) 0%, rgba(${left}, 0.05) 30%, transparent 50%, rgba(${right}, 0.05) 70%, rgba(${right}, 0.16) 100%)`,
-  };
-}
-
-// ─── FPS color mapping ────────────────────────────────────────────────────────
-// <30 → red, <60 → orange, ≥60 → green. Muted/desaturated tones so the
-// numbers stay legible and on-brand rather than reading as a stoplight.
-
-const FPS_RGB = {
-  low: '185, 89, 89', // muted red
-  mid: '191, 130, 71', // muted orange
-  high: '85, 145, 102', // muted green
-};
-
-function fpsRgb(fps: number): string {
-  if (fps < 30) return FPS_RGB.low;
-  if (fps < 60) return FPS_RGB.mid;
-  return FPS_RGB.high;
-}
-
-function fpsColorStyle(fps: number): React.CSSProperties {
-  return { color: `rgb(${fpsRgb(fps)})` };
-}
-
-// ─── Spec row helper ──────────────────────────────────────────────────────────
-
-function Spec({ label, value }: { label: string; value: React.ReactNode }) {
-  return (
-    <div className="flex items-baseline justify-between gap-3 py-0.5">
-      <span className="shrink-0 text-[11px] text-muted-foreground">
-        {label}
-      </span>
-      <span className="text-right text-[11px] font-medium tabular-nums">
-        {value}
-      </span>
-    </div>
-  );
-}
-
-function HwSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {title}
-      </p>
-      {children}
-    </div>
-  );
-}
-
-// ─── Full hardware detail panel ───────────────────────────────────────────────
-
-function HardwareDetail({
-  gpu,
-  cpu,
-  ram,
-}: {
-  gpu?: GpuResponseDto;
-  cpu?: CpuResponseDto;
-  ram?: RamResponseDto;
-}) {
-  return (
-    <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 p-4 pt-3 border-t bg-muted/10">
-      {/* GPU */}
-      {gpu && (
-        <HwSection title="GPU">
-          <Spec label="Brand" value={gpu.brand} />
-          <Spec label="Family" value={gpu.family} />
-          <Spec label="Series" value={gpu.series} />
-          <Spec
-            label="VRAM"
-            value={`${gpu.memory_amount} GB ${gpu.memory_gen}`}
-          />
-          <Spec label="Shader cores" value={gpu.cores.toLocaleString()} />
-          <Spec label="PCIe" value={`Gen ${gpu.pci_express}`} />
-          <Spec label="TDP" value={`${gpu.recommended_power} W`} />
-          <Spec
-            label="Avg price"
-            value={`$${gpu.avg_price.toLocaleString()}`}
-          />
-        </HwSection>
-      )}
-
-      {/* CPU */}
-      {cpu && (
-        <HwSection title="CPU">
-          <Spec label="Brand" value={cpu.brand} />
-          <Spec label="Generation" value={cpu.gen} />
-          <Spec label="Family" value={cpu.family} />
-          <Spec label="Series" value={cpu.series} />
-          <Spec
-            label="Cores / Threads"
-            value={`${cpu.cores} / ${cpu.threads}`}
-          />
-          <Spec label="Base clock" value={`${cpu.base_clock} GHz`} />
-          <Spec label="Max clock" value={`${cpu.max_clock} GHz`} />
-          <Spec label="Cache" value={`${cpu.cache} MB`} />
-          <Spec label="Socket" value={cpu.socket} />
-          <Spec label="iGPU" value={cpu.graphics ? 'Yes' : 'No'} />
-          <Spec label="Overclockable" value={cpu.oc ? 'Yes' : 'No'} />
-          <Spec label="TDP" value={`${cpu.recommended_power} W`} />
-          <Spec
-            label="Avg price"
-            value={`$${cpu.avg_price.toLocaleString()}`}
-          />
-        </HwSection>
-      )}
-
-      {/* RAM */}
-      {ram && (
-        <HwSection title="RAM">
-          <Spec label="Brand" value={ram.brand} />
-          <Spec label="Series" value={ram.series} />
-          <Spec label="Type" value={ram.ddr} />
-          <Spec label="Capacity" value={`${ram.memory_amount} GB`} />
-          <Spec label="Frequency" value={`${ram.frequency_mhz} MHz`} />
-          <Spec
-            label="Avg price"
-            value={`$${ram.avg_price.toLocaleString()}`}
-          />
-        </HwSection>
-      )}
-    </div>
-  );
-}
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+export { LIST_GRID_COLS, systemPrice } from './format';
 
 type BenchmarkCardProps = {
   benchmark: BenchmarkResponseDto;
@@ -195,8 +20,6 @@ type BenchmarkCardProps = {
   expanded?: boolean;
   onToggle?: () => void;
 };
-
-// ─── BenchmarkCard ────────────────────────────────────────────────────────────
 
 export function BenchmarkCard({
   benchmark: b,
@@ -235,15 +58,15 @@ export function BenchmarkCard({
           </div>
           {/* Resolution */}
           <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
-            <Badge variant="outline" className="text-[10px]">
-              {resolutionLabel(b.resolution)}
-            </Badge>
+            <Chip variant="secondary" size="sm" className="text-[10px]">
+              <Chip.Label>{resolutionLabel(b.resolution)}</Chip.Label>
+            </Chip>
           </div>
           {/* Quality */}
           <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
-            <Badge variant="secondary" className="text-[10px]">
-              {b.graphics_quality}
-            </Badge>
+            <Chip variant="soft" size="sm" className="text-[10px]">
+              <Chip.Label>{b.graphics_quality}</Chip.Label>
+            </Chip>
           </div>
           {/* Divider spacer */}
           <div className="h-full border-r" />
@@ -349,8 +172,12 @@ export function BenchmarkCard({
         <div className="flex items-center justify-between gap-2 border-b bg-muted/20 px-4 py-2.5">
           <p className="truncate text-sm font-medium">{gameName}</p>
           <div className="flex shrink-0 items-center gap-1.5">
-            <Badge variant="outline">{resolutionLabel(b.resolution)}</Badge>
-            <Badge variant="secondary">{b.graphics_quality}</Badge>
+            <Chip variant="secondary" size="sm">
+              <Chip.Label>{resolutionLabel(b.resolution)}</Chip.Label>
+            </Chip>
+            <Chip variant="soft" size="sm">
+              <Chip.Label>{b.graphics_quality}</Chip.Label>
+            </Chip>
             <ChevronDownIcon
               className={cn(
                 'size-3.5 text-muted-foreground transition-transform duration-200',

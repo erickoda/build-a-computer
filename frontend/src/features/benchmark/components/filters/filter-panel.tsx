@@ -1,194 +1,13 @@
-'use client';
+import { Button, Separator, Slider } from '@heroui/react';
+import { useMemo } from 'react';
+import type { BenchmarkResponseDto, GameResponseDto } from '../../types/dtos';
+import { CheckRow } from './check-row';
+import { FilterSection } from './filter-section';
+import { SubSection } from './sub-section';
+import { DEFAULT_FILTERS, deriveFilterOptions, FPS_FLOOR, type Filters } from './filter-types';
 
-import { ChevronDownIcon } from '@heroicons/react/16/solid';
-import { useMemo, useState } from 'react';
-import type { BenchmarkResponseDto, GameResponseDto } from '../types/dtos';
-import { Button } from './ui/button';
-import { Checkbox } from './ui/checkbox';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from './ui/collapsible';
-import { Label } from './ui/label';
-import { ScrollArea } from './ui/scroll-area';
-import { Separator } from './ui/separator';
-import { Slider } from './ui/slider';
-
-// ─── Filter shape ─────────────────────────────────────────────────────────────
-
-export type Filters = {
-  // Hardware
-  gpuVendors: string[];
-  gpuSeries: string[];
-  gpuMemoryGen: string[];
-  cpuVendors: string[];
-  cpuFamily: string[];
-  cpuSocket: string[];
-  ramDdr: string[];
-  ramBrand: string[];
-  // Games
-  games: string[];
-  // Quality / resolution
-  graphicsQualities: string[];
-  resolutions: number[];
-  // FPS range
-  minAvgFps: number;
-};
-
-export const FPS_FLOOR = 0;
-
-export const DEFAULT_FILTERS: Filters = {
-  gpuVendors: [],
-  gpuSeries: [],
-  gpuMemoryGen: [],
-  cpuVendors: [],
-  cpuFamily: [],
-  cpuSocket: [],
-  ramDdr: [],
-  ramBrand: [],
-  games: [],
-  graphicsQualities: [],
-  resolutions: [],
-  minAvgFps: FPS_FLOOR,
-};
-
-// ─── Dynamic option derivation ────────────────────────────────────────────────
-// Values that actually appear in the fetched benchmarks are surfaced as options.
-
-function uniqueFrom<T>(arr: T[]): T[] {
-  return Array.from(new Set(arr));
-}
-
-function deriveFilterOptions(
-  benchmarks: BenchmarkResponseDto[],
-  games: GameResponseDto[],
-) {
-  const gameNameById = new Map(games.map((g) => [g.id, g.name]));
-
-  return {
-    gpuVendors: uniqueFrom(benchmarks.map((b) => b.gpu?.brand).filter((v): v is string => Boolean(v))),
-    gpuSeries: uniqueFrom(benchmarks.map((b) => b.gpu?.series).filter((v): v is string => Boolean(v))),
-    gpuMemoryGen: uniqueFrom(benchmarks.map((b) => b.gpu?.memory_gen).filter((v): v is string => Boolean(v))),
-    cpuVendors: uniqueFrom(benchmarks.map((b) => b.cpu?.brand).filter((v): v is string => Boolean(v))),
-    cpuFamily: uniqueFrom(benchmarks.map((b) => b.cpu?.family).filter((v): v is string => Boolean(v))),
-    cpuSocket: uniqueFrom(benchmarks.map((b) => b.cpu?.socket).filter((v): v is string => Boolean(v))),
-    ramDdr: uniqueFrom(benchmarks.map((b) => b.ram?.ddr).filter((v): v is string => Boolean(v))),
-    ramBrand: uniqueFrom(benchmarks.map((b) => b.ram?.brand).filter((v): v is string => Boolean(v))),
-    games: uniqueFrom(benchmarks.map((b) => b.game_id)).map((id) => ({
-      id,
-      name: gameNameById.get(id) ?? id,
-    })),
-    graphicsQualities: uniqueFrom(benchmarks.map((b) => b.graphics_quality)),
-    resolutions: uniqueFrom(benchmarks.map((b) => b.resolution)).sort((a, b) => a - b),
-    maxAvgFps: benchmarks.length > 0 ? Math.max(...benchmarks.map((b) => b.avg_fps)) : 0,
-  };
-}
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-type FilterSectionProps = {
-  title: string;
-  count?: number;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-};
-
-function FilterSection({
-  title,
-  count,
-  children,
-  defaultOpen = true,
-}: FilterSectionProps) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <Collapsible
-      open={open}
-      onOpenChange={setOpen}
-      className="rounded-lg border"
-    >
-      <CollapsibleTrigger className="flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left">
-        <span className="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {title}
-          {count ? (
-            <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground">
-              {count}
-            </span>
-          ) : null}
-        </span>
-        <ChevronDownIcon
-          className={`size-4 shrink-0 text-muted-foreground transition-transform ${
-            open ? 'rotate-180' : ''
-          }`}
-        />
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div className="border-t px-3 py-3">{children}</div>
-      </CollapsibleContent>
-    </Collapsible>
-  );
-}
-
-// A nested, collapsible sub-group (e.g. GPU inside Hardware)
-type SubSectionProps = {
-  title: string;
-  count?: number;
-  children: React.ReactNode;
-  defaultOpen?: boolean;
-};
-
-function SubSection({
-  title,
-  count,
-  children,
-  defaultOpen = false,
-}: SubSectionProps) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger className="flex w-full items-center justify-between gap-1 py-1.5 text-left">
-        <span className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-          {title}
-          {count ? (
-            <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground">
-              {count}
-            </span>
-          ) : null}
-        </span>
-        <ChevronDownIcon
-          className={`size-3.5 shrink-0 text-muted-foreground transition-transform ${
-            open ? 'rotate-180' : ''
-          }`}
-        />
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div className="ml-2 flex flex-col gap-2.5 border-l pl-3 pt-1.5 pb-0.5">
-          {children}
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
-  );
-}
-
-type CheckRowProps = {
-  id: string;
-  label: string;
-  checked: boolean;
-  onCheckedChange: () => void;
-};
-
-function CheckRow({ id, label, checked, onCheckedChange }: CheckRowProps) {
-  return (
-    <div className="flex items-center gap-2">
-      <Checkbox id={id} checked={checked} onCheckedChange={onCheckedChange} />
-      <Label htmlFor={id} className="text-sm font-normal">
-        {label}
-      </Label>
-    </div>
-  );
-}
-
-// ─── Main FilterPanel ─────────────────────────────────────────────────────────
+export { DEFAULT_FILTERS, FPS_FLOOR } from './filter-types';
+export type { Filters } from './filter-types';
 
 type FilterPanelProps = {
   benchmarks: BenchmarkResponseDto[];
@@ -251,18 +70,13 @@ export function FilterPanel({
           <p className="text-xs text-muted-foreground">{resultCount} results</p>
         </div>
         {hasActiveFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={reset}
-            className="h-7 text-xs"
-          >
+          <Button variant="ghost" size="sm" onPress={reset} className="h-7 text-xs">
             Clear
           </Button>
         )}
       </div>
       <Separator />
-      <ScrollArea className="flex-1">
+      <div className="flex-1 overflow-y-auto">
         <div className="flex flex-col gap-3 p-4">
           {/* ── Hardware ─────────────────────────────────────── */}
           <FilterSection
@@ -483,18 +297,26 @@ export function FilterPanel({
                 </span>
               </div>
               <Slider
-                min={FPS_FLOOR}
-                max={filterOptions.maxAvgFps}
+                minValue={FPS_FLOOR}
+                maxValue={filterOptions.maxAvgFps}
                 step={5}
-                value={filters.minAvgFps}
-                onValueChange={(value) =>
-                  onChange({ ...filters, minAvgFps: value })
+                value={[filters.minAvgFps]}
+                onChange={(value) =>
+                  onChange({
+                    ...filters,
+                    minAvgFps: Array.isArray(value) ? value[0] : value,
+                  })
                 }
-              />
+              >
+                <Slider.Track>
+                  <Slider.Fill />
+                  <Slider.Thumb />
+                </Slider.Track>
+              </Slider>
             </div>
           </FilterSection>
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 }
