@@ -18,6 +18,11 @@ export const routesInfos: RouteItems[] = [
     href: '/benchmarks/create',
     allowedRoles: ['admin', 'supervisor'],
   },
+  {
+    label: 'Hardware',
+    href: '/hardware',
+    allowedRoles: ['admin', 'supervisor', 'common'],
+  },
 ];
 
 export const publicRoutes = ['/sign-in', '/sign-up', '/forgot-password'];
