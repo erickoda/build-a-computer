@@ -25,11 +25,32 @@ fi
 API_GATEWAY_PORT="${API_GATEWAY_PORT:-3000}"
 API_BASE="${API_BASE:-http://localhost:${API_GATEWAY_PORT}/api/v1}"
 
-for bin in curl jq docker python3; do
-  command -v "$bin" >/dev/null 2>&1 || { echo "Missing required tool: $bin" >&2; exit 1; }
-done
+MISSING=0
 
-python3 -c "import pexpect" >/dev/null 2>&1 || { echo "Missing required python module: pexpect (pip install pexpect)" >&2; exit 1; }
+check_bin() {
+  local bin="$1" hint="$2"
+  if ! command -v "$bin" >/dev/null 2>&1; then
+    echo "Missing required tool: $bin ($hint)" >&2
+    MISSING=1
+  fi
+}
+
+check_bin curl "e.g. sudo pacman -S curl / apt install curl"
+check_bin jq "e.g. sudo pacman -S jq / apt install jq"
+check_bin docker "e.g. sudo pacman -S docker / apt install docker.io"
+check_bin python3 "e.g. sudo pacman -S python / apt install python3"
+
+if command -v docker >/dev/null 2>&1 && ! docker compose version >/dev/null 2>&1; then
+  echo "Missing required tool: docker compose plugin (e.g. sudo pacman -S docker-compose / apt install docker-compose-plugin)" >&2
+  MISSING=1
+fi
+
+if command -v python3 >/dev/null 2>&1 && ! python3 -c "import pexpect" >/dev/null 2>&1; then
+  echo "Missing required python module: pexpect (pip install pexpect)" >&2
+  MISSING=1
+fi
+
+[ "$MISSING" -eq 0 ] || exit 1
 
 log() { echo "==> $*"; }
 
