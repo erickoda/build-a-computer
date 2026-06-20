@@ -123,7 +123,7 @@ export const UpdateUserModal = ({ user, onConfirm, isLoading }: UpdateUserModalP
                           <Select.Indicator />
                         </Select.Trigger>
                         <Select.Popover>
-                          <ListBox>
+                          <ListBox aria-label="Role">
                             {roleValues.map((roleValue) => (
                               <ListBox.Item key={roleValue} id={roleValue} textValue={roleValue} className="capitalize">
                                 {roleValue}
@@ -159,7 +159,7 @@ export const UpdateUserModal = ({ user, onConfirm, isLoading }: UpdateUserModalP
                           <Select.Indicator />
                         </Select.Trigger>
                         <Select.Popover>
-                          <ListBox>
+                          <ListBox aria-label="Status">
                             {statusValues.map((statusValue) => (
                               <ListBox.Item key={statusValue} id={statusValue} textValue={statusValue} className="capitalize">
                                 {statusValue}

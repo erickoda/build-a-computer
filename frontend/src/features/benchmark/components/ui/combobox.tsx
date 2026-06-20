@@ -181,7 +181,6 @@ export function Combobox({
       {/* Dropdown panel */}
       {open && (
         <div
-          role="dialog"
           className={cn(
             'absolute z-50 mt-1 w-full min-w-[200px] overflow-hidden rounded-lg border bg-popover shadow-md',
             'animate-in fade-in-0 zoom-in-95 duration-100',

@@ -37,12 +37,10 @@ const ramOptions: ComboboxOption[] = Object.values(rams).map((r) => ({
   description: `${r.frequency_mhz} MHz · ~$${r.avg_price.toLocaleString()}`,
 }));
 
-const gameOptions: ComboboxOption[] = Object.entries(games).map(
-  ([id, name]) => ({
-    value: id,
-    label: name,
-  }),
-);
+const gameOptions: ComboboxOption[] = Object.values(games).map((g) => ({
+  value: g.id,
+  label: g.name,
+}));
 
 const qualityOptions: ComboboxOption[] = graphicsQualities.map((q) => ({
   value: q,
@@ -303,7 +301,6 @@ function ConfirmBackDialog({
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 type CreateBenchmarkPageProps = {
-  /** Called when the user navigates back. Wire this to your router. */
   onBack: () => void;
 };
 
