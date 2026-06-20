@@ -1,7 +1,6 @@
 'use client';
 
-import type { Benchmark, CPU, GPU, RAMMemory } from '@/src/utils/benchmarks';
-import { cpus, games, gpus, rams } from '@/src/utils/benchmarks';
+import type { BenchmarkResponseDto, CpuResponseDto, GpuResponseDto, RamResponseDto } from '../types/dtos';
 import { cn } from '@/src/utils/utils';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { Badge } from './ui/badge';
@@ -20,15 +19,11 @@ function resolutionLabel(r: number) {
   return '1080p';
 }
 
-export function systemPrice(
-  gpuId: string,
-  cpuId: string,
-  ramId: string,
-): number {
+export function systemPrice(benchmark: BenchmarkResponseDto): number {
   return (
-    (gpus[gpuId]?.avg_price ?? 0) +
-    (cpus[cpuId]?.avg_price ?? 0) +
-    (rams[ramId]?.avg_price ?? 0)
+    (benchmark.gpu?.avg_price ?? 0) +
+    (benchmark.cpu?.avg_price ?? 0) +
+    (benchmark.ram?.avg_price ?? 0)
   );
 }
 
@@ -37,9 +32,6 @@ export function systemPrice(
 // neutral gray so the gradient stays subtle rather than breaking.
 
 const BRAND_RGB: Record<string, string> = {
-  //  INTEL: '37, 99, 235', // blue-600
-  //  AMD: '220, 38, 38', // red-600
-  // NVIDIA: '22, 163, 74', // green-600
   INTEL: '45, 70, 125', // blue-600
   AMD: '150, 59, 59', // red-600
   NVIDIA: '46, 128, 76', // green-600
@@ -57,7 +49,7 @@ function brandRgb(brand: string | undefined): string {
  * in from the left, CPU brand color bleeds in from the right, fading to
  * transparent toward the middle so the card's own background shows through.
  */
-function brandGradient(gpu?: GPU, cpu?: CPU): React.CSSProperties {
+function brandGradient(gpu?: GpuResponseDto, cpu?: CpuResponseDto): React.CSSProperties {
   const left = brandRgb(gpu?.brand);
   const right = brandRgb(cpu?.brand);
 
@@ -125,9 +117,9 @@ function HardwareDetail({
   cpu,
   ram,
 }: {
-  gpu?: GPU;
-  cpu?: CPU;
-  ram?: RAMMemory;
+  gpu?: GpuResponseDto;
+  cpu?: CpuResponseDto;
+  ram?: RamResponseDto;
 }) {
   return (
     <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 p-4 pt-3 border-t bg-muted/10">
@@ -197,7 +189,8 @@ function HardwareDetail({
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type BenchmarkCardProps = {
-  benchmark: Benchmark;
+  benchmark: BenchmarkResponseDto;
+  gameName: string;
   view?: 'grid' | 'list';
   expanded?: boolean;
   onToggle?: () => void;
@@ -207,15 +200,13 @@ type BenchmarkCardProps = {
 
 export function BenchmarkCard({
   benchmark: b,
+  gameName,
   view = 'grid',
   expanded = false,
   onToggle,
 }: BenchmarkCardProps) {
-  const gpu = gpus[b.gpu_id];
-  const cpu = cpus[b.cpu_id];
-  const ram = rams[b.ram_id];
-  const gameName = games[b.game_id]?.name ?? b.game_id;
-  const totalPrice = systemPrice(b.gpu_id, b.cpu_id, b.ram_id);
+  const { gpu, cpu, ram } = b;
+  const totalPrice = systemPrice(b);
 
   // ── List row ──────────────────────────────────────────────────────────────
   if (view === 'list') {
@@ -305,7 +296,7 @@ export function BenchmarkCard({
           <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
             {b.score != null ? (
               <span className="text-sm font-semibold tabular-nums">
-                {b.score.toFixed(1)}
+                {b.score}
                 <span className="text-xs font-normal text-muted-foreground">
                   /10
                 </span>
@@ -440,7 +431,7 @@ export function BenchmarkCard({
           {b.score != null ? (
             <div className="flex items-center gap-1">
               <span className="text-sm font-semibold tabular-nums">
-                {b.score.toFixed(1)}
+                {b.score}
               </span>
               <span className="text-xs text-muted-foreground">/ 10</span>
             </div>

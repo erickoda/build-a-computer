@@ -1,6 +1,5 @@
 'use client';
 
-import { benchmarks, cpus, gpus, rams } from '@/src/utils/benchmarks';
 import {
   ArrowLeftIcon,
   Bars3Icon,
@@ -8,10 +7,13 @@ import {
   Squares2X2Icon,
 } from '@heroicons/react/16/solid';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MoteField } from '../../home/components/mote-field';
+import useFetchBenchmarks from '../hooks/fetchBenchmarks';
+import useFetchGames from '../hooks/fetchGames';
+import { BenchmarkResponseDto } from '../types/dtos';
 import { DEFAULT_FILTERS, FilterPanel, type Filters } from './filter-panel';
-import { BenchmarkCard, LIST_GRID_COLS } from './product-card';
+import { BenchmarkCard, LIST_GRID_COLS, systemPrice } from './product-card';
 import {
   ResizableHandle,
   ResizablePanel,
@@ -35,6 +37,9 @@ const sortOptions: { value: SortKey; label: string }[] = [
 ];
 
 const BenchmarksPage = () => {
+  const { benchmarks, isLoading: isLoadingBenchmarks, error: errorBenchmarks, fetchBenchmarks } = useFetchBenchmarks();
+  const { games, fetchGames } = useFetchGames();
+
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS);
   const [sort, setSort] = useState<SortKey>('avg-fps-desc');
   const [density, setDensity] = useState<'comfortable' | 'compact'>(
@@ -42,15 +47,25 @@ const BenchmarksPage = () => {
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  useEffect(() => {
+    fetchBenchmarks();
+    fetchGames();
+  }, [fetchBenchmarks, fetchGames]);
+
+  const gameNameById = useMemo(
+    () => new Map(games.map((g) => [g.id, g.name])),
+    [games],
+  );
+
   function toggleSelected(id: string) {
     setSelectedId((prev) => (prev === id ? null : id));
   }
 
   const filtered = useMemo(() => {
     const result = benchmarks.filter((b) => {
-      const gpu = gpus[b.gpu_id];
-      const cpu = cpus[b.cpu_id];
-      const ram = rams[b.ram_id];
+      const gpu = b.gpu;
+      const cpu = b.cpu;
+      const ram = b.ram;
 
       // GPU filters
       if (
@@ -128,35 +143,19 @@ const BenchmarksPage = () => {
         result.sort((a, b) => b.max_fps - a.max_fps);
         break;
       case 'price-asc':
-        result.sort((a, b) => {
-          const pa =
-            (gpus[a.gpu_id]?.avg_price ?? 0) +
-            (cpus[a.cpu_id]?.avg_price ?? 0) +
-            (rams[a.ram_id]?.avg_price ?? 0);
-          const pb =
-            (gpus[b.gpu_id]?.avg_price ?? 0) +
-            (cpus[b.cpu_id]?.avg_price ?? 0) +
-            (rams[b.ram_id]?.avg_price ?? 0);
-          return pa - pb;
-        });
+        result.sort((a, b) => systemPrice(a) - systemPrice(b));
         break;
       case 'price-desc':
-        result.sort((a, b) => {
-          const pa =
-            (gpus[a.gpu_id]?.avg_price ?? 0) +
-            (cpus[a.cpu_id]?.avg_price ?? 0) +
-            (rams[a.ram_id]?.avg_price ?? 0);
-          const pb =
-            (gpus[b.gpu_id]?.avg_price ?? 0) +
-            (cpus[b.cpu_id]?.avg_price ?? 0) +
-            (rams[b.ram_id]?.avg_price ?? 0);
-          return pb - pa;
-        });
+        result.sort((a, b) => systemPrice(b) - systemPrice(a));
         break;
     }
 
     return result;
-  }, [filters, sort]);
+  }, [benchmarks, filters, sort]);
+
+  function gameName(b: BenchmarkResponseDto) {
+    return gameNameById.get(b.game_id) ?? b.game_id;
+  }
 
   return (
     <>
@@ -183,6 +182,8 @@ const BenchmarksPage = () => {
             Back
           </Link>
           <FilterPanel
+            benchmarks={benchmarks}
+            games={games}
             filters={filters}
             onChange={setFilters}
             resultCount={filtered.length}
@@ -239,7 +240,22 @@ const BenchmarksPage = () => {
             </header>
 
             <div className="flex-1 overflow-y-auto p-6">
-              {filtered.length === 0 ? (
+              {isLoadingBenchmarks ? (
+                <div className="flex h-full flex-col items-center justify-center text-center">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Loading benchmarks…
+                  </p>
+                </div>
+              ) : errorBenchmarks ? (
+                <div className="flex h-full flex-col items-center justify-center text-center">
+                  <p className="text-sm font-medium">
+                    Failed to load benchmarks
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {errorBenchmarks.message}
+                  </p>
+                </div>
+              ) : filtered.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center text-center">
                   <p className="text-sm font-medium">
                     No benchmarks match your filters
@@ -274,6 +290,7 @@ const BenchmarksPage = () => {
                       <BenchmarkCard
                         key={benchmark.id}
                         benchmark={benchmark}
+                        gameName={gameName(benchmark)}
                         view="list"
                         expanded={selectedId === benchmark.id}
                         onToggle={() => toggleSelected(benchmark.id)}
@@ -287,6 +304,7 @@ const BenchmarksPage = () => {
                     <BenchmarkCard
                       key={benchmark.id}
                       benchmark={benchmark}
+                      gameName={gameName(benchmark)}
                       view="grid"
                       expanded={selectedId === benchmark.id}
                       onToggle={() => toggleSelected(benchmark.id)}

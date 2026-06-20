@@ -1,16 +1,8 @@
 'use client';
 
-import {
-  benchmarks,
-  cpus,
-  games,
-  gpus,
-  graphicsQualities,
-  rams,
-  resolutions,
-} from '@/src/utils/benchmarks';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import type { BenchmarkResponseDto, GameResponseDto } from '../types/dtos';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import {
@@ -46,51 +38,6 @@ export type Filters = {
 
 export const FPS_FLOOR = 0;
 
-// ─── Dynamic option derivation ────────────────────────────────────────────────
-// Values that actually appear in the benchmark dataset are surfaced as options.
-
-function uniqueFrom<T>(arr: T[]): T[] {
-  return Array.from(new Set(arr));
-}
-
-const activeGpuIds = uniqueFrom(benchmarks.map((b) => b.gpu_id));
-const activeCpuIds = uniqueFrom(benchmarks.map((b) => b.cpu_id));
-const activeRamIds = uniqueFrom(benchmarks.map((b) => b.ram_id));
-const activeGameIds = uniqueFrom(benchmarks.map((b) => b.game_id));
-
-export const filterOptions = {
-  gpuVendors: uniqueFrom(
-    activeGpuIds.map((id) => gpus[id]?.brand).filter(Boolean),
-  ),
-  gpuSeries: uniqueFrom(
-    activeGpuIds.map((id) => gpus[id]?.series).filter(Boolean),
-  ),
-  gpuMemoryGen: uniqueFrom(
-    activeGpuIds.map((id) => gpus[id]?.memory_gen).filter(Boolean),
-  ),
-  cpuVendors: uniqueFrom(
-    activeCpuIds.map((id) => cpus[id]?.brand).filter(Boolean),
-  ),
-  cpuFamily: uniqueFrom(
-    activeCpuIds.map((id) => cpus[id]?.family).filter(Boolean),
-  ),
-  cpuSocket: uniqueFrom(
-    activeCpuIds.map((id) => cpus[id]?.socket).filter(Boolean),
-  ),
-  ramDdr: uniqueFrom(activeRamIds.map((id) => rams[id]?.ddr).filter(Boolean)),
-  ramBrand: uniqueFrom(
-    activeRamIds.map((id) => rams[id]?.brand).filter(Boolean),
-  ),
-  games: activeGameIds.map((id) => ({ id, name: games[id]?.name ?? id })),
-  graphicsQualities: graphicsQualities.filter((q) =>
-    benchmarks.some((b) => b.graphics_quality === q),
-  ),
-  resolutions: resolutions.filter((r) =>
-    benchmarks.some((b) => b.resolution === r),
-  ),
-  maxAvgFps: Math.max(...benchmarks.map((b) => b.avg_fps)),
-};
-
 export const DEFAULT_FILTERS: Filters = {
   gpuVendors: [],
   gpuSeries: [],
@@ -105,6 +52,38 @@ export const DEFAULT_FILTERS: Filters = {
   resolutions: [],
   minAvgFps: FPS_FLOOR,
 };
+
+// ─── Dynamic option derivation ────────────────────────────────────────────────
+// Values that actually appear in the fetched benchmarks are surfaced as options.
+
+function uniqueFrom<T>(arr: T[]): T[] {
+  return Array.from(new Set(arr));
+}
+
+function deriveFilterOptions(
+  benchmarks: BenchmarkResponseDto[],
+  games: GameResponseDto[],
+) {
+  const gameNameById = new Map(games.map((g) => [g.id, g.name]));
+
+  return {
+    gpuVendors: uniqueFrom(benchmarks.map((b) => b.gpu?.brand).filter((v): v is string => Boolean(v))),
+    gpuSeries: uniqueFrom(benchmarks.map((b) => b.gpu?.series).filter((v): v is string => Boolean(v))),
+    gpuMemoryGen: uniqueFrom(benchmarks.map((b) => b.gpu?.memory_gen).filter((v): v is string => Boolean(v))),
+    cpuVendors: uniqueFrom(benchmarks.map((b) => b.cpu?.brand).filter((v): v is string => Boolean(v))),
+    cpuFamily: uniqueFrom(benchmarks.map((b) => b.cpu?.family).filter((v): v is string => Boolean(v))),
+    cpuSocket: uniqueFrom(benchmarks.map((b) => b.cpu?.socket).filter((v): v is string => Boolean(v))),
+    ramDdr: uniqueFrom(benchmarks.map((b) => b.ram?.ddr).filter((v): v is string => Boolean(v))),
+    ramBrand: uniqueFrom(benchmarks.map((b) => b.ram?.brand).filter((v): v is string => Boolean(v))),
+    games: uniqueFrom(benchmarks.map((b) => b.game_id)).map((id) => ({
+      id,
+      name: gameNameById.get(id) ?? id,
+    })),
+    graphicsQualities: uniqueFrom(benchmarks.map((b) => b.graphics_quality)),
+    resolutions: uniqueFrom(benchmarks.map((b) => b.resolution)).sort((a, b) => a - b),
+    maxAvgFps: benchmarks.length > 0 ? Math.max(...benchmarks.map((b) => b.avg_fps)) : 0,
+  };
+}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -212,16 +191,25 @@ function CheckRow({ id, label, checked, onCheckedChange }: CheckRowProps) {
 // ─── Main FilterPanel ─────────────────────────────────────────────────────────
 
 type FilterPanelProps = {
+  benchmarks: BenchmarkResponseDto[];
+  games: GameResponseDto[];
   filters: Filters;
   onChange: (filters: Filters) => void;
   resultCount: number;
 };
 
 export function FilterPanel({
+  benchmarks,
+  games,
   filters,
   onChange,
   resultCount,
 }: FilterPanelProps) {
+  const filterOptions = useMemo(
+    () => deriveFilterOptions(benchmarks, games),
+    [benchmarks, games],
+  );
+
   function toggle<K extends keyof Filters>(
     key: K,
     value: Filters[K] extends (infer V)[] ? V : never,
