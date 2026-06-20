@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
+import HamburgerMenu from '@/src/components/hamburger-menu';
 import './globals.css';
 import { Providers } from './providers';
 
@@ -33,6 +34,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <Providers>
+          <HamburgerMenu />
           {children}
         </Providers>
       </body>
