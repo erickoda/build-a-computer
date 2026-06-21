@@ -155,6 +155,7 @@ services:
       POSTGRES_USER: ${USERS_DB_POSTGRES_USER}
       POSTGRES_PASSWORD: ${USERS_DB_POSTGRES_PASSWORD}
       POSTGRES_DB: ${USERS_DB_POSTGRES_DB}
+      PGDATA: /var/lib/postgresql/18.4/docker
     volumes:
       - postgres_data:/var/lib/postgresql
     networks:
@@ -178,7 +179,7 @@ services:
       POSTGRES_USER: ${RECOMMENDATION_DB_POSTGRES_USER}
       POSTGRES_PASSWORD: ${RECOMMENDATION_DB_POSTGRES_PASSWORD}
       POSTGRES_DB: ${RECOMMENDATION_DB_POSTGRES_DB}
-      PGDATA: /data/postgres
+      PGDATA: /var/lib/postgresql/18.4/docker
     networks:
       - recommendation_db
     restart: unless-stopped
