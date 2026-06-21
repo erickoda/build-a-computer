@@ -17,7 +17,7 @@ export interface ApiOptions<TRequest> extends Omit<RequestInit, 'body' | 'method
 export type ApiResult<T> = { ok: true; data: T } | { ok: false; error: HttpError | Error }
 
 export default async function api<TResponse, TRequest = undefined>(endpoint: string, options: ApiOptions<TRequest>): Promise<ApiResult<TResponse>> {
-  const baseUrl = "http://localhost:3000/api/v1/";
+  const baseUrl = `${process.env.NEXT_PUBLIC_HOST ? process.env.NEXT_PUBLIC_HOST : "http://localhost:3000/"}api/v1/`;
   const url = baseUrl + endpoint;
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
