@@ -62,14 +62,14 @@ export const routesInfos: RouteItems[] = [
     label: 'Hardware',
     href: '/hardware',
     allowedRoles: ['admin', 'supervisor', 'common'],
-    isPublic: false,
+    isPublic: true,
     isInNavbar: true,
   },
   {
     label: 'Games',
     href: '/games',
     allowedRoles: ['admin', 'supervisor', 'common'],
-    isPublic: false,
+    isPublic: true,
     isInNavbar: true,
   },
 ];
