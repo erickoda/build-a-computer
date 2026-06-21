@@ -95,7 +95,7 @@ const GamesPage = () => {
 
   if (error) {
     return (
-      <div className="w-full max-w-7xl mx-auto px-8 py-10">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-10">
         <div className="rounded-xl bg-red-50 p-6 border border-red-200 text-red-700 shadow-sm">
           <h3 className="text-lg font-bold mb-2">Failed to fetch data</h3>
           <p>{error.message}</p>
@@ -108,8 +108,8 @@ const GamesPage = () => {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-8 md:px-16 py-12 flex flex-col gap-4 p-6">
-      <div className="w-full flex flex-row justify-between items-center gap-6">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-20 pb-8 md:pb-12 flex flex-col gap-4">
+      <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Games Catalog
@@ -150,13 +150,10 @@ const GamesPage = () => {
       {view === 'table' ? (
         <div className="w-full rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 shadow-sm overflow-x-auto">
           <Table>
-            <Table.Content
-              aria-label="List of catalog games"
-              className="min-w-[700px]"
-            >
+            <Table.Content aria-label="List of catalog games" className="min-w-full">
               <Table.Header>
                 <Table.Column isRowHeader className="px-4 pb-4">NAME</Table.Column>
-                <Table.Column className="px-4 pb-4">NECESSARY DISK (GB)</Table.Column>
+                <Table.Column className="px-4 pb-4">DISK (GB)</Table.Column>
                 {canManage && <Table.Column className="px-4 pb-4 text-center">ACTIONS</Table.Column>}
               </Table.Header>
 
