@@ -54,11 +54,11 @@ export function ConfirmationOverlay({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 px-4"
       onClick={onCancel}
     >
       <div
-        className="w-full max-w-sm rounded-2xl border border-black/10 bg-white/85 p-8 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 fade-in duration-200 dark:border-white/20 dark:bg-black/70"
+        className="w-full max-w-sm rounded-2xl border border-black/10 bg-white/85 p-5 sm:p-8 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 fade-in duration-200 dark:border-white/20 dark:bg-black/70"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="mb-6 text-lg font-bold text-black dark:text-white">

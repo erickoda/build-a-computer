@@ -24,7 +24,7 @@ export function RecommendationResultsOverlay({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 overflow-y-auto bg-black/70 px-6 py-12 backdrop-blur-sm animate-in fade-in duration-300"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 overflow-y-auto bg-black/70 px-4 sm:px-6 py-12 backdrop-blur-sm animate-in fade-in duration-300"
       onClick={onDone}
     >
       <div
