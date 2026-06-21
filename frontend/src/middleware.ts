@@ -4,7 +4,7 @@ import { matchesRoute, routesInfos } from './types/routes';
 import { getRoleFromToken } from './utils/jwt';
 import { roleDefaultRedirect } from './utils/redirect';
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('access_token')?.value;
 
