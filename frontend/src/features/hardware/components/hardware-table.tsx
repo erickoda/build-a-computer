@@ -62,51 +62,93 @@ export function HardwareTable<T extends HardwareItem, TUpdate>({
   }
 
   return (
-    <div className="w-full rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 shadow-sm overflow-x-auto">
-      <Table>
-        <Table.Content aria-label="Hardware catalog" className="min-w-[700px]">
-          <Table.Header>
-            {columns.map((column, index) => (
-              <Table.Column key={column.key} isRowHeader={index === 0} className="px-4 pb-4">
-                {column.label.toUpperCase()}
-              </Table.Column>
-            ))}
-            {canDelete && <Table.Column className="px-4 pb-4 text-center">ACTIONS</Table.Column>}
-          </Table.Header>
-
-          <Table.Body items={items}>
-            {(item: T) => (
-              <Table.Row key={item.id} className="hover:bg-gray-100 dark:hover:bg-zinc-800/60 transition-colors rounded-lg">
-                {columns.map((column) => (
-                  <Table.Cell key={column.key} className="px-4 py-4">
-                    {column.render(item)}
-                  </Table.Cell>
-                ))}
-                {canDelete && (
-                  <Table.Cell className="px-4 py-4 text-center flex justify-center gap-2">
-                    <EditHardwareModal<T, TUpdate>
-                      resourceLabel={resourceLabel}
-                      fields={editFields}
-                      item={item}
-                      onConfirm={(dto) => onUpdate(item.id, dto)}
-                      isLoading={isUpdating}
-                    />
-                    <ConfirmDeleteModal
-                      description={
-                        <p>
-                          Are you sure you want to delete <strong>{itemLabel(item)}</strong>?
-                        </p>
-                      }
-                      onConfirm={() => onDelete(item.id)}
-                      isLoading={isDeleting}
-                    />
-                  </Table.Cell>
-                )}
-              </Table.Row>
+    <>
+      {/* Mobile: stacked cards instead of a cramped, horizontally-scrolling table */}
+      <div className="flex flex-col gap-3 sm:hidden">
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 shadow-sm p-4"
+          >
+            <dl className="flex flex-col gap-2">
+              {columns.map((column) => (
+                <div key={column.key} className="flex items-baseline justify-between gap-3 text-sm">
+                  <dt className="text-gray-400 shrink-0">{column.label}</dt>
+                  <dd className="text-right font-medium">{column.render(item)}</dd>
+                </div>
+              ))}
+            </dl>
+            {canDelete && (
+              <div className="mt-3 flex justify-end gap-2 border-t border-gray-100 dark:border-zinc-800 pt-3">
+                <EditHardwareModal<T, TUpdate>
+                  resourceLabel={resourceLabel}
+                  fields={editFields}
+                  item={item}
+                  onConfirm={(dto) => onUpdate(item.id, dto)}
+                  isLoading={isUpdating}
+                />
+                <ConfirmDeleteModal
+                  description={
+                    <p>
+                      Are you sure you want to delete <strong>{itemLabel(item)}</strong>?
+                    </p>
+                  }
+                  onConfirm={() => onDelete(item.id)}
+                  isLoading={isDeleting}
+                />
+              </div>
             )}
-          </Table.Body>
-        </Table.Content>
-      </Table>
-    </div>
+          </div>
+        ))}
+      </div>
+
+      {/* sm+: full table */}
+      <div className="hidden sm:block w-full rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 shadow-sm overflow-x-auto">
+        <Table>
+          <Table.Content aria-label="Hardware catalog" className="min-w-[700px]">
+            <Table.Header>
+              {columns.map((column, index) => (
+                <Table.Column key={column.key} isRowHeader={index === 0} className="px-4 pb-4">
+                  {column.label.toUpperCase()}
+                </Table.Column>
+              ))}
+              {canDelete && <Table.Column className="px-4 pb-4 text-center">ACTIONS</Table.Column>}
+            </Table.Header>
+
+            <Table.Body items={items}>
+              {(item: T) => (
+                <Table.Row key={item.id} className="hover:bg-gray-100 dark:hover:bg-zinc-800/60 transition-colors rounded-lg">
+                  {columns.map((column) => (
+                    <Table.Cell key={column.key} className="px-4 py-4">
+                      {column.render(item)}
+                    </Table.Cell>
+                  ))}
+                  {canDelete && (
+                    <Table.Cell className="px-4 py-4 text-center flex justify-center gap-2">
+                      <EditHardwareModal<T, TUpdate>
+                        resourceLabel={resourceLabel}
+                        fields={editFields}
+                        item={item}
+                        onConfirm={(dto) => onUpdate(item.id, dto)}
+                        isLoading={isUpdating}
+                      />
+                      <ConfirmDeleteModal
+                        description={
+                          <p>
+                            Are you sure you want to delete <strong>{itemLabel(item)}</strong>?
+                          </p>
+                        }
+                        onConfirm={() => onDelete(item.id)}
+                        isLoading={isDeleting}
+                      />
+                    </Table.Cell>
+                  )}
+                </Table.Row>
+              )}
+            </Table.Body>
+          </Table.Content>
+        </Table>
+      </div>
+    </>
   );
 }

@@ -18,7 +18,7 @@ const HardwarePage = () => {
   const canManage = role === 'admin' || role === 'supervisor';
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-8 md:px-16 py-12 flex flex-col gap-6">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-20 pb-8 md:pb-12 flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Hardware Catalog</h1>
         <p className="text-sm text-gray-400 mt-2">
@@ -27,13 +27,15 @@ const HardwarePage = () => {
       </div>
 
       <Tabs>
-        <Tabs.List>
-          {hardwareResources.map((resource) => (
-            <Tabs.Tab key={resource.key} id={resource.key}>
-              {resource.label}
-            </Tabs.Tab>
-          ))}
-        </Tabs.List>
+        <Tabs.ListContainer className="w-full overflow-x-auto rounded-[calc(var(--radius)*2.5)] bg-[var(--default)] p-1">
+          <Tabs.List className="rounded-none bg-transparent p-0">
+            {hardwareResources.map((resource) => (
+              <Tabs.Tab key={resource.key} id={resource.key}>
+                {resource.label}
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs.ListContainer>
 
         <Tabs.Panel id="cpu">
           <HardwareResourcePanel resource={cpuResource} canManage={canManage} />
