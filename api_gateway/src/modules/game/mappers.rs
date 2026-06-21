@@ -1,7 +1,10 @@
 use chrono::{DateTime, Utc};
 use prost_types::Timestamp as ProstTimestamp;
 
-use crate::{benchmark_grpc, modules::game::dtos::request::create_game::CreateGameRequestDto};
+use crate::{
+    benchmark_grpc,
+    modules::game::dtos::request::{create_game::CreateGameRequestDto, update_game::UpdateGameRequestDto},
+};
 
 use super::dtos::response::game::GameDto;
 
@@ -16,6 +19,15 @@ impl From<CreateGameRequestDto> for benchmark_grpc::CreateGameRequest {
             img: dto.img(),
             necessary_disk: dto.necessary_disk(),
         }
+    }
+}
+
+pub fn update_game_request(id: String, dto: UpdateGameRequestDto) -> benchmark_grpc::UpdateGameRequest {
+    benchmark_grpc::UpdateGameRequest {
+        id,
+        name: dto.name().to_string(),
+        img: dto.img(),
+        necessary_disk: dto.necessary_disk(),
     }
 }
 

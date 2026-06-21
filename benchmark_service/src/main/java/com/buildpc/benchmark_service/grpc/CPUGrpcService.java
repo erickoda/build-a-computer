@@ -113,6 +113,30 @@ public class CPUGrpcService extends CPUServiceGrpc.CPUServiceImplBase{
     }
 
     @Override
+    public void updateCPU(UpdateCPURequest request, StreamObserver<CPUResponse> responseObserver) {
+        log.info("gRPC Update CPU called");
+
+        try {
+            CPU updatedCPU = cpuService.updateCPU(UUID.fromString(request.getId()), cpuMapper.toEntity(request));
+            responseObserver.onNext(cpuMapper.toProto(updatedCPU));
+            responseObserver.onCompleted();
+
+        } catch(CPUNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        } catch(IllegalArgumentException e){
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asException());
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
+
+    @Override
     public void deleteCPU(DeleteCPURequest request, StreamObserver<DeleteCPUResponse> responseObserver) {
         log.info("gRPC delete CPU called");
 

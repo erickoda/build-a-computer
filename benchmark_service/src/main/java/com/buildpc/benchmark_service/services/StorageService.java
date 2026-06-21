@@ -24,6 +24,23 @@ public class StorageService {
         return storageRepository.save(ssd);
     }
 
+    public Storage updateStorage(UUID id, Storage ssd) {
+        Storage existing = storageRepository.findById(id)
+                .orElseThrow(() -> new StorageNotFoundException("Can't find this ssd in data base"));
+
+        existing.setBrand(ssd.getBrand());
+        existing.setSeries(ssd.getSeries());
+        existing.setAmount(ssd.getAmount());
+        existing.setType(ssd.getType());
+        existing.setReading(ssd.getReading());
+        existing.setWriting(ssd.getWriting());
+        existing.setAvgPrice(ssd.getAvgPrice());
+        existing.setScore(ssd.getScore());
+        existing.setImg(ssd.getImg());
+
+        return storageRepository.save(existing);
+    }
+
     public void deleteById(UUID id) {
         if(!storageRepository.existsById(id))
             throw new StorageNotFoundException("Can't find this ssd in data base");

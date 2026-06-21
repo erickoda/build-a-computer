@@ -5,11 +5,11 @@ import com.buildpc.benchmark_service.grpc.generated.DeleteRAMResponse;
 import com.buildpc.benchmark_service.grpc.generated.ListRAMResponse;
 import com.buildpc.benchmark_service.grpc.generated.RAMResponse;
 import com.buildpc.benchmark_service.grpc.generated.CreateRAMRequest;
+import com.buildpc.benchmark_service.grpc.generated.UpdateRAMRequest;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -45,13 +45,29 @@ public class RAMMapper {
                 .build();
     }
 
-    public DeleteRAMResponse createDeleteRAMResponse(boolean deletedSuccess){
+    public DeleteRAMResponse createDeleteRAMResponse(boolean deletedSuccess) {
         return DeleteRAMResponse.newBuilder()
                 .setSuccess(deletedSuccess)
                 .build();
     }
 
     public RAM toEntity(CreateRAMRequest request) {
+        RAM ram = new RAM();
+        ram.setBrand(request.getBrand());
+        ram.setDdr(request.getDdr());
+        ram.setMemoryAmount(request.getMemoryAmount());
+        ram.setAvgPrice(request.getAvgPrice());
+        ram.setFrequencyMhz(request.getFrequencyMhz());
+        ram.setSeries(request.getSeries());
+
+        if (request.hasImg()) {
+            ram.setImg(request.getImg().toByteArray());
+        }
+
+        return ram;
+    }
+
+    public RAM toEntity(UpdateRAMRequest request) {
         RAM ram = new RAM();
         ram.setBrand(request.getBrand());
         ram.setDdr(request.getDdr());

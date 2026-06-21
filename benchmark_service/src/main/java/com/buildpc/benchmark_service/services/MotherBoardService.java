@@ -41,6 +41,27 @@ public class MotherBoardService {
         return motherBoards;
     }
 
+    public MotherBoard update(UUID id, MotherBoard mb) throws MotherBoardNotFoundException {
+        MotherBoard existing = motherBoardRepository.findById(id)
+                .orElseThrow(() -> new MotherBoardNotFoundException("Can't find this Mother Board in data base"));
+
+        existing.setBrand(mb.getBrand());
+        existing.setSeries(mb.getSeries());
+        existing.setSocket(mb.getSocket());
+        existing.setDdr(mb.getDdr());
+        existing.setMemorySlots(mb.getMemorySlots());
+        existing.setMaxRAM(mb.getMaxRAM());
+        existing.setMaxRamMemoryFrequencyMhz(mb.getMaxRamMemoryFrequencyMhz());
+        existing.setM2Slots(mb.getM2Slots());
+        existing.setPciExpress(mb.getPciExpress());
+        existing.setVrm(mb.getVrm());
+        existing.setAvgPrice(mb.getAvgPrice());
+        existing.setScore(mb.getScore());
+        existing.setImg(mb.getImg());
+
+        return motherBoardRepository.save(existing);
+    }
+
     public void deleteById(UUID id) throws MotherBoardNotFoundException{
         if(!motherBoardRepository.existsById(id))
             throw new MotherBoardNotFoundException("Can't find this Mother Board in data base");

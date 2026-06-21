@@ -31,6 +31,30 @@ public class CPUService {
         return foundCPU.orElseThrow(() -> new CPUNotFoundException("Can't find this CPU"));
     }
 
+    public CPU updateCPU(UUID id, CPU cpu) throws CPUNotFoundException {
+        CPU existing = cpuRepository.findById(id)
+                .orElseThrow(() -> new CPUNotFoundException("Can't find this CPU"));
+
+        existing.setBrand(cpu.getBrand());
+        existing.setGen(cpu.getGen());
+        existing.setFamily(cpu.getFamily());
+        existing.setSeries(cpu.getSeries());
+        existing.setCores(cpu.getCores());
+        existing.setThreads(cpu.getThreads());
+        existing.setBaseClock(cpu.getBaseClock());
+        existing.setMaxClock(cpu.getMaxClock());
+        existing.setCache(cpu.getCache());
+        existing.setSocket(cpu.getSocket());
+        existing.setGraphics(cpu.getGraphics());
+        existing.setOc(cpu.getOc());
+        existing.setRecommendedPower(cpu.getRecommendedPower());
+        existing.setAvgPrice(cpu.getAvgPrice());
+        existing.setReleaseDate(cpu.getReleaseDate());
+        existing.setImg(cpu.getImg());
+
+        return cpuRepository.save(existing);
+    }
+
     public void deleteById(UUID id) throws CPUNotFoundException{
         if(!cpuRepository.existsById(id)) {
             throw new CPUNotFoundException("Can't find this CPU");

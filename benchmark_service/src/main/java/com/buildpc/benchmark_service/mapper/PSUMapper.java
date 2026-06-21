@@ -7,7 +7,6 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -39,7 +38,7 @@ public class PSUMapper {
         return builder.build();
     }
 
-    public ListPSUResponse createListPSUResponse(List<PSUResponse> psuResponses){
+    public ListPSUResponse createListPSUResponse(List<PSUResponse> psuResponses) {
         return ListPSUResponse.newBuilder()
                 .addAllPsu(psuResponses)
                 .build();
@@ -52,6 +51,23 @@ public class PSUMapper {
     }
 
     public PSU toEntity(CreatePSURequest request) {
+        PSU psu = new PSU();
+        psu.setBrand(request.getBrand());
+        psu.setSeries(request.getSeries());
+        psu.setPowerAmount(request.getPowerAmount());
+        psu.setRanking(PSURanking.fromDatabaseValue(request.getRanking()));
+        psu.setScore(request.getScore());
+        psu.setEightyPlusCert(request.getEightyPlusCert());
+        psu.setAvgPrice(request.getAvgPrice());
+
+        if (request.hasImg()) {
+            psu.setImg(request.getImg().toByteArray());
+        }
+
+        return psu;
+    }
+
+    public PSU toEntity(UpdatePSURequest request) {
         PSU psu = new PSU();
         psu.setBrand(request.getBrand());
         psu.setSeries(request.getSeries());

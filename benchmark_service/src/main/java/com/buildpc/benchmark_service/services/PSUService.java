@@ -33,6 +33,22 @@ public class PSUService {
         return powerSourcesSupply;
     }
 
+    public PSU updatePSU(UUID id, PSU psu) {
+        PSU existing = psuRepository.findById(id)
+                .orElseThrow(() -> new PSUNotFoundException("Can't find this PSU in data base"));
+
+        existing.setBrand(psu.getBrand());
+        existing.setSeries(psu.getSeries());
+        existing.setPowerAmount(psu.getPowerAmount());
+        existing.setRanking(psu.getRanking());
+        existing.setScore(psu.getScore());
+        existing.setEightyPlusCert(psu.getEightyPlusCert());
+        existing.setAvgPrice(psu.getAvgPrice());
+        existing.setImg(psu.getImg());
+
+        return psuRepository.save(existing);
+    }
+
     public void deleteById(UUID id) {
         if(!psuRepository.existsById(id))
             throw new PSUNotFoundException("Can't find this PSU in data base");

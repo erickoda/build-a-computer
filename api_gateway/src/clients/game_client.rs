@@ -50,6 +50,19 @@ impl GameClientWrapper {
         Ok(client.list_games(payload).await?.into_inner())
     }
 
+    /// Atualiza um jogo existente no catálogo do microsserviço de benchmark.
+    pub async fn update_game(
+        &self,
+        payload: benchmark_grpc::UpdateGameRequest,
+        authenticated_user: &AuthenticatedUser,
+    ) -> Result<benchmark_grpc::GameResponse, AppError> {
+        let grpc_request = with_auth_metadata(payload, authenticated_user)?;
+
+        let mut client = self.inner_client.clone();
+
+        Ok(client.update_game(grpc_request).await?.into_inner())
+    }
+
     /// Remove um jogo do catálogo com base no seu ID.
     pub async fn delete_game(
         &self,

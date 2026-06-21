@@ -1,4 +1,8 @@
-use axum::{Json, extract::State, http::StatusCode};
+use axum::{
+    Json,
+    extract::{Query, State},
+    http::StatusCode,
+};
 
 use crate::{
     AppState,
@@ -8,19 +12,19 @@ use crate::{
     },
 };
 
-/// Processa uma requisição POST HTTP para obter sugestões de hardware.
+/// Processa uma requisição GET HTTP para obter sugestões de hardware.
 ///
-/// Este handler recebe o estado global da aplicação e o payload JSON contendo os critérios
-/// do usuário, delega a lógica de recomendação para o microserviço gRPC e retorna a lista
+/// Este handler recebe o estado global da aplicação e os critérios do usuário via query
+/// string, delega a lógica de recomendação para o microserviço gRPC e retorna a lista
 /// de computadores gerada.
 ///
 /// # Erros
 ///
 /// Retorna um `AppError` caso ocorra falha de comunicação ou processamento no cliente gRPC.
 #[utoipa::path(
-    post,
+    get,
     path = "/api/v1/recommendation",
-    request_body = RecommendationRequestDto,
+    params(RecommendationRequestDto),
     responses(
         (status = 200, description = "Lista de computadores recomendados gerada com sucesso", body = Vec<Pc>),
         (status = 400, description = "Requisição inválida", body = AppError),
@@ -30,12 +34,12 @@ use crate::{
 )]
 pub async fn get_recommendation(
     State(app_state): State<AppState>,
-    Json(dto): Json<RecommendationRequestDto>,
+    Query(dto): Query<RecommendationRequestDto>,
 ) -> Result<(StatusCode, Json<Vec<Pc>>), AppError> {
     let grpc_response = app_state
         .recommendation_client
         .recommend(
-            dto.get_games().to_vec(),
+            dto.get_games(),
             dto.get_max_price(),
             dto.get_resolution(),
             dto.get_computer_performance().to_string(),

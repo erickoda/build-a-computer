@@ -1,14 +1,14 @@
 'use client';
 
-import { toast, Button, ErrorMessage, Input, Link } from '@heroui/react';
-import { useForm } from 'react-hook-form';
+import { getRoleFromToken } from '@/src/utils/jwt';
+import { roleDefaultRedirect } from '@/src/utils/redirect';
+import { Button, ErrorMessage, Input, Link, toast } from '@heroui/react';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import useSignIn from '../../hooks/signInHook';
 import { SignInFormValues, signInSchema } from '../../schemas/signIn';
 import { SignInRequestDto } from '../../types/dtos';
-import useSignIn from '../../hooks/signInHook';
-import { useRouter } from 'next/navigation';
-import { roleDefaultRedirect } from '@/src/utils/redirect';
-import { getRoleFromToken } from '@/src/utils/jwt';
 
 const SignInPage = () => {
   const { error, isLoading, signIn } = useSignIn();
@@ -17,28 +17,29 @@ const SignInPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm<SignInFormValues>({
-    resolver: zodResolver(signInSchema)
+    resolver: zodResolver(signInSchema),
   });
 
   const onSubmit = async (data: SignInFormValues) => {
     const dto: SignInRequestDto = {
       email: data.email,
-      password: data.password
+      password: data.password,
     };
 
     const { ok, token } = await signIn(dto);
 
     if (ok && token) {
-      toast.success("Signed in successfully!");
+      toast.success('Signed in successfully!');
 
       const role = getRoleFromToken(token);
 
       router.push(role ? roleDefaultRedirect[role] : '/');
     } else {
-      toast.danger("An error occurred while signing in", {
-        description: error?.message || "Please check your credentials and try again.",
+      toast.danger('An error occurred while signing in', {
+        description:
+          error?.message || 'Please check your credentials and try again.',
       });
     }
   };
@@ -54,8 +55,10 @@ const SignInPage = () => {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4 font-sans">
-
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col space-y-4 font-sans"
+      >
         <div className="flex flex-col space-y-1">
           <Input
             type="email"
@@ -82,7 +85,10 @@ const SignInPage = () => {
           </ErrorMessage>
 
           <div className="flex justify-end w-full pt-1">
-            <Link href="/forgot-password" className="font-medium hover:opacity-80">
+            <Link
+              href="/forgot-password"
+              className="font-medium hover:opacity-80"
+            >
               Forgot password?
             </Link>
           </div>
@@ -95,7 +101,7 @@ const SignInPage = () => {
           size="lg"
           isDisabled={isBusy}
         >
-          {isBusy ? "Signing in..." : "Sign In"}
+          {isBusy ? 'Signing in...' : 'Sign In'}
         </Button>
       </form>
 

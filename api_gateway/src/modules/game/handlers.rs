@@ -7,7 +7,13 @@ use axum::{
 use crate::{
     AppState,
     errors::AppError,
-    modules::game::dtos::{request::create_game::CreateGameRequestDto, response::game::GameDto},
+    modules::game::{
+        dtos::{
+            request::{create_game::CreateGameRequestDto, update_game::UpdateGameRequestDto},
+            response::game::GameDto,
+        },
+        mappers::update_game_request,
+    },
     security::token::AuthenticatedUser,
 };
 
@@ -70,6 +76,38 @@ pub async fn list_games(
     State(app_state): State<AppState>,
 ) -> Result<(StatusCode, Json<Vec<GameDto>>), AppError> {
     let grpc_response = app_state.game_client.list_games().await?;
+
+    Ok((StatusCode::OK, Json(grpc_response.into())))
+}
+
+/// Atualiza um jogo existente no catálogo do microsserviço de benchmark.
+#[utoipa::path(
+    patch,
+    path = "/api/v1/games/{id}",
+    params(("id" = String, Path, description = "Identificador único do jogo")),
+    request_body = UpdateGameRequestDto,
+    responses(
+        (status = 200, description = "Jogo atualizado com sucesso", body = GameDto),
+        (status = 400, description = "Requisição inválida", body = AppError),
+        (status = 401, description = "Acesso negado: Token ausente ou inválido", body = AppError),
+        (status = 403, description = "Acesso negado: Privilégios insuficientes (requer supervisor ou admin)", body = AppError),
+        (status = 404, description = "Jogo não encontrado", body = AppError)
+    ),
+    security(
+        ("bearer_auth" = [])
+    ),
+    tag = "Jogos"
+)]
+pub async fn update_game(
+    State(app_state): State<AppState>,
+    user: AuthenticatedUser,
+    Path(id): Path<String>,
+    Json(dto): Json<UpdateGameRequestDto>,
+) -> Result<(StatusCode, Json<GameDto>), AppError> {
+    let grpc_response = app_state
+        .game_client
+        .update_game(update_game_request(id, dto), &user)
+        .await?;
 
     Ok((StatusCode::OK, Json(grpc_response.into())))
 }

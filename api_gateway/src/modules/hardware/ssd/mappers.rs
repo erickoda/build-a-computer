@@ -2,7 +2,8 @@ use chrono::{DateTime, Utc};
 use prost_types::Timestamp as ProstTimestamp;
 
 use crate::{
-    benchmark_grpc, modules::hardware::ssd::dtos::request::create_ssd::CreateSsdRequestDto,
+    benchmark_grpc,
+    modules::hardware::ssd::dtos::request::{create_ssd::CreateSsdRequestDto, update_ssd::UpdateSsdRequestDto},
 };
 
 use super::dtos::response::ssd::SsdDto;
@@ -24,6 +25,21 @@ impl From<CreateSsdRequestDto> for benchmark_grpc::CreateSsdRequest {
             score: dto.score(),
             img: dto.img(),
         }
+    }
+}
+
+pub fn update_ssd_request(id: String, dto: UpdateSsdRequestDto) -> benchmark_grpc::UpdateSsdRequest {
+    benchmark_grpc::UpdateSsdRequest {
+        id,
+        brand: dto.brand().to_string(),
+        series: dto.series().to_string(),
+        amount: dto.amount(),
+        r#type: dto.ssd_type().to_string(),
+        reading: dto.reading(),
+        writing: dto.writing(),
+        avg_price: dto.avg_price(),
+        score: dto.score(),
+        img: dto.img(),
     }
 }
 

@@ -58,6 +58,19 @@ impl MotherBoardClientWrapper {
         Ok(client.list_mother_boards(payload).await?.into_inner())
     }
 
+    /// Atualiza uma placa-mãe existente no catálogo do microsserviço de benchmark.
+    pub async fn update_motherboard(
+        &self,
+        payload: benchmark_grpc::UpdateMotherBoardRequest,
+        authenticated_user: &AuthenticatedUser,
+    ) -> Result<benchmark_grpc::MotherBoardResponse, AppError> {
+        let grpc_request = with_auth_metadata(payload, authenticated_user)?;
+
+        let mut client = self.inner_client.clone();
+
+        Ok(client.update_mother_board(grpc_request).await?.into_inner())
+    }
+
     /// Remove uma placa-mãe do catálogo com base no seu ID.
     pub async fn delete_motherboard(
         &self,

@@ -5,7 +5,6 @@ import com.buildpc.benchmark_service.exceptions.psu.DuplicatedPSUException;
 import com.buildpc.benchmark_service.exceptions.psu.PSUNotFoundException;
 import com.buildpc.benchmark_service.grpc.generated.*;
 import com.buildpc.benchmark_service.mapper.PSUMapper;
-import com.buildpc.benchmark_service.repository.PSURepository;
 import com.buildpc.benchmark_service.services.PSUService;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -36,22 +35,18 @@ public class PSUGrpcService extends PSUServiceGrpc.PSUServiceImplBase {
 
             responseObserver.onNext(psuMapper.toProto(savedPSU));
             responseObserver.onCompleted();
-        }
-        catch(DuplicatedPSUException e) {
+        } catch (DuplicatedPSUException e) {
             responseObserver.onError(Status.ALREADY_EXISTS
                     .withDescription(e.getMessage() +
                             request.getBrand() +
                             request.getSeries() +
-                            request.getPowerAmount()
-                    ).asException());
-        }
-        catch (IllegalArgumentException e) {
+                            request.getPowerAmount())
+                    .asException());
+        } catch (IllegalArgumentException e) {
             responseObserver.onError(Status.INVALID_ARGUMENT
                     .withDescription(e.getMessage())
-                    .asException()
-            );
-        }
-        catch (Exception e) {
+                    .asException());
+        } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
                     .asException());
@@ -60,7 +55,7 @@ public class PSUGrpcService extends PSUServiceGrpc.PSUServiceImplBase {
 
     @Override
     public void listPSUs(ListPSURequest request, StreamObserver<ListPSUResponse> responseObserver) {
-        try{
+        try {
             List<PSU> foundPsu = psuService.searchAll();
 
             List<PSUResponse> PSUMappedToProto = foundPsu.stream()
@@ -69,18 +64,39 @@ public class PSUGrpcService extends PSUServiceGrpc.PSUServiceImplBase {
 
             responseObserver.onNext(psuMapper.createListPSUResponse(PSUMappedToProto));
             responseObserver.onCompleted();
-        }
-        catch(PSUNotFoundException e){
+        } catch (PSUNotFoundException e) {
             responseObserver.onError(Status.NOT_FOUND
                     .withDescription(e.getMessage())
                     .asException());
-        }
-        catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             responseObserver.onError(Status.INVALID_ARGUMENT
                     .withDescription(e.getMessage())
                     .asException());
+        } catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
         }
-        catch(Exception e){
+    }
+
+    @Override
+    public void updatePSU(UpdatePSURequest request, StreamObserver<PSUResponse> responseObserver) {
+        log.info("gRPC Update PSU called");
+
+        try {
+            PSU updatedPSU = psuService.updatePSU(UUID.fromString(request.getId()), psuMapper.toEntity(request));
+
+            responseObserver.onNext(psuMapper.toProto(updatedPSU));
+            responseObserver.onCompleted();
+        } catch (PSUNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        } catch (IllegalArgumentException e) {
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asException());
+        } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
                     .asException());
@@ -96,18 +112,15 @@ public class PSUGrpcService extends PSUServiceGrpc.PSUServiceImplBase {
 
             responseObserver.onNext(psuMapper.createDeletePSUResponse(true));
             responseObserver.onCompleted();
-        }
-        catch(PSUNotFoundException e){
+        } catch (PSUNotFoundException e) {
             responseObserver.onError(Status.NOT_FOUND
                     .withDescription(e.getMessage())
                     .asException());
-        }
-        catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             responseObserver.onError(Status.INVALID_ARGUMENT
                     .withDescription(e.getMessage())
                     .asException());
-        }
-        catch(Exception e) {
+        } catch (Exception e) {
             responseObserver.onError(Status.INTERNAL
                     .withDescription(e.getMessage())
                     .asException());

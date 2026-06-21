@@ -1,5 +1,7 @@
 'use client';
 
+import { getRoleFromToken } from '@/src/utils/jwt';
+import { roleDefaultRedirect } from '@/src/utils/redirect';
 import {
   Button,
   ErrorMessage,
@@ -12,11 +14,9 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
+import useSignUp from '../../hooks/signUpHook';
 import { LoginFormValues, loginSchema } from '../../schemas/signUp';
 import { SignUpRequestDto } from '../../types/dtos';
-import useSignUp from '../../hooks/signUpHook';
-import { getRoleFromToken } from '@/src/utils/jwt';
-import { roleDefaultRedirect } from '@/src/utils/redirect';
 
 const SignUpPage = () => {
   const router = useRouter();
@@ -27,7 +27,7 @@ const SignUpPage = () => {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema)
+    resolver: zodResolver(loginSchema),
   });
 
   const onSubmit = async (data: LoginFormValues) => {
@@ -40,14 +40,15 @@ const SignUpPage = () => {
     const { ok, token } = await signUp(dto);
 
     if (ok && token) {
-      toast.success("Account created successfully!");
+      toast.success('Account created successfully!');
 
       const role = getRoleFromToken(token);
 
       router.push(role ? roleDefaultRedirect[role] : '/');
     } else {
       toast.danger('An error occurred while signing up', {
-        description: error?.message || "Please check your details and try again.",
+        description:
+          error?.message || 'Please check your details and try again.',
       });
     }
   };
@@ -121,7 +122,7 @@ const SignUpPage = () => {
           size="lg"
           isDisabled={isBusy}
         >
-          {isBusy ? "Signing Up..." : "Sign Up"}
+          {isBusy ? 'Signing Up...' : 'Sign Up'}
         </Button>
       </form>
 

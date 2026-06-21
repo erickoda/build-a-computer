@@ -116,6 +116,33 @@ public class GPUGrpcService extends GPUServiceGrpc.GPUServiceImplBase {
     }
 
     @Override
+    public void updateGPU(UpdateGPURequest request, StreamObserver<GPUResponse> responseObserver) {
+        log.info("gRPC Update GPU called");
+
+        try{
+            GPU updatedGPU = gpuService.updateGPU(UUID.fromString(request.getId()), gpuMapper.toEntity(request));
+
+            responseObserver.onNext(gpuMapper.toProto(updatedGPU));
+            responseObserver.onCompleted();
+        }
+        catch(GPUNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(IllegalArgumentException e){
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch (Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
+
+    @Override
     public void deleteGPU(DeleteGPURequest request, StreamObserver<DeleteGPUResponse> responseObserver) {
         log.info("gRPC Delete GPU called");
 

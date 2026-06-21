@@ -5,11 +5,11 @@ import com.buildpc.benchmark_service.grpc.generated.CPUResponse;
 import com.buildpc.benchmark_service.grpc.generated.CreateCPURequest;
 import com.buildpc.benchmark_service.grpc.generated.DeleteCPUResponse;
 import com.buildpc.benchmark_service.grpc.generated.ListCPUResponse;
+import com.buildpc.benchmark_service.grpc.generated.UpdateCPURequest;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -61,6 +61,31 @@ public class CPUMapper {
     }
 
     public CPU toEntity(CreateCPURequest request) {
+        CPU cpu = new CPU();
+        cpu.setBrand(request.getBrand());
+        cpu.setGen(request.getGen());
+        cpu.setFamily(request.getFamily());
+        cpu.setSeries(request.getSeries());
+        cpu.setCores(request.getCores());
+        cpu.setThreads(request.getThreads());
+        cpu.setBaseClock(request.getBaseClock());
+        cpu.setMaxClock(request.getMaxClock());
+        cpu.setCache(request.getCache());
+        cpu.setSocket(request.getSocket());
+        cpu.setGraphics(request.getGraphics());
+        cpu.setOc(request.getOc());
+        cpu.setRecommendedPower(request.getRecommendedPower());
+        cpu.setAvgPrice(request.getAvgPrice());
+        cpu.setReleaseDate(timestampToDate(request.getReleaseDate()));
+
+        if (request.hasImg()) {
+            cpu.setImg(request.getImg().toByteArray());
+        }
+
+        return cpu;
+    }
+
+    public CPU toEntity(UpdateCPURequest request) {
         CPU cpu = new CPU();
         cpu.setBrand(request.getBrand());
         cpu.setGen(request.getGen());

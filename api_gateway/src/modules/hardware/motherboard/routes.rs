@@ -1,12 +1,12 @@
 use axum::{
     Router,
-    routing::{get, post},
+    routing::{get, patch, post},
 };
 
 use crate::{
     AppState,
     modules::hardware::motherboard::handlers::{
-        create_motherboard, delete_motherboard, get_motherboard, list_motherboards,
+        create_motherboard, delete_motherboard, get_motherboard, list_motherboards, update_motherboard,
     },
 };
 
@@ -16,5 +16,6 @@ pub fn motherboard_routes() -> Router<AppState> {
         .route("/", post(create_motherboard))
         .route("/", get(list_motherboards))
         .route("/{id}", get(get_motherboard))
+        .route("/{id}", patch(update_motherboard))
         .route("/{id}", axum::routing::delete(delete_motherboard))
 }

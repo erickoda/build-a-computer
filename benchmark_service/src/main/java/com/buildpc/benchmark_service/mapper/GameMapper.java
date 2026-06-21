@@ -20,11 +20,11 @@ public class GameMapper {
                 .setNecessaryDisk(game.getNecessaryDisk())
                 .setCreatedAt(dateToTimestamp(game.getCreatedAt()));
 
-        if(game.getImg() != null) {
+        if (game.getImg() != null) {
             builder.setImg(ByteString.copyFrom(game.getImg()));
         }
 
-        if(game.getUpdatedAt() != null) {
+        if (game.getUpdatedAt() != null) {
             builder.setUpdatedAt(dateToTimestamp(game.getUpdatedAt()));
         }
 
@@ -49,7 +49,19 @@ public class GameMapper {
         game.setName(request.getName());
         game.setNecessaryDisk(request.getNecessaryDisk());
 
-        if(request.hasImg())
+        if (request.hasImg())
+            game.setImg(request.getImg().toByteArray());
+
+        return game;
+    }
+
+    public Game toEntity(UpdateGameRequest request) {
+        Game game = new Game();
+
+        game.setName(request.getName());
+        game.setNecessaryDisk(request.getNecessaryDisk());
+
+        if (request.hasImg())
             game.setImg(request.getImg().toByteArray());
 
         return game;

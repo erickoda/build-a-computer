@@ -1,7 +1,10 @@
 use chrono::{DateTime, Utc};
 use prost_types::Timestamp as ProstTimestamp;
 
-use crate::{benchmark_grpc, modules::hardware::gpu::dtos::request::create_gpu::CreateGpuRequestDto};
+use crate::{
+    benchmark_grpc,
+    modules::hardware::gpu::dtos::request::{create_gpu::CreateGpuRequestDto, update_gpu::UpdateGpuRequestDto},
+};
 
 use super::dtos::response::gpu::GpuDto;
 
@@ -31,6 +34,23 @@ impl From<CreateGpuRequestDto> for benchmark_grpc::CreateGpuRequest {
             release_date: Some(to_prost_timestamp(dto.release_date())),
             img: dto.img(),
         }
+    }
+}
+
+pub fn update_gpu_request(id: String, dto: UpdateGpuRequestDto) -> benchmark_grpc::UpdateGpuRequest {
+    benchmark_grpc::UpdateGpuRequest {
+        id,
+        brand: dto.brand().to_string(),
+        family: dto.family().to_string(),
+        series: dto.series().to_string(),
+        memory_amount: dto.memory_amount(),
+        memory_gen: dto.memory_gen().to_string(),
+        cores: dto.cores(),
+        pci_express: dto.pci_express(),
+        recommended_power: dto.recommended_power(),
+        avg_price: dto.avg_price(),
+        release_date: Some(to_prost_timestamp(dto.release_date())),
+        img: dto.img(),
     }
 }
 

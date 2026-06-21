@@ -80,6 +80,33 @@ public class RAMGrpcService extends RAMServiceGrpc.RAMServiceImplBase {
     }
 
     @Override
+    public void updateRAM(UpdateRAMRequest request, StreamObserver<RAMResponse> responseObserver) {
+        log.info("gRPC Update RAM called");
+
+        try{
+            RAM updatedRAM = ramService.updateRAM(UUID.fromString(request.getId()), ramMapper.toEntity(request));
+
+            responseObserver.onNext(ramMapper.toProto(updatedRAM));
+            responseObserver.onCompleted();
+        }
+        catch(RAMNotFoundException e) {
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(IllegalArgumentException e){
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
+
+    @Override
     public void deleteRAM(DeleteRAMRequest request, StreamObserver<DeleteRAMResponse> responseObserver) {
         log.info("gRPC Delete RAM called");
 

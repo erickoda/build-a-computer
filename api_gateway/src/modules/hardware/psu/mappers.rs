@@ -1,7 +1,10 @@
 use chrono::{DateTime, Utc};
 use prost_types::Timestamp as ProstTimestamp;
 
-use crate::{benchmark_grpc, modules::hardware::psu::dtos::request::create_psu::CreatePsuRequestDto};
+use crate::{
+    benchmark_grpc,
+    modules::hardware::psu::dtos::request::{create_psu::CreatePsuRequestDto, update_psu::UpdatePsuRequestDto},
+};
 
 use super::dtos::response::psu::PsuDto;
 
@@ -21,6 +24,20 @@ impl From<CreatePsuRequestDto> for benchmark_grpc::CreatePsuRequest {
             avg_price: dto.avg_price(),
             img: dto.img(),
         }
+    }
+}
+
+pub fn update_psu_request(id: String, dto: UpdatePsuRequestDto) -> benchmark_grpc::UpdatePsuRequest {
+    benchmark_grpc::UpdatePsuRequest {
+        id,
+        brand: dto.brand().to_string(),
+        series: dto.series().to_string(),
+        power_amount: dto.power_amount(),
+        ranking: dto.ranking().to_string(),
+        score: dto.score(),
+        eighty_plus_cert: dto.eighty_plus_cert(),
+        avg_price: dto.avg_price(),
+        img: dto.img(),
     }
 }
 

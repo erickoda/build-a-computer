@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package pkg.protos.v1;
+package recommendation.v1;
 
 import "hardwares.proto";
 

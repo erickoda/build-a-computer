@@ -41,6 +41,25 @@ public class GPUService {
         return gpus;
     }
 
+    public GPU updateGPU(UUID id, GPU gpu) throws GPUNotFoundException {
+        GPU existing = gpuRepository.findById(id)
+                .orElseThrow(() -> new GPUNotFoundException("Can't find this GPU in data base"));
+
+        existing.setBrand(gpu.getBrand());
+        existing.setFamily(gpu.getFamily());
+        existing.setSeries(gpu.getSeries());
+        existing.setMemoryAmount(gpu.getMemoryAmount());
+        existing.setMemoryGen(gpu.getMemoryGen());
+        existing.setCores(gpu.getCores());
+        existing.setPciExpress(gpu.getPciExpress());
+        existing.setRecommendedPower(gpu.getRecommendedPower());
+        existing.setAvgPrice(gpu.getAvgPrice());
+        existing.setReleaseDate(gpu.getReleaseDate());
+        existing.setImg(gpu.getImg());
+
+        return gpuRepository.save(existing);
+    }
+
     public void deleteById(UUID id) throws GPUNotFoundException {
         if(!gpuRepository.existsById(id))
             throw new GPUNotFoundException("Can't find this GPU in data base");

@@ -1,11 +1,14 @@
 use serde::Deserialize;
-use utoipa::ToSchema;
+use utoipa::IntoParams;
 
 /// Estrutura que representa os dados de entrada para solicitar uma recomendação de PC.
-#[derive(Deserialize, ToSchema)]
+///
+/// Recebida via query string; `games` chega como uma lista de IDs separados por vírgula
+/// (ex: `games=id-1,id-2`) pois `serde_urlencoded` não suporta `Vec<String>` nativamente.
+#[derive(Deserialize, IntoParams)]
 pub struct RecommendationRequestDto {
-    /// Lista de jogos que o usuário deseja rodar.
-    games: Vec<String>,
+    /// Lista de jogos que o usuário deseja rodar, separados por vírgula.
+    games: String,
     /// Preço máximo que o usuário está disposto a pagar.
     max_price: f32,
     /// Resolução alvo (ex: 1080, 1440, 2160).
@@ -15,9 +18,14 @@ pub struct RecommendationRequestDto {
 }
 
 impl RecommendationRequestDto {
-    /// Retorna uma referência à lista de jogos solicitados.
-    pub fn get_games(&self) -> &Vec<String> {
-        &self.games
+    /// Retorna a lista de jogos solicitados, separando o campo por vírgulas.
+    pub fn get_games(&self) -> Vec<String> {
+        self.games
+            .split(',')
+            .map(str::trim)
+            .filter(|game| !game.is_empty())
+            .map(String::from)
+            .collect()
     }
 
     /// Retorna o preço máximo definido para a configuração.

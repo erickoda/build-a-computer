@@ -6,7 +6,6 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -40,7 +39,7 @@ public class GPUMapper {
         return builder.build();
     }
 
-    public ListGPUResponse createListGPUResponse(List<GPUResponse> gpuResponses){
+    public ListGPUResponse createListGPUResponse(List<GPUResponse> gpuResponses) {
         return ListGPUResponse.newBuilder()
                 .addAllGpu(gpuResponses)
                 .build();
@@ -53,6 +52,26 @@ public class GPUMapper {
     }
 
     public GPU toEntity(CreateGPURequest request) {
+        GPU gpu = new GPU();
+        gpu.setBrand(request.getBrand());
+        gpu.setFamily(request.getFamily());
+        gpu.setSeries(request.getSeries());
+        gpu.setMemoryAmount(request.getMemoryAmount());
+        gpu.setMemoryGen(request.getMemoryGen());
+        gpu.setCores(request.getCores());
+        gpu.setPciExpress(request.getPciExpress());
+        gpu.setRecommendedPower(request.getRecommendedPower());
+        gpu.setAvgPrice(request.getAvgPrice());
+        gpu.setReleaseDate(timestampToDate(request.getReleaseDate()));
+
+        if (request.hasImg()) {
+            gpu.setImg(request.getImg().toByteArray());
+        }
+
+        return gpu;
+    }
+
+    public GPU toEntity(UpdateGPURequest request) {
         GPU gpu = new GPU();
         gpu.setBrand(request.getBrand());
         gpu.setFamily(request.getFamily());

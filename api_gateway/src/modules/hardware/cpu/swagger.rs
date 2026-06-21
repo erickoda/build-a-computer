@@ -8,10 +8,12 @@ use crate::modules::hardware::cpu::{dtos, handlers};
         handlers::create_cpu,
         handlers::get_cpu,
         handlers::list_cpus,
+        handlers::update_cpu,
         handlers::delete_cpu
     ),
     components(schemas(
         dtos::request::create_cpu::CreateCpuRequestDto,
+        dtos::request::update_cpu::UpdateCpuRequestDto,
         dtos::response::cpu::CpuDto,
     ))
 )]

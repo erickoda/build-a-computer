@@ -6,7 +6,6 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import org.springframework.stereotype.Component;
 
-import java.sql.Date;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -55,6 +54,28 @@ public class MotherBoardMapper {
     }
 
     public MotherBoard toEntity(CreateMotherBoardRequest request) {
+        MotherBoard motherBoard = new MotherBoard();
+        motherBoard.setBrand(request.getBrand());
+        motherBoard.setSeries(request.getSeries());
+        motherBoard.setSocket(request.getSocket());
+        motherBoard.setDdr(request.getDdr());
+        motherBoard.setMemorySlots(request.getMemorySlots());
+        motherBoard.setMaxRAM(request.getMaxRam());
+        motherBoard.setMaxRamMemoryFrequencyMhz(request.getMaxRamFrequencyMhz());
+        motherBoard.setM2Slots(request.getM2Slots());
+        motherBoard.setPciExpress(request.getPciExpressX16());
+        motherBoard.setVrm(request.getVrm());
+        motherBoard.setAvgPrice(request.getAvgPrice());
+        motherBoard.setScore(request.getScore());
+
+        if (request.hasImg()) {
+            motherBoard.setImg(request.getImg().toByteArray());
+        }
+
+        return motherBoard;
+    }
+
+    public MotherBoard toEntity(UpdateMotherBoardRequest request) {
         MotherBoard motherBoard = new MotherBoard();
         motherBoard.setBrand(request.getBrand());
         motherBoard.setSeries(request.getSeries());

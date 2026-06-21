@@ -103,8 +103,11 @@ const UsersPage = () => {
       </div>
 
       <div className="w-full rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 shadow-sm overflow-x-auto">
-        <Table aria-label="Lista de usuários da plataforma">
-          <Table.Content className="min-w-[700px]">
+        <Table>
+          <Table.Content
+            aria-label="Lista de usuários da plataforma"
+            className="min-w-[700px]"
+          >
             <Table.Header>
               <Table.Column className="px-4 pb-4">NAME</Table.Column>
               <Table.Column isRowHeader className="px-4 pb-4">E-MAIL</Table.Column>

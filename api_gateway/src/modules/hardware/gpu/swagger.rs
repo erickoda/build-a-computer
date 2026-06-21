@@ -8,10 +8,12 @@ use crate::modules::hardware::gpu::{dtos, handlers};
         handlers::create_gpu,
         handlers::get_gpu,
         handlers::list_gpus,
+        handlers::update_gpu,
         handlers::delete_gpu
     ),
     components(schemas(
         dtos::request::create_gpu::CreateGpuRequestDto,
+        dtos::request::update_gpu::UpdateGpuRequestDto,
         dtos::response::gpu::GpuDto,
     ))
 )]

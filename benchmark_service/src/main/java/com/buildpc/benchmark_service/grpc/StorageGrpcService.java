@@ -89,6 +89,33 @@ public class StorageGrpcService extends SSDServiceGrpc.SSDServiceImplBase {
     }
 
     @Override
+    public void updateSSD(UpdateSSDRequest request, StreamObserver<SSDResponse> responseObserver) {
+        log.info("gRPC Update storage/ssd called");
+
+        try{
+            Storage updatedStorage = storageService.updateStorage(UUID.fromString(request.getId()), storageMapper.toEntity(request));
+
+            responseObserver.onNext(storageMapper.toProto(updatedStorage));
+            responseObserver.onCompleted();
+        }
+        catch(StorageNotFoundException e){
+            responseObserver.onError(Status.NOT_FOUND
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(IllegalArgumentException e){
+            responseObserver.onError(Status.INVALID_ARGUMENT
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+        catch(Exception e) {
+            responseObserver.onError(Status.INTERNAL
+                    .withDescription(e.getMessage())
+                    .asException());
+        }
+    }
+
+    @Override
     public void deleteSSD(DeleteSSDRequest request, StreamObserver<DeleteSSDResponse> responseObserver) {
         log.info("gRPC Delete by ID storage called");
 

@@ -148,7 +148,7 @@ const CreateUserModal = ({ onConfirm, isLoading }: CreateUserModalProps) => {
                           <Select.Indicator />
                         </Select.Trigger>
                         <Select.Popover>
-                          <ListBox>
+                          <ListBox aria-label="Role">
                             {roleValues.map((roleValue) => (
                               <ListBox.Item key={roleValue} id={roleValue} textValue={roleValue} className="capitalize">
                                 {roleValue}
