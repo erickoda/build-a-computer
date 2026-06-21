@@ -31,11 +31,19 @@ export function ResizablePanel({
       data-slot="resizable-panel"
       ref={ref}
       style={{
-        flex: defaultSize !== undefined ? `0 0 ${defaultSize}%` : '1 1 0%',
+        ...(defaultSize !== undefined
+          ? ({ '--panel-size': `${defaultSize}%` } as React.CSSProperties)
+          : {}),
         overflow: 'hidden',
         ...style,
       }}
-      className={cn('min-w-0 min-h-0', className)}
+      className={cn(
+        'min-w-0 min-h-0',
+        defaultSize !== undefined
+          ? 'flex-1 sm:flex-[0_0_var(--panel-size)]'
+          : 'flex-1',
+        className,
+      )}
       {...props}
     />
   );

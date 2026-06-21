@@ -83,7 +83,7 @@ export function ResizablePanelGroup({
         ref={groupRef}
         className={cn(
           'flex h-full w-full',
-          orientation === 'vertical' ? 'flex-col' : 'flex-row',
+          orientation === 'vertical' ? 'flex-col' : 'flex-col sm:flex-row',
           className,
         )}
         {...props}

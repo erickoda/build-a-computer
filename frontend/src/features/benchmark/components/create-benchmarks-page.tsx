@@ -150,7 +150,7 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
         <form
           onSubmit={handleSubmit(onSubmit)}
           noValidate
-          className="mx-auto max-w-2xl px-6 py-8 pb-36"
+          className="mx-auto max-w-2xl px-4 sm:px-6 py-8 pb-36"
         >
           <div className="flex flex-col gap-10">
             {/* ── Overview ──────────────────────────────────────── */}
@@ -290,7 +290,7 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
                 />
               </Field>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Field
                   label="Resolution"
                   htmlFor="resolution"
@@ -348,7 +348,7 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
                 subtitle="Enter the FPS values recorded during the benchmark session."
               />
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Field
                   label="Avg FPS"
                   htmlFor="avg_fps"
@@ -471,7 +471,7 @@ export function CreateBenchmarkPage({ onBack }: CreateBenchmarkPageProps) {
       </div>
 
       {/* ── Sticky save bar ──────────────────────────────────────────────── */}
-      <div className="sticky bottom-0 border-t bg-background/95 backdrop-blur-sm px-6 py-4">
+      <div className="sticky bottom-0 border-t bg-background/95 backdrop-blur-sm px-4 sm:px-6 py-4">
         {submitError && (
           <p className="mb-3 text-center text-sm text-destructive">
             {submitError.message || 'Failed to save benchmark. Please try again.'}
