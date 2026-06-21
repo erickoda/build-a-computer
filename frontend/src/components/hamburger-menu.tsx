@@ -38,7 +38,7 @@ export default function HamburgerMenu() {
         <Drawer.Content
           placement="left"
           className={[
-            'gap-2 px-5 py-5 rounded-lg w-94',
+            'gap-2 px-5 py-5 rounded-lg w-[85vw] max-w-94',
             'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
           ].join(' ')} //"w-64"
         >
