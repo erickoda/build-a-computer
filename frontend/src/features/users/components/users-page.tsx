@@ -76,7 +76,7 @@ const UsersPage = () => {
 
   if (error) {
     return (
-      <div className="w-full max-w-7xl mx-auto px-8 py-10">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-10">
         <div className="rounded-xl bg-red-50 p-6 border border-red-200 text-red-700 shadow-sm">
           <h3 className="text-lg font-bold mb-2">Failed to fetch data</h3>
           <p>{error.message}</p>
@@ -89,9 +89,9 @@ const UsersPage = () => {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-8 md:px-16 py-12 flex flex-col gap-4 p-6">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-16 pt-20 pb-8 md:pb-12 flex flex-col gap-4">
 
-      <div className="w-full flex flex-row justify-between items-center gap-6">
+      <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Users Manager
@@ -102,7 +102,49 @@ const UsersPage = () => {
         </div>
       </div>
 
-      <div className="w-full rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 shadow-sm overflow-x-auto">
+      {/* Mobile: stacked cards instead of a cramped, horizontally-scrolling table */}
+      <div className="flex flex-col gap-3 sm:hidden">
+        {users.map((user) => (
+          <div
+            key={user.id}
+            className="rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 shadow-sm p-4"
+          >
+            <dl className="flex flex-col gap-2">
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <dt className="text-gray-400 shrink-0">Name</dt>
+                <dd className="text-right font-medium">{user.username}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <dt className="text-gray-400 shrink-0">E-mail</dt>
+                <dd className="text-right font-medium break-all">{user.email}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <dt className="text-gray-400 shrink-0">Role</dt>
+                <dd className="text-right font-medium">{user.role.toUpperCase()}</dd>
+              </div>
+              <div className="flex items-baseline justify-between gap-3 text-sm">
+                <dt className="text-gray-400 shrink-0">Status</dt>
+                <dd className="text-right font-medium">{user.status.toUpperCase()}</dd>
+              </div>
+            </dl>
+            <div className="mt-3 flex justify-end gap-2 border-t border-gray-100 dark:border-zinc-800 pt-3">
+              <UpdateUserModal
+                user={user}
+                onConfirm={handleUpdateUser}
+                isLoading={isLoadingUpdateUser}
+              />
+              <DeleteUserModal
+                user={user}
+                onConfirm={confirmDelete}
+                isLoading={isLoadingDeleteUser}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* sm+: full table */}
+      <div className="hidden sm:block w-full rounded-2xl border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/40 shadow-sm overflow-x-auto">
         <Table>
           <Table.Content
             aria-label="Lista de usuários da plataforma"
