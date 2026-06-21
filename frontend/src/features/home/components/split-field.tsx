@@ -70,15 +70,19 @@ export function SplitFieldBackground({
     function computeLayers() {
       const width = containerRef!.clientWidth;
       const height = containerRef!.clientHeight;
-      const half = width / 2;
 
-      const leftViewport: LayerViewport = { x: 0, y: 0, width: half, height };
-      const rightViewport: LayerViewport = {
-        x: half,
-        y: 0,
-        width: width - half,
-        height,
-      };
+      // Below the `sm` breakpoint the page itself stacks its two halves
+      // vertically (see home.tsx's `flex-col sm:flex-row`) — split the
+      // shared canvas the same way so each field still centers within the
+      // half of the screen it's actually rendered behind.
+      const isStacked = width < 640;
+
+      const leftViewport: LayerViewport = isStacked
+        ? { x: 0, y: 0, width, height: height / 2 }
+        : { x: 0, y: 0, width: width / 2, height };
+      const rightViewport: LayerViewport = isStacked
+        ? { x: 0, y: height / 2, width, height: height - height / 2 }
+        : { x: width / 2, y: 0, width: width - width / 2, height };
 
       setLayers([
         { layer: left, viewport: leftViewport },
