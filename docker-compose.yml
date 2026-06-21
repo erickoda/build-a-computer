@@ -115,6 +115,8 @@ services:
     build:
       context: ./benchmark_service
       dockerfile: Dockerfile
+      additional_contexts:
+        protos: ./proto
     deploy:
       resources:
         limits:

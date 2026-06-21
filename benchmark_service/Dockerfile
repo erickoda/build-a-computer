@@ -9,6 +9,7 @@ RUN chmod +x gradlew
 
 RUN ./gradlew dependencies --no-daemon || true
 
+COPY --from=protos benchmark ../proto/benchmark
 COPY src src
 
 RUN ./gradlew clean bootJar --no-daemon -x test
