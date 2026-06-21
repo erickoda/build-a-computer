@@ -111,7 +111,7 @@ function buildSpriteSheet(dpr: number): Sprite[] {
   const sprites: Sprite[] = [];
   for (const hue of ['gold', 'silver'] as const) {
     for (let i = 0; i < SIZE_BUCKETS; i++) {
-      const t = SIZE_BUCKETS === 1 ? 0 : i / (SIZE_BUCKETS - 1);
+      const t = i / Math.max(SIZE_BUCKETS - 1, 1);
       sprites.push(makeSprite(hue, bucketSize(t), dpr));
     }
   }

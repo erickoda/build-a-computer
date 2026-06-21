@@ -1,5 +1,6 @@
 'use client';
 
+import { eraseLayer } from '@/src/components/canvas-layer-driver';
 import { milkyWayLayer } from '@/src/components/milky-way-field';
 import { moteLayer } from '@/src/components/mote-field';
 import Link from 'next/link';
@@ -18,7 +19,10 @@ export function LandingPage() {
         }}
       />
 
-      <SplitFieldBackground right={moteLayer} left={milkyWayLayer} />
+      <SplitFieldBackground
+        right={eraseLayer(moteLayer)}
+        left={eraseLayer(milkyWayLayer)}
+      />
 
       {/* Left: Build a Computer */}
       <Link
