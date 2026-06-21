@@ -135,7 +135,7 @@ function buildSpriteSheet(theme: Theme, dpr: number): Sprite[] {
   const sprites: Sprite[] = [];
   for (const hue of ['gold', 'silver'] as const) {
     for (let i = 0; i < SIZE_BUCKETS; i++) {
-      const t = SIZE_BUCKETS === 1 ? 0 : i / (SIZE_BUCKETS - 1);
+      const t = i / (SIZE_BUCKETS - 1);
       sprites.push(makeSprite(theme, hue, bucketSize(t), dpr));
     }
   }
