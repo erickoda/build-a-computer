@@ -1,26 +1,35 @@
 'use client';
 
 import { MilkyWayField } from '@/src/components/milky-way-field';
+import { graphicsQualities, resolutions } from '@/src/utils/benchmarks';
+import useFetchGames from '@/src/features/games/hooks/fetchGames';
+import { bytesToDataUrl } from '@/src/features/games/utils/imageBytes';
+import useGetRecommendation from '../hooks/getRecommendation';
+import { RecommendationResultsOverlay } from './recommendation-results-overlay';
+import { PcResponseDto } from '../types/dtos';
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/16/solid';
+import { toast } from '@heroui/react';
 import {
-  type Game,
-  games,
-  graphicsQualities,
-  resolutions,
-} from '@/src/utils/benchmarks';
-import {
-  CheckCircleIcon,
-  CheckIcon,
-  ChevronUpDownIcon,
-} from '@heroicons/react/16/solid';
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
-// ─── Banner hook ──────────────────────────────────────────────────────────────
+// ─── Game ─────────────────────────────────────────────────────────────────────
 //
-// Files must live in /public/banners/ at the project root.
-// Next.js serves /public/ at the URL root, so:
-//   /public/banners/elden-ring-desktop.png  →  /banners/elden-ring-desktop.png
+// Selectable game backed by the real catalog. `bannerUrl` is the game's
+// uploaded image (decoded from its byte array) used to fill the background —
+// games without an uploaded image simply render no background art for their
+// panel, since not every catalog game is guaranteed to have one.
 
-type BannerSize = 'desktop' | 'tablet' | 'mobile';
+type Game = {
+  id: string;
+  name: string;
+  bannerUrl?: string;
+};
 
 // ─── useAverageColor ──────────────────────────────────────────────────────────
 // Samples the bottom strip of each selected game's banner, averages the RGB
@@ -38,8 +47,13 @@ function luminance(r: number, g: number, b: number): number {
 }
 
 // Takes game IDs (stable state primitives, not derived objects) so the effect
-// dependency never produces a new reference on every render.
-function useAverageColor(gameIds: string[]): AverageColor {
+// dependency never produces a new reference on every render. `gamesById` is
+// read inside the effect via closure rather than being a dependency, since by
+// the time a game is selectable it has already been resolved from the fetch.
+function useAverageColor(
+  gameIds: string[],
+  gamesById: Map<string, Game>,
+): AverageColor {
   const [color, setColor] = useState<AverageColor>({
     bg: 'transparent',
     text: 'white',
@@ -68,7 +82,7 @@ function useAverageColor(gameIds: string[]): AverageColor {
 
     async function sample() {
       const ids = idsKey.split(',');
-      const gameList = ids.map((id) => games[id]).filter(Boolean) as Game[];
+      const gameList = ids.map((id) => gamesById.get(id)).filter(Boolean) as Game[];
       if (gameList.length === 0) return;
 
       const SAMPLE_W = 64,
@@ -87,7 +101,8 @@ function useAverageColor(gameIds: string[]): AverageColor {
 
       await Promise.all(
         gameList.map(async (game) => {
-          const url = `/${game.banner}-desktop.png`;
+          const url = game.bannerUrl;
+          if (!url) return;
           if (cacheRef.current.has(url)) {
             const [r, g, b] = cacheRef.current.get(url)!;
             totalR += r * w;
@@ -165,8 +180,6 @@ function useAverageColor(gameIds: string[]): AverageColor {
 
 // ─── Derived data ─────────────────────────────────────────────────────────────
 
-const GAME_LIST = Object.values(games);
-
 const RESOLUTION_LABELS: Record<number, string> = {
   1080: '1080p',
   1440: '1440p',
@@ -200,7 +213,9 @@ function SplitBackground({ games: selectedGames }: SplitBackgroundProps) {
           key={game.id}
           className="absolute top-0 h-full bg-cover bg-center"
           style={{
-            backgroundImage: `url('/${game.banner}-desktop.png')`,
+            backgroundImage: game.bannerUrl
+              ? `url('${game.bannerUrl}')`
+              : undefined,
             width: `${widthPct}%`,
             left: `${i * widthPct}%`,
             transition:
@@ -573,52 +588,6 @@ function ConfirmationOverlay({
   );
 }
 
-// ─── Success overlay ──────────────────────────────────────────────────────────
-
-function SuccessOverlay({ onDone }: { onDone: () => void }) {
-  // Close on ESC
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onDone();
-    }
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onDone]);
-
-  return (
-    // Backdrop: click outside to close
-    <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-300 cursor-pointer"
-      onClick={onDone}
-    >
-      <div
-        className="flex flex-col items-center gap-5 text-center animate-in zoom-in-95 fade-in duration-300 cursor-default"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex size-20 items-center justify-center rounded-full border border-white/20 bg-white/10">
-          <CheckCircleIcon className="size-10 text-white" />
-        </div>
-        <div>
-          <p className="text-2xl font-bold text-white">Request sent</p>
-          <p className="mt-1 text-sm text-white/60">
-            We'll find the best builds for your configuration.
-          </p>
-        </div>
-        {/*<button
-          type="button"
-          onClick={onDone}
-          className="mt-2 h-10 rounded-xl bg-white px-8 text-sm font-bold text-black transition-colors hover:bg-white/90"
-        >
-          Done
-        </button>*/}
-        <p className="text-xs text-white/30">
-          Click anywhere or press ESC to close
-        </p>
-      </div>
-    </div>
-  );
-}
-
 // ─── Field label ──────────────────────────────────────────────────────────────
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
@@ -651,30 +620,78 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
   const [budget, setBudget] = useState<[number, number]>([1000, 3000]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [recommendations, setRecommendations] = useState<PcResponseDto[]>([]);
 
-  const selectedGames = selectedGameIds.map((id) => games[id]).filter(Boolean);
-  const gameOptions = GAME_LIST.map((g) => ({ value: g.id, label: g.name }));
+  const { games: fetchedGames, fetchGames } = useFetchGames();
+  const { getRecommendation } = useGetRecommendation();
+
+  useEffect(() => {
+    fetchGames();
+  }, [fetchGames]);
+
+  const gameList: Game[] = useMemo(
+    () =>
+      fetchedGames.map((g) => ({
+        id: g.id,
+        name: g.name,
+        bannerUrl: bytesToDataUrl(g.img),
+      })),
+    [fetchedGames],
+  );
+  const gamesById = useMemo(
+    () => new Map(gameList.map((g) => [g.id, g])),
+    [gameList],
+  );
+
+  const selectedGames = selectedGameIds
+    .map((id) => gamesById.get(id))
+    .filter(Boolean) as Game[];
+  const gameOptions = gameList.map((g) => ({ value: g.id, label: g.name }));
   const canSubmit =
     selectedGameIds.length > 0 && resolution !== null && !!quality;
 
   const [btnHovered, setBtnHovered] = useState(false);
   // Pass the stable ID array (not the derived Game[] object) to avoid
   // a new array reference on every render triggering the effect infinitely.
-  const accentColor = useAverageColor(selectedGameIds);
+  const accentColor = useAverageColor(selectedGameIds, gamesById);
 
-  const handleConfirm = useCallback(() => {
+  const handleConfirm = useCallback(async () => {
     setShowConfirm(false);
-    setSubmitted(true);
-    if (selectedGames.length > 0 && resolution !== null) {
-      onSubmit?.({
-        games: selectedGames,
-        resolution,
-        quality,
-        budgetMin: budget[0],
-        budgetMax: budget[1],
+
+    if (selectedGames.length === 0 || resolution === null) return;
+
+    const result = await getRecommendation({
+      games: selectedGameIds,
+      maxPrice: budget[1],
+      resolution,
+      computerPerformance: quality.toLowerCase(),
+    });
+
+    if (!result.ok) {
+      toast.danger('Could not build your recommendation', {
+        description: result.error.message || 'Please try again later.',
       });
+      return;
     }
-  }, [selectedGames, resolution, quality, budget, onSubmit]);
+
+    setRecommendations(result.data);
+    setSubmitted(true);
+    onSubmit?.({
+      games: selectedGames,
+      resolution,
+      quality,
+      budgetMin: budget[0],
+      budgetMax: budget[1],
+    });
+  }, [
+    selectedGameIds,
+    selectedGames,
+    resolution,
+    quality,
+    budget,
+    onSubmit,
+    getRecommendation,
+  ]);
 
   const handleDone = useCallback(() => {
     setSubmitted(false);
@@ -844,7 +861,12 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
         />
       )}
 
-      {submitted && <SuccessOverlay onDone={handleDone} />}
+      {submitted && (
+        <RecommendationResultsOverlay
+          pcs={recommendations}
+          onDone={handleDone}
+        />
+      )}
     </div>
   );
 }
