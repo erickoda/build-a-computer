@@ -61,7 +61,7 @@ export const routesInfos: RouteItems[] = [
   {
     label: 'Create Benchmarks',
     href: '/benchmarks/create',
-    allowedRoles: ['admin', 'supervisor'],
+    allowedRoles: ['admin', 'supervisor', 'common'],
     isPublic: false,
     isInNavbar: true,
   },
