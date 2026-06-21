@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Toast } from "@heroui/react";
-import { ThemeProvider } from "next-themes";
+import { Toast } from '@heroui/react';
+import { ThemeProvider } from 'next-themes';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -11,5 +11,5 @@ export function Providers({ children }: { children: React.ReactNode }) {
         {children}
       </ThemeProvider>
     </>
-  )
+  );
 }

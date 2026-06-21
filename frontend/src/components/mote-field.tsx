@@ -41,8 +41,25 @@ type Mote = {
   spriteIndex: number;
 };
 
-const GOLD = { r: 212, g: 175, b: 110 };
-const SILVER = { r: 206, g: 212, b: 222 };
+// ─── Theme palettes ───────────────────────────────────────────────────────────
+// Dark theme: gold/silver glowing motes against a dark sky — the original
+// look, unchanged.
+// Light theme: rather than faint pastel versions of the same glow (which
+// would all but disappear against a light backdrop), motes become darker,
+// more saturated "ink"/dust specks — visible the same way dust motes read
+// as dark flecks in a sunbeam against a bright window, not as glows.
+const DARK_GOLD = { r: 212, g: 175, b: 110 };
+const DARK_SILVER = { r: 206, g: 212, b: 222 };
+
+const LIGHT_GOLD = { r: 138, g: 102, b: 36 }; // burnt amber ink
+const LIGHT_SILVER = { r: 70, g: 78, b: 94 }; // graphite/slate ink
+
+type Theme = 'dark' | 'light';
+
+function paletteFor(theme: Theme, hue: 'gold' | 'silver') {
+  if (theme === 'dark') return hue === 'gold' ? DARK_GOLD : DARK_SILVER;
+  return hue === 'gold' ? LIGHT_GOLD : LIGHT_SILVER;
+}
 
 const SIZE_BUCKETS = 6;
 const MIN_SIZE = 0.6;
@@ -55,7 +72,9 @@ type Sprite = {
 
 type MoteState = {
   motes: Mote[];
-  sprites: Sprite[];
+  // One sheet per theme, built once and kept around — switching themes at
+  // runtime just changes which sheet draw() reads from, with no rebuild.
+  spritesByTheme: { dark: Sprite[]; light: Sprite[] };
   centerX: number;
   centerY: number;
   t: number;
@@ -65,8 +84,13 @@ function bucketSize(t: number): number {
   return MIN_SIZE + (MAX_SIZE - MIN_SIZE) * t;
 }
 
-function makeSprite(hue: 'gold' | 'silver', size: number, dpr: number): Sprite {
-  const c = hue === 'gold' ? GOLD : SILVER;
+function makeSprite(
+  theme: Theme,
+  hue: 'gold' | 'silver',
+  size: number,
+  dpr: number,
+): Sprite {
+  const c = paletteFor(theme, hue);
   const glowRadius = size * 5;
   const padding = 1;
   const dim = Math.ceil((glowRadius + padding) * 2 * dpr);
@@ -107,12 +131,12 @@ function makeSprite(hue: 'gold' | 'silver', size: number, dpr: number): Sprite {
   return { canvas, glowRadius };
 }
 
-function buildSpriteSheet(dpr: number): Sprite[] {
+function buildSpriteSheet(theme: Theme, dpr: number): Sprite[] {
   const sprites: Sprite[] = [];
   for (const hue of ['gold', 'silver'] as const) {
     for (let i = 0; i < SIZE_BUCKETS; i++) {
-      const t = SIZE_BUCKETS === 1 ? 0 : i / (SIZE_BUCKETS - 1);
-      sprites.push(makeSprite(hue, bucketSize(t), dpr));
+      const t = i / (SIZE_BUCKETS - 1);
+      sprites.push(makeSprite(theme, hue, bucketSize(t), dpr));
     }
   }
   return sprites;
@@ -157,19 +181,28 @@ function makeMotes(count: number, width: number, height: number): Mote[] {
   return motes;
 }
 
-// Sprite sheets only depend on dpr, not on canvas size — cache per dpr value
-// across setup() calls (which fire on every resize) so resizing doesn't
-// rebuild sprites unnecessarily. In practice dpr is constant for a session,
-// so this is effectively a one-time build.
-const spriteCache = new Map<number, Sprite[]>();
+// Sprite sheets only depend on dpr (not on canvas size), so they're cached
+// per dpr value across setup() calls (which fire on every resize) — resizing
+// doesn't rebuild sprites unnecessarily, and in practice dpr is constant for
+// a session, so this is effectively a one-time build per theme.
+//
+// Both theme sheets are built and cached up front (not lazily on first use
+// of each theme) so that switching themes at runtime never has a "first
+// switch is janky while it builds a sheet" moment — the one-time cost of
+// building a second small sprite sheet at startup is negligible compared to
+// ever rebuilding one mid-session.
+const spriteCache = new Map<number, { dark: Sprite[]; light: Sprite[] }>();
 
-function getSpritesFor(dpr: number): Sprite[] {
-  let sprites = spriteCache.get(dpr);
-  if (!sprites) {
-    sprites = buildSpriteSheet(dpr);
-    spriteCache.set(dpr, sprites);
+function getSpriteSheetsFor(dpr: number): { dark: Sprite[]; light: Sprite[] } {
+  let sheets = spriteCache.get(dpr);
+  if (!sheets) {
+    sheets = {
+      dark: buildSpriteSheet('dark', dpr),
+      light: buildSpriteSheet('light', dpr),
+    };
+    spriteCache.set(dpr, sheets);
   }
-  return sprites;
+  return sheets;
 }
 
 export const moteLayer: CanvasLayer<MoteState> = {
@@ -179,14 +212,14 @@ export const moteLayer: CanvasLayer<MoteState> = {
 
     return {
       motes: makeMotes(count, size.width, size.height),
-      sprites: getSpritesFor(dpr),
+      spritesByTheme: getSpriteSheetsFor(dpr),
       centerX: size.width / 2,
       centerY: size.height / 2,
       t: 0,
     };
   },
 
-  draw(ctx, state, _size, _elapsed, reduceMotion) {
+  draw(ctx, state, _size, _elapsed, reduceMotion, isDark) {
     // This layer does NOT clear/repaint its own region itself — it only
     // draws motes additively. That's safe in two cases:
     //   1. Stacked, on top of a layer that already repainted the whole
@@ -199,6 +232,14 @@ export const moteLayer: CanvasLayer<MoteState> = {
     // Without one of those two, motes would accumulate frame over frame
     // with nothing ever erasing the previous frame's draws.
     state.t += 1;
+
+    // Picking the sheet is just a property lookup — both sheets already
+    // exist (built once in setup), so switching themes never rebuilds
+    // anything mid-session, only changes which pre-rendered bitmaps this
+    // frame's drawImage calls read from.
+    const sprites = isDark
+      ? state.spritesByTheme.dark
+      : state.spritesByTheme.light;
 
     for (let i = 0; i < state.motes.length; i++) {
       const m = state.motes[i];
@@ -221,7 +262,7 @@ export const moteLayer: CanvasLayer<MoteState> = {
         : 0.6 + 0.4 * Math.sin(state.t * m.twinkleSpeed + m.twinklePhase);
       const alpha = m.opacity * twinkle;
 
-      const sprite = state.sprites[m.spriteIndex];
+      const sprite = sprites[m.spriteIndex];
       const glowRadius = sprite.glowRadius;
 
       ctx.globalAlpha = Math.min(alpha, 1);

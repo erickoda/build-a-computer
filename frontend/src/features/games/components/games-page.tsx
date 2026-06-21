@@ -99,7 +99,7 @@ const GamesPage = () => {
         <div className="rounded-xl bg-red-50 p-6 border border-red-200 text-red-700 shadow-sm">
           <h3 className="text-lg font-bold mb-2">Failed to fetch data</h3>
           <p>{error.message}</p>
-          <Button variant="outline" className="mt-4" onPress={() => fetchGames()}>
+          <Button variant="outline" className="mt-4 dark:text-red-900" onPress={() => fetchGames()}>
             Try again
           </Button>
         </div>

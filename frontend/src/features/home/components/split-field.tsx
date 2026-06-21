@@ -112,9 +112,13 @@ export function SplitFieldBackground({
     >
       {layers && <CanvasLayerDriver layers={layers} />}
 
-      {divider && (
-        <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-white/10" />
-      )}
+      {/*{divider && (
+        // bg-foreground/10 rather than a hardcoded white/10: this tracks
+        // whatever the active theme's foreground color is, so the divider
+        // stays visible against both the dark galaxy backdrop and the
+        // light/cream one, instead of nearly disappearing in light mode.
+        <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-foreground/10" />
+      )}*/}
     </div>
   );
 }
