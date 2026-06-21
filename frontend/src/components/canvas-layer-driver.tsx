@@ -33,13 +33,19 @@ export type LayerViewport = {
 };
 
 export type CanvasLayer<State> = {
-  setup: (ctx: CanvasRenderingContext2D, size: LayerSize, dpr: number) => State;
+  setup: (
+    ctx: CanvasRenderingContext2D,
+    size: LayerSize,
+    dpr: number,
+    isDark: boolean,
+  ) => State;
   draw: (
     ctx: CanvasRenderingContext2D,
     state: State,
     size: LayerSize,
     elapsed: number,
     reduceMotion: boolean,
+    isDark: boolean,
   ) => void;
   /**
    * Set this when the layer itself clears or fully repaints its own region
@@ -60,6 +66,23 @@ export type CanvasLayer<State> = {
    */
   paintsOwnBase?: boolean;
 };
+
+// ─── Live theme detection ─────────────────────────────────────────────────────
+// HeroUI's documented Next.js pattern is next-themes with attribute="class",
+// meaning the resolved theme shows up as a `dark` class on <html> (absent =
+// light). Rather than threading a `theme` prop down from wherever a parent
+// calls next-themes' useTheme() — which would require this component to sit
+// in a specific place in the tree, and would need its `useEffect` to re-run
+// (tearing down and rebuilding every layer's particles/sprites) every time
+// the theme changes — the driver reads that class directly and watches it
+// live via MutationObserver, storing the result in a ref the running rAF
+// loop reads fresh every frame. This means toggling the theme updates colors
+// on the very next frame, with no rebuild of particle state and no need for
+// this component (or its parent) to know anything about next-themes at all.
+function readIsDark(): boolean {
+  if (typeof document === 'undefined') return true; // SSR guard; first client frame corrects it
+  return document.documentElement.classList.contains('dark');
+}
 
 /**
  * Pairs a layer with an optional viewport — the region of the shared canvas
@@ -143,6 +166,24 @@ export function CanvasLayerDriver({
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
+    // Mutable, read-fresh-every-frame theme flag — see readIsDark() above
+    // for why this is a ref watched live rather than a prop/dependency.
+    const isDarkRef = { current: readIsDark() };
+    const themeObserver = new MutationObserver(() => {
+      isDarkRef.current = readIsDark();
+      // With reduced motion there's no running rAF loop to naturally pick
+      // up the new theme on "the next frame" — force one redraw so a
+      // theme toggle still takes effect immediately rather than waiting
+      // for some other unrelated repaint trigger (e.g. a resize).
+      if (reduceMotion) {
+        drawFrame(0);
+      }
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
+
     let size: LayerSize = { width: 0, height: 0 };
     let bound: BoundLayer[] = [];
     let rafId = 0;
@@ -181,12 +222,14 @@ export function CanvasLayerDriver({
           layer,
           viewport,
           effectiveSize,
-          state: layer.setup(ctx!, effectiveSize, dpr),
+          state: layer.setup(ctx!, effectiveSize, dpr, isDarkRef.current),
         };
       });
     }
 
     function drawFrame(elapsed: number) {
+      const isDark = isDarkRef.current;
+
       for (let i = 0; i < bound.length; i++) {
         const { layer, state, viewport, effectiveSize } = bound[i];
 
@@ -209,14 +252,14 @@ export function CanvasLayerDriver({
             ctx!.clearRect(0, 0, effectiveSize.width, effectiveSize.height);
           }
 
-          layer.draw(ctx!, state, effectiveSize, elapsed, reduceMotion);
+          layer.draw(ctx!, state, effectiveSize, elapsed, reduceMotion, isDark);
           ctx!.restore();
         } else {
           // No viewport (today's full-canvas stacked usage): unchanged
           // behavior — a layer without a viewport is expected to either
           // paint its own base (first in the stack) or rely on an earlier
           // layer in the array having already done so.
-          layer.draw(ctx!, state, effectiveSize, elapsed, reduceMotion);
+          layer.draw(ctx!, state, effectiveSize, elapsed, reduceMotion, isDark);
         }
       }
     }
@@ -263,6 +306,7 @@ export function CanvasLayerDriver({
     return () => {
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibility);
+      themeObserver.disconnect();
       cancelAnimationFrame(rafId);
     };
     // `layers` is expected to be a stable array (defined at module scope or

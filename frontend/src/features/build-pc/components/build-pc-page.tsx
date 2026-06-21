@@ -1,12 +1,9 @@
 'use client';
 
 import { MilkyWayField } from '@/src/components/milky-way-field';
-import { graphicsQualities, resolutions } from '@/src/utils/benchmarks';
 import useFetchGames from '@/src/features/games/hooks/fetchGames';
 import { bytesToDataUrl } from '@/src/features/games/utils/imageBytes';
-import useGetRecommendation from '../hooks/getRecommendation';
-import { RecommendationResultsOverlay } from './recommendation-results-overlay';
-import { PcResponseDto } from '../types/dtos';
+import { graphicsQualities, resolutions } from '@/src/utils/benchmarks';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/16/solid';
 import { toast } from '@heroui/react';
 import {
@@ -17,6 +14,9 @@ import {
   useRef,
   useState,
 } from 'react';
+import useGetRecommendation from '../hooks/getRecommendation';
+import { PcResponseDto } from '../types/dtos';
+import { RecommendationResultsOverlay } from './recommendation-results-overlay';
 
 // ─── Game ─────────────────────────────────────────────────────────────────────
 //
@@ -82,7 +82,9 @@ function useAverageColor(
 
     async function sample() {
       const ids = idsKey.split(',');
-      const gameList = ids.map((id) => gamesById.get(id)).filter(Boolean) as Game[];
+      const gameList = ids
+        .map((id) => gamesById.get(id))
+        .filter(Boolean) as Game[];
       if (gameList.length === 0) return;
 
       const SAMPLE_W = 64,
@@ -236,7 +238,7 @@ function SplitBackground({ games: selectedGames }: SplitBackgroundProps) {
             width: SEAM_WIDTH,
             left: `calc(${(i + 1) * widthPct}% - ${SEAM_WIDTH / 2}px)`,
             transition: 'left 600ms cubic-bezier(0.4,0,0.2,1)',
-            background: 'black',
+            background: 'light-dark(#f8f8f8f0, #040404f0)',
             // 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.65) 45%, rgba(0,0,0,0.65) 55%, transparent 100%)',
             filter: 'blur(21px)',
           }}
@@ -305,31 +307,39 @@ function GlassCombobox({
         type="button"
         id={buttonId}
         onClick={() => setOpen((p) => !p)}
-        className="flex h-11 w-full items-center justify-between gap-3 rounded-xl border border-white/20 bg-black/30 px-4 text-sm font-medium text-white backdrop-blur-md transition-colors hover:border-white/40 hover:bg-black/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+        className="flex h-11 w-full items-center justify-between gap-3 rounded-xl border border-black/20 bg-white/30 px-4 text-sm font-medium text-black backdrop-blur-md transition-colors hover:border-black/40 hover:bg-white/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/40 dark:border-white/20 dark:bg-black/30 dark:text-white dark:hover:border-white/40 dark:hover:bg-black/40 dark:focus-visible:ring-white/40"
       >
-        <span className={value.length > 0 ? 'text-white' : 'text-white/50'}>
+        <span
+          className={
+            value.length > 0
+              ? 'text-black dark:text-white'
+              : 'text-black/50 dark:text-white/50'
+          }
+        >
           {triggerLabel}
         </span>
         <ChevronUpDownIcon
-          className={`size-4 shrink-0 text-white/50 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+          className={`size-4 shrink-0 text-black/50 dark:text-white/50 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
         />
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-white/20 bg-black/60 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-150">
-          <div className="border-b border-white/10 px-3 py-2">
+        <div className="absolute z-50 mt-1 w-full overflow-hidden rounded-xl border border-black/20 bg-white/80 shadow-2xl backdrop-blur-xl animate-in fade-in-0 zoom-in-95 duration-150 dark:border-white/20 dark:bg-black/60">
+          <div className="border-b border-black/10 px-3 py-2 dark:border-white/10">
             <input
               autoFocus
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search…"
-              className="w-full bg-transparent text-sm text-white placeholder:text-white/40 outline-none"
+              className="w-full bg-transparent text-sm text-black placeholder:text-black/40 outline-none dark:text-white dark:placeholder:text-white/40"
             />
           </div>
-          <ul className="max-h-52 overflow-y-auto py-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/20">
+          <ul className="max-h-52 overflow-y-auto py-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-black/20 dark:[&::-webkit-scrollbar-thumb]:bg-white/20">
             {filtered.length === 0 ? (
-              <li className="px-4 py-3 text-sm text-white/40">No results.</li>
+              <li className="px-4 py-3 text-sm text-black/40 dark:text-white/40">
+                No results.
+              </li>
             ) : (
               filtered.map((o) => {
                 const isSelected = value.includes(o.value);
@@ -337,13 +347,13 @@ function GlassCombobox({
                   <li
                     key={o.value}
                     onClick={() => handleToggle(o.value)}
-                    className={`flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm text-white transition-colors hover:bg-white/10 ${isSelected ? 'bg-white/5' : ''}`}
+                    className={`flex cursor-pointer items-center gap-3 px-4 py-2.5 text-sm text-black dark:text-white transition-colors hover:bg-black/8 dark:hover:bg-white/10 ${isSelected ? 'bg-black/5 dark:bg-white/5' : ''}`}
                   >
                     <span
-                      className={`flex size-4 shrink-0 items-center justify-center rounded border transition-all duration-150 ${isSelected ? 'border-white bg-white' : 'border-white/30'}`}
+                      className={`flex size-4 shrink-0 items-center justify-center rounded border transition-all duration-150 ${isSelected ? 'border-black bg-black dark:border-white dark:bg-white' : 'border-black/30 dark:border-white/30'}`}
                     >
                       {isSelected && (
-                        <CheckIcon className="size-3 text-black" />
+                        <CheckIcon className="size-3 text-white dark:text-black" />
                       )}
                     </span>
                     {o.label}
@@ -353,8 +363,8 @@ function GlassCombobox({
             )}
           </ul>
           {value.length > 0 && (
-            <div className="flex items-center justify-between border-t border-white/10 px-4 py-2.5 animate-in fade-in duration-150">
-              <span className="text-xs text-white/50">
+            <div className="flex items-center justify-between border-t border-black/10 px-4 py-2.5 animate-in fade-in duration-150 dark:border-white/10">
+              <span className="text-xs text-black/50 dark:text-white/50">
                 {value.length} selected
               </span>
               <button
@@ -363,7 +373,7 @@ function GlassCombobox({
                   setOpen(false);
                   setQuery('');
                 }}
-                className="rounded-lg bg-white px-3 py-1 text-xs font-semibold text-black transition-colors hover:bg-white/90"
+                className="rounded-lg bg-black px-3 py-1 text-xs font-semibold text-white transition-colors hover:bg-black/80 dark:bg-white dark:text-black dark:hover:bg-white/90"
               >
                 Done
               </button>
@@ -394,8 +404,8 @@ function PillGroup({ options, value, onChange, formatLabel }: PillGroupProps) {
           onClick={() => onChange(opt)}
           className={`h-9 rounded-lg border px-4 text-sm font-medium transition-all duration-200 ${
             value === opt
-              ? 'border-white bg-white text-black scale-105'
-              : 'border-white/20 bg-black/30 text-white/70 backdrop-blur-md hover:border-white/40 hover:text-white'
+              ? 'border-black bg-black text-white scale-105 dark:border-white dark:bg-white dark:text-black'
+              : 'border-black/20 bg-white/30 text-black/70 backdrop-blur-md hover:border-black/40 hover:text-black dark:border-white/20 dark:bg-black/30 dark:text-white/70 dark:hover:border-white/40 dark:hover:text-white'
           }`}
         >
           {formatLabel ? formatLabel(opt) : opt}
@@ -437,7 +447,7 @@ function BudgetSlider({ value, onChange }: BudgetSliderProps) {
     '[&::-webkit-slider-thumb]:pointer-events-auto',
     '[&::-webkit-slider-thumb]:size-4',
     '[&::-webkit-slider-thumb]:rounded-full',
-    '[&::-webkit-slider-thumb]:bg-white',
+    '[&::-webkit-slider-thumb]:bg-black dark:[&::-webkit-slider-thumb]:bg-white',
     '[&::-webkit-slider-thumb]:border-2',
     '[&::-webkit-slider-thumb]:border-black/20',
     '[&::-webkit-slider-thumb]:shadow-md',
@@ -447,7 +457,7 @@ function BudgetSlider({ value, onChange }: BudgetSliderProps) {
     '[&::-moz-range-thumb]:pointer-events-auto',
     '[&::-moz-range-thumb]:size-4',
     '[&::-moz-range-thumb]:rounded-full',
-    '[&::-moz-range-thumb]:bg-white',
+    '[&::-moz-range-thumb]:bg-black dark:[&::-moz-range-thumb]:bg-white',
     '[&::-moz-range-thumb]:border-2',
     '[&::-moz-range-thumb]:border-black/20',
     '[&::-moz-range-thumb]:cursor-grab',
@@ -457,9 +467,9 @@ function BudgetSlider({ value, onChange }: BudgetSliderProps) {
   return (
     <div className="flex w-full flex-col gap-3">
       <div className="relative flex h-5 items-center">
-        <div className="absolute h-1 w-full rounded-full bg-white/20" />
+        <div className="absolute h-1 w-full rounded-full bg-black/20 dark:bg-white/20" />
         <div
-          className="absolute h-1 rounded-full bg-white transition-all duration-75"
+          className="absolute h-1 rounded-full bg-black dark:bg-white transition-all duration-75"
           style={{ left: `${pctLow}%`, right: `${100 - pctHigh}%` }}
         />
         <input
@@ -483,7 +493,7 @@ function BudgetSlider({ value, onChange }: BudgetSliderProps) {
           className={rangeClass}
         />
       </div>
-      <div className="flex justify-between text-xs text-white/40">
+      <div className="flex justify-between text-xs text-black/40 dark:text-white/40">
         <span>${BUDGET_MIN.toLocaleString()}</span>
         <span>${BUDGET_MAX.toLocaleString()}</span>
       </div>
@@ -544,14 +554,14 @@ function ConfirmationOverlay({
   return (
     // Backdrop: click outside to cancel
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={onCancel}
     >
       <div
-        className="w-full max-w-sm rounded-2xl border border-white/20 bg-black/70 p-8 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 fade-in duration-200"
+        className="w-full max-w-sm rounded-2xl border border-black/10 bg-white/85 p-8 shadow-2xl backdrop-blur-xl animate-in zoom-in-95 fade-in duration-200 dark:border-white/20 dark:bg-black/70"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-6 text-lg font-bold text-white">
+        <h2 className="mb-6 text-lg font-bold text-black dark:text-white">
           Confirm your build
         </h2>
         <div className="mb-8 flex flex-col gap-3">
@@ -560,8 +570,10 @@ function ConfirmationOverlay({
               key={label}
               className="flex items-baseline justify-between gap-4"
             >
-              <span className="text-sm text-white/50">{label}</span>
-              <span className="text-right text-sm font-medium text-white">
+              <span className="text-sm text-black/50 dark:text-white/50">
+                {label}
+              </span>
+              <span className="text-right text-sm font-medium text-black dark:text-white">
                 {value}
               </span>
             </div>
@@ -571,14 +583,14 @@ function ConfirmationOverlay({
           <button
             type="button"
             onClick={onCancel}
-            className="h-10 flex-1 rounded-xl border border-white/20 bg-white/10 text-sm font-medium text-white transition-colors hover:bg-white/20"
+            className="h-10 flex-1 rounded-xl border border-black/20 bg-black/8 text-sm font-medium text-black transition-colors hover:bg-black/15 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
           >
             Go back
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="h-10 flex-1 rounded-xl bg-white text-sm font-bold text-black transition-colors hover:bg-white/90"
+            className="h-10 flex-1 rounded-xl bg-black text-sm font-bold text-white transition-colors hover:bg-black/85 dark:bg-white dark:text-black dark:hover:bg-white/90"
           >
             Build it
           </button>
@@ -592,7 +604,7 @@ function ConfirmationOverlay({
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mb-2 text-center text-[10px] font-semibold uppercase tracking-widest text-white/40">
+    <p className="mb-2 text-center text-[10px] font-semibold uppercase tracking-widest text-black/40 dark:text-white/40">
       {children}
     </p>
   );
@@ -698,7 +710,7 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
   }, []);
 
   return (
-    <div className="relative h-screen w-full overflow-hidden bg-black">
+    <div className="relative h-screen w-full overflow-hidden bg-white dark:bg-black">
       <MilkyWayField />
 
       {/* ── Split game cover background ────────────────────────────────── */}
@@ -707,7 +719,7 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
       {/* Overall dim — keeps content legible regardless of art brightness */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-black/45"
+        className="pointer-events-none absolute inset-0 bg-neutral-300/45 dark:bg-black/45"
       />
 
       {/* ── Bottom blur-gradient ───────────────────────────────────────── */}
@@ -716,7 +728,7 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
         className="pointer-events-none absolute inset-x-0 bottom-0 h-[65%]"
         style={{
           background:
-            'linear-gradient(to top, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.72) 40%, transparent 100%)',
+            'light-dark(linear-gradient(to top, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.72) 40%, transparent 100%), linear-gradient(to top, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.72) 40%, transparent 100%))',
         }}
       />
       <div
@@ -730,27 +742,17 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
         }}
       />
 
-      {/* ── Back button — z-20 so it sits above all overlays ──────────── */}
-      {/*<Button
-        type="button"
-        onClick={onBack}
-        className="absolute left-5 top-5 z-20 flex items-center gap-1.5 rounded-lg border border-white/20 bg-black/30 px-3 py-2 text-sm font-medium text-white backdrop-blur-md transition-all duration-200 hover:border-white/40 hover:bg-black/50 active:scale-95"
-      >
-        <ArrowLeftIcon className="size-3.5" />
-        Back
-      </Button>*/}
-
-      {/*<AuthButton className="absolute right-5 top-5 z-20" />*/}
-
       {/* ── Centered form — pb-28 keeps content clear of the fixed button */}
       <div className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 pb-28">
         <div
           className={[
             'flex w-full max-w-md flex-col gap-8',
             'px-5 py-5 rounded-lg',
-            'border-white/8 bg-black/30',
+            'border-black/8 bg-white/30 dark:border-white/8 dark:bg-black/30',
             'backdrop-blur-[30px]',
-            'shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(110,175,212,0.25)]',
+            'shadow-[inset_0_1px_0_rgba(0,0,0,0.06),0_2px_16px_rgba(110,175,212,0.30)]',
+            'dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(110,175,212,0.25)]',
+            ,
           ].join(' ')}
         >
           {/* 1. Game */}
@@ -789,11 +791,13 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
           <div>
             <FieldLabel>Budget</FieldLabel>
             <div className="mb-3 text-center">
-              <span className="text-2xl font-bold tabular-nums text-white">
+              <span className="text-2xl font-bold tabular-nums text-black dark:text-white">
                 ${budget[0].toLocaleString()}
               </span>
-              <span className="mx-2 text-lg text-white/40">–</span>
-              <span className="text-2xl font-bold tabular-nums text-white">
+              <span className="mx-2 text-lg text-black/40 dark:text-white/40">
+                –
+              </span>
+              <span className="text-2xl font-bold tabular-nums text-black dark:text-white">
                 ${budget[1].toLocaleString()}
               </span>
             </div>
@@ -818,7 +822,7 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
             // Sampled from the game banner(s) — transitions smoothly as games change
             backgroundColor:
               accentColor.bg === 'transparent'
-                ? 'rgba(255,255,255,0.15)'
+                ? 'light-dark(rgba(0,0,0,0.12), rgba(255,255,255,0.15))'
                 : accentColor.bg,
             color: accentColor.text,
             filter: btnHovered ? 'brightness(1.08)' : 'brightness(1)',
@@ -831,8 +835,8 @@ export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
               'transform 150ms ease',
             ].join(', '),
             boxShadow: btnHovered
-              ? '0 0px 24px rgba(255,255,255,0.25), inset 0 1px 0 rgba(110,175,212,0.25)'
-              : '0 0px 24px rgba(255,255,255,0.15), inset 0 1px 0 rgba(110,175,212,0.15)',
+              ? '0 0px 24px rgba(0,0,0,0.18), inset 0 1px 0 rgba(110,175,212,0.30)'
+              : '0 0px 24px rgba(0,0,0,0.10), inset 0 1px 0 rgba(110,175,212,0.18)',
           }}
         >
           {/*'h-12 w-full max-w-md rounded-2xl text-sm font-bold',

@@ -239,11 +239,15 @@ const BenchmarksPage = () => {
         className={[
           'fixed bottom-6 right-6 z-20 inline-flex items-center gap-2 px-5 py-3 rounded-lg',
           'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
-          'hover:border-white/25 hover:bg-black/40',
-          'border-white/8 bg-black',
+          'border-black/8 bg-white dark:border-white/8 dark:bg-black',
           'backdrop-blur-[50px]',
-          'hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,110,0.35)]',
-          'shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_16px_rgba(212,175,110,0.25)]',
+          'shadow-[inset_0_1px_0_rgba(0,0,0,0.06),0_2px_16px_rgba(100,100,100,0.18)]',
+          'dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_16px_rgba(212,175,175,0.25)]',
+          // Hover
+          'hover:border-black/25 hover:bg-white/40',
+          'dark:hover:border-white/25 dark:hover:bg-black/40',
+          'hover:shadow-[inset_0_1px_0_rgba(0,0,0,0.10),0_2px_16px_rgba(100,100,100,0.30)]',
+          'dark:hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,175,0.35)]',
         ].join(' ')}
         // className="fixed bottom-6 right-6 z-20 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-105 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >

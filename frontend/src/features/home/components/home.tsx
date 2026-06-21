@@ -28,15 +28,17 @@ export function LandingPage() {
       <Link
         href={'/build-pc'}
         type="button"
-        className="group relative z-10 flex-1 flex flex-col items-center justify-center gap-6 px-8 transition-colors backdrop-blur-[1px] hover:backdrop-blur-[3px] active:bg-muted/10"
+        className="group relative z-10 flex-1 flex flex-col items-center justify-center gap-6 px-8 transition-colors hover:backdrop-blur-[3px] active:bg-muted/10"
       >
         <div
           className={[
             'flex flex-col items-center gap-3 px-3 py-10 text-center rounded-lg',
             'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            'group-hover:border-white/8 group-hover:bg-black/75',
+            'group-hover:border-black/8 group-hover:bg-white/75 dark:group-hover:border-white/8 dark:group-hover:bg-black/75',
             'group-hover:backdrop-blur-[50px]',
-            'group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(110,175,212,0.25)]',
+            'group-hover:shadow-[inset_0_1px_0_rgba(0,0,0,0.06),0_2px_16px_rgba(110,175,212,0.30)]',
+            'dark:group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(110,175,212,0.25)]',
+            ,
           ].join(' ')}
         >
           <h1 className="text-5xl font-black tracking-tight text-foreground">
@@ -50,16 +52,11 @@ export function LandingPage() {
         </div>
       </Link>
 
-      {/* Divider */}
-      {/*<div className="relative z-10 w-px bg-border" />*/}
       <div
         className="relative z-15 h-full pointer-events-none"
         style={{
           width: 80,
-          // transition: 'left 600ms cubic-bezier(0.4,0,0.2,1)',
-          background: '#040404f0',
-          // background:
-          //   'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.65) 45%, rgba(0,0,0,0.65) 55%, transparent 100%)',
+          background: 'light-dark(#eae9e8f0, #040404f0)',
           filter: 'blur(20px)',
         }}
       />
@@ -74,9 +71,11 @@ export function LandingPage() {
           className={[
             'flex flex-col items-center gap-3 px-3 py-10 text-center rounded-lg',
             'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            'group-hover:border-white/8 group-hover:bg-black/75',
+            'group-hover:border-black/8 group-hover:bg-white/75 dark:group-hover:border-white/8 dark:group-hover:bg-black/75',
             'group-hover:backdrop-blur-[50px]',
-            'group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,110,0.25)]',
+            'group-hover:shadow-[inset_0_1px_0_rgba(0,0,0,0.06),0_2px_16px_rgba(212,175,110,0.30)]',
+            'dark:group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,110,0.25)]',
+            ,
           ].join(' ')}
         >
           <h1 className="text-5xl font-black tracking-tight text-foreground">

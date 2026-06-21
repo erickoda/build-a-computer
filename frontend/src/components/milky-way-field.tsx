@@ -42,8 +42,21 @@ const ARM_COUNT = 4;
 const ARM_TIGHTNESS = 0.28;
 const CORE_FRACTION = 0.12;
 
-const CORE_COLOR = { r: 255, g: 244, b: 222 };
-const ARM_COLOR = { r: 158, g: 190, b: 255 };
+// ─── Theme palettes ───────────────────────────────────────────────────────────
+// Dark theme: a near-black sky, warm-white core fading to cool blue arms —
+// the original look, unchanged.
+// Light theme: a soft cream sky, with particles rendered as darker, more
+// saturated "ink"/dust tones so they stay visible against a light backdrop
+// instead of just inverting to faint pastel dots.
+const DARK_BG = '#05050a';
+const DARK_FADE = 'rgba(5, 5, 10, 0.16)';
+const DARK_CORE_COLOR = { r: 255, g: 244, b: 222 };
+const DARK_ARM_COLOR = { r: 158, g: 190, b: 255 };
+
+const LIGHT_BG = '#ededec';
+const LIGHT_FADE = 'rgba(230, 239, 243, 0.16)';
+const LIGHT_CORE_COLOR = { r: 120, g: 90, b: 40 }; // warm ink/sepia
+const LIGHT_ARM_COLOR = { r: 50, g: 70, b: 120 }; // deep slate blue
 
 type GalaxyState = {
   particles: Particle[];
@@ -107,7 +120,7 @@ export const milkyWayLayer: CanvasLayer<GalaxyState> = {
   // CanvasLayer.paintsOwnBase in canvas-layer-driver.tsx.
   paintsOwnBase: true,
 
-  setup(ctx, size) {
+  setup(ctx, size, _dpr, isDark) {
     const centerX = size.width / 2;
     const centerY = size.height / 2;
     const maxRadius = Math.hypot(size.width, size.height) * 0.52;
@@ -116,9 +129,12 @@ export const milkyWayLayer: CanvasLayer<GalaxyState> = {
     const count = Math.max(250, Math.min(1600, Math.round(density)));
 
     // This layer paints its own opaque base, since it's designed to sit at
-    // the bottom of the stack — establishes a dark backdrop other layers
-    // (e.g. MoteField) can render on top of.
-    ctx.fillStyle = '#05050a';
+    // the bottom of the stack — establishes a backdrop other layers (e.g.
+    // MoteField) can render on top of. This initial fill uses whatever
+    // theme is active at mount/resize time; per-frame correctness for
+    // theme changes *between* resizes is handled in draw(), which receives
+    // a live isDark every frame.
+    ctx.fillStyle = isDark ? DARK_BG : LIGHT_BG;
     ctx.fillRect(0, 0, size.width, size.height);
 
     return {
@@ -131,16 +147,19 @@ export const milkyWayLayer: CanvasLayer<GalaxyState> = {
     };
   },
 
-  draw(ctx, state, size, elapsed, reduceMotion) {
-    // Fade previous frame toward black instead of a hard clear — this
-    // produces the tapering trail behind each particle. Note: this fade
-    // also dims anything drawn by an earlier layer in the stack, so if
-    // another opaque/background layer is meant to sit *under* this one,
-    // put this layer first, not after it.
-    ctx.fillStyle = 'rgba(5, 5, 10, 0.16)';
+  draw(ctx, state, size, elapsed, reduceMotion, isDark) {
+    // Fade previous frame toward the theme's backdrop color instead of a
+    // hard clear — this produces the tapering trail behind each particle.
+    // Note: this fade also dims anything drawn by an earlier layer in the
+    // stack, so if another opaque/background layer is meant to sit *under*
+    // this one, put this layer first, not after it.
+    ctx.fillStyle = isDark ? DARK_FADE : LIGHT_FADE;
     ctx.fillRect(0, 0, size.width, size.height);
 
     ctx.lineCap = 'round';
+
+    const coreColor = isDark ? DARK_CORE_COLOR : LIGHT_CORE_COLOR;
+    const armColor = isDark ? DARK_ARM_COLOR : LIGHT_ARM_COLOR;
 
     const { head, tail } = state;
 
@@ -159,9 +178,9 @@ export const milkyWayLayer: CanvasLayer<GalaxyState> = {
       tail.y = state.centerY + Math.sin(trailAngle) * radius * 0.55;
 
       const c = {
-        r: lerp(CORE_COLOR.r, ARM_COLOR.r, p.hueMix),
-        g: lerp(CORE_COLOR.g, ARM_COLOR.g, p.hueMix),
-        b: lerp(CORE_COLOR.b, ARM_COLOR.b, p.hueMix),
+        r: lerp(coreColor.r, armColor.r, p.hueMix),
+        g: lerp(coreColor.g, armColor.g, p.hueMix),
+        b: lerp(coreColor.b, armColor.b, p.hueMix),
       };
 
       const twinkle = reduceMotion

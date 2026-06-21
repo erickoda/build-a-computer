@@ -41,11 +41,13 @@ export default function RootLayout({
             className={[
               'fixed top-3 left-15 z-50 flex items-center justify-center gap-2 px-2 py-5 rounded-lg border ',
               'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
-              'hover:border-white/25 hover:bg-black/40',
-              'border-white/8 bg-black',
+              'border-black/8 bg-white dark:border-white/8 dark:bg-black',
               'backdrop-blur-[50px]',
-              'hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(175,175,175,0.35)]',
-              'shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_16px_rgba(175,175,175,0.25)]',
+              'shadow-[inset_0_1px_0_rgba(0,0,0,0.06),0_2px_16px_rgba(100,100,100,0.18)]',
+              'dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_16px_rgba(175,175,175,0.25)]',
+              'hover:border-black/25 hover:bg-white/40 dark:hover:border-white/25 dark:hover:bg-black/40',
+              'hover:shadow-[inset_0_1px_0_rgba(0,0,0,0.10),0_2px_16px_rgba(100,100,100,0.30)]',
+              'dark:hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(175,175,175,0.35)]',
             ].join(' ')}
           />
           {children}
