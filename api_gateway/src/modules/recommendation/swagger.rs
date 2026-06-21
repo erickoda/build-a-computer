@@ -10,7 +10,6 @@ use crate::modules::recommendation::{dtos, handlers};
 #[openapi(
     paths(handlers::get_recommendation),
     components(schemas(
-        dtos::request::recommendation::RecommendationRequestDto,
         dtos::response::pc::Pc,
         dtos::response::cpu::CpuDto,
         dtos::response::gpu::GpuDto,
