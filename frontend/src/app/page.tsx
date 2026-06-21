@@ -4,4 +4,4 @@ const Home = () => {
   return <LandingPage />;
 };
 
-export default LandingPage;
+export default Home;
