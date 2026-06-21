@@ -38,6 +38,13 @@ export const routesInfos: RouteItems[] = [
     isInNavbar: true,
   },
   {
+    label: 'Build',
+    href: '/build-pc',
+    allowedRoles: ['admin', 'supervisor', 'common'],
+    isPublic: true,
+    isInNavbar: true,
+  },
+  {
     label: 'Users',
     href: '/users',
     allowedRoles: ['admin', 'supervisor'],
