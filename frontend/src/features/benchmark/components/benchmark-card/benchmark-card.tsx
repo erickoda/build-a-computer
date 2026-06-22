@@ -81,7 +81,7 @@ export function BenchmarkCard({
   // (the row or grid card below) still renders normally underneath.
   const mobileDetailModal = (
     <div onClick={(e) => e.stopPropagation()}>
-      <Modal className="sm:hidden">
+      <Modal>
         <Modal.Backdrop
           isOpen={expanded && isMobile}
           onOpenChange={(open) => {
