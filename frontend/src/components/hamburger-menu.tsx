@@ -7,15 +7,17 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Button, Drawer } from '@heroui/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import ToggleTheme from './toggleTheme';
 
 export default function HamburgerMenu() {
   const pathname = usePathname();
   const router = useRouter();
   const role = useRole();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Drawer>
+    <Drawer isOpen={isOpen} onOpenChange={setIsOpen}>
       <Drawer.Trigger
         aria-label="Open menu"
         className={[
@@ -89,7 +91,7 @@ export default function HamburgerMenu() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      slot="close"
+                      onClick={() => setIsOpen(false)}
                       className={`font-mono text-sm px-3 py-2 rounded-md transition-colors ${
                         isActive
                           ? [
@@ -138,7 +140,10 @@ export default function HamburgerMenu() {
                   ].join(' ')}
                   size="sm"
                   variant="outline"
-                  onPress={async () => await logout()}
+                  onPress={async () => {
+                    setIsOpen(false);
+                    await logout();
+                  }}
                 >
                   Logout
                 </Button>
@@ -160,8 +165,10 @@ export default function HamburgerMenu() {
                   ].join(' ')}
                   size="sm"
                   variant="outline"
-                  slot="close"
-                  onPress={() => router.push('/sign-in')}
+                  onPress={() => {
+                    setIsOpen(false);
+                    router.push('/sign-in');
+                  }}
                 >
                   Sign In
                 </Button>
