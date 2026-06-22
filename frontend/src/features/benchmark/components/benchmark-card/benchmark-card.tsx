@@ -286,7 +286,7 @@ export function BenchmarkCard({
               <span className="text-sm font-semibold tabular-nums">
                 {b.score}
               </span>
-              <span className="text-xs text-muted-foreground">/ 10</span>
+              <span className="text-xs text-muted-foreground">/ 100</span>
             </div>
           ) : (
             <span />
