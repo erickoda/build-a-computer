@@ -2,7 +2,6 @@ import { cn } from '@/src/utils/utils';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { Chip } from '@heroui/react';
 import type { BenchmarkResponseDto } from '../../types/dtos';
-import { HardwareDetail } from './hardware-detail';
 import {
   brandGradient,
   fpsColorStyle,
@@ -10,6 +9,7 @@ import {
   resolutionLabel,
   systemPrice,
 } from './format';
+import { HardwareDetail } from './hardware-detail';
 
 export { LIST_GRID_COLS, systemPrice } from './format';
 
@@ -41,112 +41,119 @@ export function BenchmarkCard({
   if (view === 'list') {
     return (
       <div className="flex flex-col">
-        <article
-          onClick={onToggle}
-          className={cn(
-            'group grid items-center overflow-hidden border bg-card text-card-foreground transition-colors hover:border-foreground/20 cursor-pointer select-none',
-            expanded ? 'rounded-t-lg border-b-0' : 'rounded-lg',
-          )}
-          style={{
-            gridTemplateColumns: LIST_GRID_COLS,
-            ...brandGradient(gpu, cpu),
-          }}
-        >
-          {/* Game */}
-          <div className="flex min-w-0 items-center gap-2 border-r px-3 py-2.5 h-full">
-            <ChevronDownIcon
-              className={cn(
-                'size-3.5 shrink-0 text-muted-foreground transition-transform duration-200',
-                expanded && 'rotate-180',
-              )}
-            />
-            <p className="truncate text-sm font-medium">{gameName}</p>
-          </div>
-          {/* Resolution */}
-          <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
-            <Chip variant="secondary" size="sm" className="text-[10px]">
-              <Chip.Label>{resolutionLabel(b.resolution)}</Chip.Label>
-            </Chip>
-          </div>
-          {/* Quality */}
-          <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
-            <Chip variant="soft" size="sm" className="text-[10px]">
-              <Chip.Label>{b.graphics_quality}</Chip.Label>
-            </Chip>
-          </div>
-          {/* Divider spacer */}
-          <div className="h-full border-r" />
-          {/* Avg FPS */}
-          <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
-            <span
-              className="text-sm font-bold tabular-nums"
-              style={fpsColorStyle(b.avg_fps)}
-            >
-              {b.avg_fps}
-            </span>
-          </div>
-          {/* Min FPS */}
-          <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
-            <span
-              className="text-sm tabular-nums"
-              style={fpsColorStyle(b.min_fps)}
-            >
-              {b.min_fps}
-            </span>
-          </div>
-          {/* Max FPS */}
-          <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
-            <span
-              className="text-sm tabular-nums"
-              style={fpsColorStyle(b.max_fps)}
-            >
-              {b.max_fps}
-            </span>
-          </div>
-          {/* GPU */}
-          <div className="flex items-center border-r px-3 py-2.5 h-full min-w-0">
-            <span className="truncate text-xs font-medium">
-              {gpu ? `${gpu.brand} ${gpu.series}` : '—'}
-            </span>
-          </div>
-          {/* CPU */}
-          <div className="flex items-center border-r px-3 py-2.5 h-full min-w-0">
-            <span className="truncate text-xs font-medium">
-              {cpu ? `${cpu.brand} ${cpu.series}` : '—'}
-            </span>
-          </div>
-          {/* RAM */}
-          <div className="flex items-center border-r px-3 py-2.5 h-full min-w-0">
-            <span className="truncate text-xs font-medium">
-              {ram ? `${ram.memory_amount}GB ${ram.ddr}` : '—'}
-            </span>
-          </div>
-          {/* Score */}
-          <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
-            {b.score != null ? (
-              <span className="text-sm font-semibold tabular-nums">
-                {b.score}
-                <span className="text-xs font-normal text-muted-foreground">
-                  /10
-                </span>
-              </span>
-            ) : (
-              <span className="text-muted-foreground">—</span>
+        {/* Horizontal scroll wrapper — on narrow screens the fixed-column grid
+            scrolls rather than wrapping or overflowing the page. */}
+        <div className="overflow-x-auto">
+          <article
+            onClick={onToggle}
+            className={cn(
+              'group grid items-center overflow-hidden border bg-card text-card-foreground transition-colors hover:border-foreground/20 cursor-pointer select-none',
+              // min-width ensures the grid never collapses on very narrow viewports
+              'min-w-[700px]',
+              expanded ? 'rounded-t-lg border-b-0' : 'rounded-lg',
             )}
-          </div>
-          {/* System price */}
-          <div className="flex items-center justify-end px-3 py-2.5 h-full">
-            <span className="text-xs font-medium tabular-nums">
-              {totalPrice > 0 ? `~$${totalPrice.toLocaleString()}` : '—'}
-            </span>
-          </div>
-        </article>
+            style={{
+              gridTemplateColumns: LIST_GRID_COLS,
+              ...brandGradient(gpu, cpu),
+            }}
+          >
+            {/* Game */}
+            <div className="flex min-w-0 items-center gap-2 border-r px-3 py-2.5 h-full">
+              <ChevronDownIcon
+                className={cn(
+                  'size-3.5 shrink-0 text-muted-foreground transition-transform duration-200',
+                  expanded && 'rotate-180',
+                )}
+              />
+              <p className="truncate text-sm font-medium">{gameName}</p>
+            </div>
+            {/* Resolution */}
+            <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
+              <Chip variant="secondary" size="sm" className="text-[10px]">
+                <Chip.Label>{resolutionLabel(b.resolution)}</Chip.Label>
+              </Chip>
+            </div>
+            {/* Quality */}
+            <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
+              <Chip variant="soft" size="sm" className="text-[10px]">
+                <Chip.Label>{b.graphics_quality}</Chip.Label>
+              </Chip>
+            </div>
+            {/* Divider spacer */}
+            <div className="h-full border-r" />
+            {/* Avg FPS */}
+            <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
+              <span
+                className="text-sm font-bold tabular-nums"
+                style={fpsColorStyle(b.avg_fps)}
+              >
+                {b.avg_fps}
+              </span>
+            </div>
+            {/* Min FPS */}
+            <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
+              <span
+                className="text-sm tabular-nums"
+                style={fpsColorStyle(b.min_fps)}
+              >
+                {b.min_fps}
+              </span>
+            </div>
+            {/* Max FPS */}
+            <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
+              <span
+                className="text-sm tabular-nums"
+                style={fpsColorStyle(b.max_fps)}
+              >
+                {b.max_fps}
+              </span>
+            </div>
+            {/* GPU */}
+            <div className="flex items-center border-r px-3 py-2.5 h-full min-w-0">
+              <span className="truncate text-xs font-medium">
+                {gpu ? `${gpu.brand} ${gpu.series}` : '—'}
+              </span>
+            </div>
+            {/* CPU */}
+            <div className="flex items-center border-r px-3 py-2.5 h-full min-w-0">
+              <span className="truncate text-xs font-medium">
+                {cpu ? `${cpu.brand} ${cpu.series}` : '—'}
+              </span>
+            </div>
+            {/* RAM */}
+            <div className="flex items-center border-r px-3 py-2.5 h-full min-w-0">
+              <span className="truncate text-xs font-medium">
+                {ram ? `${ram.memory_amount}GB ${ram.ddr}` : '—'}
+              </span>
+            </div>
+            {/* Score */}
+            <div className="flex items-center justify-center border-r px-2 py-2.5 h-full">
+              {b.score != null ? (
+                <span className="text-sm font-semibold tabular-nums">
+                  {b.score}
+                  <span className="text-xs font-normal text-muted-foreground">
+                    /10
+                  </span>
+                </span>
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              )}
+            </div>
+            {/* System price */}
+            <div className="flex items-center justify-end px-3 py-2.5 h-full">
+              <span className="text-xs font-medium tabular-nums">
+                {totalPrice > 0 ? `~$${totalPrice.toLocaleString()}` : '—'}
+              </span>
+            </div>
+          </article>
+        </div>
 
-        {/* Expanded detail — animates open/closed via max-height */}
+        {/* Expanded detail — max-h grows taller on mobile so content isn't
+            clipped behind the bottom of the viewport on small screens. */}
         <div
           className="overflow-hidden rounded-b-lg border border-t-0 transition-all duration-300 ease-in-out"
           style={{
-            maxHeight: expanded ? '600px' : '0px',
+            maxHeight: expanded ? '800px' : '0px',
             opacity: expanded ? 1 : 0,
             borderColor: expanded ? undefined : 'transparent',
           }}
@@ -170,14 +177,20 @@ export function BenchmarkCard({
       onClick={onToggle}
       className={cn(
         'group flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-all cursor-pointer select-none hover:border-foreground/20',
-        expanded && 'col-span-full flex-row items-stretch',
+        // On mobile the expanded card stacks vertically (flex-col, full width).
+        // On sm+ it expands side-by-side across the full grid row (col-span-full flex-row).
+        expanded && 'col-span-full flex-col sm:flex-row sm:items-stretch',
       )}
     >
       {/* Summary (always visible) */}
       <div
         className={cn(
           'flex flex-col',
-          expanded ? 'w-72 shrink-0 border-r' : 'flex-1',
+          // Desktop expanded: fixed sidebar width with a right border divider.
+          // Mobile expanded: full width, bottom border divider instead.
+          expanded
+            ? 'w-full border-b sm:w-72 sm:shrink-0 sm:border-b-0 sm:border-r'
+            : 'flex-1',
         )}
         style={brandGradient(gpu, cpu)}
       >
@@ -289,9 +302,11 @@ export function BenchmarkCard({
         </div>
       </div>
 
-      {/* Expanded hardware detail panel — right side when in grid mode */}
+      {/* Expanded hardware detail panel.
+          On mobile: renders below the summary (natural stacking).
+          On desktop: renders to the right in a scrollable flex-1 panel. */}
       {expanded && (
-        <div className="flex-1 overflow-auto animate-in fade-in slide-in-from-right-4 duration-300">
+        <div className="flex-1 overflow-auto animate-in fade-in slide-in-from-bottom-2 duration-300 sm:slide-in-from-right-4 sm:slide-in-from-bottom-0">
           <HardwareDetail
             gpu={gpu}
             cpu={cpu}

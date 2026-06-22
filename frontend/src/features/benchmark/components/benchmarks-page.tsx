@@ -2,7 +2,7 @@
 
 import { useCurrentUserId } from '@/src/hooks/use-current-user-id';
 import { useRole } from '@/src/hooks/use-role';
-import { PlusIcon } from '@heroicons/react/16/solid';
+import { ChevronUpIcon, FunnelIcon, PlusIcon } from '@heroicons/react/16/solid';
 import { toast } from '@heroui/react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
@@ -48,6 +48,8 @@ const BenchmarksPage = () => {
   const [sort, setSort] = useState<SortKey>('avg-fps-desc');
   const [density, setDensity] = useState<Density>('comfortable');
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  // Mobile-only: controls whether the filter panel is visible
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     fetchBenchmarks();
@@ -89,7 +91,6 @@ const BenchmarksPage = () => {
       const cpu = b.cpu;
       const ram = b.ram;
 
-      // GPU filters
       if (
         filters.gpuVendors.length &&
         (!gpu || !filters.gpuVendors.includes(gpu.brand))
@@ -105,8 +106,6 @@ const BenchmarksPage = () => {
         (!gpu || !filters.gpuMemoryGen.includes(gpu.memory_gen))
       )
         return false;
-
-      // CPU filters
       if (
         filters.cpuVendors.length &&
         (!cpu || !filters.cpuVendors.includes(cpu.brand))
@@ -122,8 +121,6 @@ const BenchmarksPage = () => {
         (!cpu || !filters.cpuSocket.includes(cpu.socket))
       )
         return false;
-
-      // RAM filters
       if (filters.ramDdr.length && (!ram || !filters.ramDdr.includes(ram.ddr)))
         return false;
       if (
@@ -131,12 +128,8 @@ const BenchmarksPage = () => {
         (!ram || !filters.ramBrand.includes(ram.brand))
       )
         return false;
-
-      // Game filters
       if (filters.games.length && !filters.games.includes(b.game_id))
         return false;
-
-      // Quality / resolution
       if (
         filters.graphicsQualities.length &&
         !filters.graphicsQualities.includes(b.graphics_quality)
@@ -147,8 +140,6 @@ const BenchmarksPage = () => {
         !filters.resolutions.includes(b.resolution)
       )
         return false;
-
-      // Min avg FPS
       if (b.avg_fps < filters.minAvgFps) return false;
 
       return true;
@@ -181,8 +172,6 @@ const BenchmarksPage = () => {
 
   return (
     <>
-      {/* Ambient base gradient — gives the motes a dark field to glow against,
-      		and a faint vignette so the corners stay calm. */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
@@ -191,9 +180,82 @@ const BenchmarksPage = () => {
         }}
       />
       <MoteField />
+
+      {/* ── Mobile layout (< sm) ───────────────────────────────────────────────
+          Stacked: toolbar → collapsible filters → scrollable results.
+          The ResizablePanelGroup is hidden on mobile; this simpler structure
+          takes over so we don't fight the panel dragging logic on touch. */}
+      <div className="flex h-screen flex-col sm:hidden">
+        {/* Toolbar with an extra "Filters" toggle button */}
+        <div className="shrink-0 border-b">
+          <ListToolbar
+            sort={sort}
+            onSortChange={setSort}
+            density={density}
+            onDensityChange={setDensity}
+          />
+          {/* Filters toggle row */}
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((o) => !o)}
+            className="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium border-t"
+          >
+            <span className="flex items-center gap-2">
+              <FunnelIcon className="size-4 text-muted-foreground" />
+              Filters
+              {/* Active filter count badge */}
+              {filtered.length !== benchmarks.length && (
+                <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground">
+                  {benchmarks.length - filtered.length} hidden
+                </span>
+              )}
+            </span>
+            <ChevronUpIcon
+              className={`size-4 text-muted-foreground transition-transform duration-200 ${filtersOpen ? '' : 'rotate-180'}`}
+            />
+          </button>
+        </div>
+
+        {/* Collapsible filter panel — slides open/closed */}
+        <div
+          className={`shrink-0 overflow-hidden border-b transition-all duration-300 ease-in-out ${
+            filtersOpen ? 'max-h-[60vh] overflow-y-auto' : 'max-h-0'
+          }`}
+        >
+          <FilterPanel
+            benchmarks={benchmarks}
+            games={games}
+            filters={filters}
+            onChange={(f) => {
+              setFilters(f);
+              setFiltersOpen(false);
+            }}
+            resultCount={filtered.length}
+          />
+        </div>
+
+        {/* Results — scrollable, takes remaining height */}
+        <div className="min-h-0 flex-1 overflow-y-auto p-4">
+          <BenchmarkResults
+            isLoading={isLoadingBenchmarks}
+            error={errorBenchmarks}
+            benchmarks={filtered}
+            density={density}
+            gameName={gameName}
+            selectedId={selectedId}
+            onToggleSelected={toggleSelected}
+            canDelete={canDelete}
+            isDeleting={isDeleting}
+            onDelete={handleDelete}
+          />
+        </div>
+      </div>
+
+      {/* ── Desktop layout (≥ sm) ──────────────────────────────────────────────
+          Unchanged resizable side-by-side panel layout. */}
       <ResizablePanelGroup
         direction="horizontal"
-        className="h-screen w-full items-stretch backdrop-blur-[10px]"
+        className="hidden h-screen w-full items-stretch backdrop-blur-[10px] sm:flex"
       >
         <ResizablePanel defaultSize={22} minsize={16}>
           <FilterPanel
@@ -243,13 +305,11 @@ const BenchmarksPage = () => {
           'backdrop-blur-[50px]',
           'shadow-[inset_0_1px_0_rgba(0,0,0,0.06),0_2px_16px_rgba(100,100,100,0.18)]',
           'dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_2px_16px_rgba(212,175,175,0.25)]',
-          // Hover
           'hover:border-black/25 hover:bg-white/40',
           'dark:hover:border-white/25 dark:hover:bg-black/40',
           'hover:shadow-[inset_0_1px_0_rgba(0,0,0,0.10),0_2px_16px_rgba(100,100,100,0.30)]',
           'dark:hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,175,0.35)]',
         ].join(' ')}
-        // className="fixed bottom-6 right-6 z-20 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-lg transition-transform hover:scale-105 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <PlusIcon className="size-4" />
         Add Benchmark

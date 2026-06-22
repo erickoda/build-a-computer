@@ -1,4 +1,4 @@
-import { Checkbox } from '@heroui/react';
+import { CheckIcon } from '@heroicons/react/16/solid';
 
 type CheckRowProps = {
   id: string;
@@ -7,18 +7,28 @@ type CheckRowProps = {
   onCheckedChange: () => void;
 };
 
-export function CheckRow({ id, label, checked, onCheckedChange }: CheckRowProps) {
+export function CheckRow({
+  id,
+  label,
+  checked,
+  onCheckedChange,
+}: CheckRowProps) {
   return (
-    <Checkbox
+    <button
+      type="button"
       id={id}
-      isSelected={checked}
-      onChange={onCheckedChange}
-      className="flex items-center gap-2"
+      onClick={onCheckedChange}
+      className={[
+        'flex w-full items-center justify-between',
+        'rounded-lg border px-3 py-2 text-sm font-medium',
+        'transition-colors duration-150 text-left',
+        checked
+          ? 'border-primary bg-primary/10 text-primary'
+          : 'border-border bg-background text-foreground hover:bg-muted',
+      ].join(' ')}
     >
-      <Checkbox.Control>
-        <Checkbox.Indicator />
-      </Checkbox.Control>
-      <Checkbox.Content className="text-sm font-normal">{label}</Checkbox.Content>
-    </Checkbox>
+      <span>{label}</span>
+      {checked && <CheckIcon className="size-4 shrink-0 text-primary" />}
+    </button>
   );
 }
