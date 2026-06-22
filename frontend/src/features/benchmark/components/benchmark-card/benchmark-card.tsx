@@ -1,6 +1,7 @@
 import { cn } from '@/src/utils/utils';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
-import { Chip } from '@heroui/react';
+import { Chip, Modal } from '@heroui/react';
+import { useEffect, useState } from 'react';
 import type { BenchmarkResponseDto } from '../../types/dtos';
 import {
   brandGradient,
@@ -12,6 +13,27 @@ import {
 import { HardwareDetail } from './hardware-detail';
 
 export { LIST_GRID_COLS, systemPrice } from './format';
+
+// Mirrors Tailwind's `sm` breakpoint (640px). The mobile detail modal must
+// never be considered "open" at sm and above — relying on `sm:hidden`
+// alone isn't enough if the modal content portals outside the element
+// that class is applied to, so we gate `isOpen` itself on viewport width.
+const MOBILE_BREAKPOINT_QUERY = '(max-width: 639px)';
+
+function useIsMobileViewport() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_BREAKPOINT_QUERY);
+    setIsMobile(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  return isMobile;
+}
 
 type BenchmarkCardProps = {
   benchmark: BenchmarkResponseDto;
@@ -36,6 +58,54 @@ export function BenchmarkCard({
 }: BenchmarkCardProps) {
   const { gpu, cpu, ram } = b;
   const totalPrice = systemPrice(b);
+  const isMobile = useIsMobileViewport();
+
+  const hardwareDetail = (
+    <HardwareDetail
+      gpu={gpu}
+      cpu={cpu}
+      ram={ram}
+      canDelete={canDelete}
+      isDeleting={isDeleting}
+      onDelete={onDelete}
+    />
+  );
+
+  // ── Mobile popup ─────────────────────────────────────────────────────────
+  // Below sm, the same `expanded` state that drives the desktop inline
+  // expand instead opens a centered modal with the hardware detail, closed
+  // via an explicit X (Modal.CloseTrigger) rather than collapsing back into
+  // the row/card. `expanded`/`onToggle` stay the single source of truth —
+  // the modal's open state is controlled directly from them, so there's no
+  // separate piece of state to keep in sync, and the card that triggered it
+  // (the row or grid card below) still renders normally underneath.
+  const mobileDetailModal = (
+    <div onClick={(e) => e.stopPropagation()}>
+      <Modal className="sm:hidden">
+        <Modal.Backdrop
+          isOpen={expanded && isMobile}
+          onOpenChange={(open) => {
+            if (!open) onToggle?.();
+          }}
+        >
+          <Modal.Container placement="auto">
+            <Modal.Dialog className="max-h-[85vh] w-full overflow-y-auto rounded-b-none rounded-t-2xl sm:rounded-2xl">
+              {/* Modal.CloseTrigger renders its own default close icon/button;
+                  position it top-right via className rather than supplying
+                  custom children, since that's the documented API. */}
+              <Modal.CloseTrigger className="absolute right-3 top-3 z-10 rounded-full bg-muted/80 p-1.5 backdrop-blur-sm" />
+              <Modal.Header className="pr-10">
+                <Modal.Heading className="truncate text-sm font-medium">
+                  {gameName}
+                </Modal.Heading>
+              </Modal.Header>
+              <Modal.Body className="p-0">{hardwareDetail}</Modal.Body>
+            </Modal.Dialog>
+          </Modal.Container>
+        </Modal.Backdrop>
+      </Modal>
+    </div>
+  );
 
   // ── List row ──────────────────────────────────────────────────────────────
   if (view === 'list') {
@@ -50,7 +120,12 @@ export function BenchmarkCard({
               'group grid items-center overflow-hidden border bg-card text-card-foreground transition-colors hover:border-foreground/20 cursor-pointer select-none',
               // min-width ensures the grid never collapses on very narrow viewports
               'min-w-[700px]',
-              expanded ? 'rounded-t-lg border-b-0' : 'rounded-lg',
+              // On mobile the panel below never opens (a Modal takes over
+              // instead), so the row's bottom border/radius stays intact
+              // regardless of `expanded` below sm.
+              expanded
+                ? 'sm:rounded-t-lg sm:border-b-0 rounded-lg'
+                : 'rounded-lg',
             )}
             style={{
               gridTemplateColumns: LIST_GRID_COLS,
@@ -148,25 +223,21 @@ export function BenchmarkCard({
           </article>
         </div>
 
-        {/* Expanded detail — max-h grows taller on mobile so content isn't
-            clipped behind the bottom of the viewport on small screens. */}
+        {/* Expanded detail — desktop only (sm+). On mobile the modal above
+            takes over instead, so this panel is hidden below sm rather than
+            also rendering collapsed-but-present. */}
         <div
-          className="overflow-hidden rounded-b-lg border border-t-0 transition-all duration-300 ease-in-out"
+          className="hidden overflow-hidden rounded-b-lg border border-t-0 transition-all duration-300 ease-in-out sm:block"
           style={{
             maxHeight: expanded ? '800px' : '0px',
             opacity: expanded ? 1 : 0,
             borderColor: expanded ? undefined : 'transparent',
           }}
         >
-          <HardwareDetail
-            gpu={gpu}
-            cpu={cpu}
-            ram={ram}
-            canDelete={canDelete}
-            isDeleting={isDeleting}
-            onDelete={onDelete}
-          />
+          {hardwareDetail}
         </div>
+
+        {mobileDetailModal}
       </div>
     );
   }
@@ -177,9 +248,10 @@ export function BenchmarkCard({
       onClick={onToggle}
       className={cn(
         'group flex flex-col overflow-hidden rounded-lg border bg-card text-card-foreground transition-all cursor-pointer select-none hover:border-foreground/20',
-        // On mobile the expanded card stacks vertically (flex-col, full width).
-        // On sm+ it expands side-by-side across the full grid row (col-span-full flex-row).
-        expanded && 'col-span-full flex-col sm:flex-row sm:items-stretch',
+        // Desktop only: expanding spans the full grid row side-by-side.
+        // On mobile the card itself never changes shape — the modal above
+        // handles the expanded view instead.
+        expanded && 'sm:col-span-full sm:flex-row sm:items-stretch',
       )}
     >
       {/* Summary (always visible) */}
@@ -187,10 +259,7 @@ export function BenchmarkCard({
         className={cn(
           'flex flex-col',
           // Desktop expanded: fixed sidebar width with a right border divider.
-          // Mobile expanded: full width, bottom border divider instead.
-          expanded
-            ? 'w-full border-b sm:w-72 sm:shrink-0 sm:border-b-0 sm:border-r'
-            : 'flex-1',
+          expanded ? 'w-full sm:w-72 sm:shrink-0 sm:border-r' : 'flex-1',
         )}
         style={brandGradient(gpu, cpu)}
       >
@@ -286,7 +355,7 @@ export function BenchmarkCard({
               <span className="text-sm font-semibold tabular-nums">
                 {b.score}
               </span>
-              <span className="text-xs text-muted-foreground">/ 100</span>
+              <span className="text-xs text-muted-foreground">/ 10</span>
             </div>
           ) : (
             <span />
@@ -302,21 +371,16 @@ export function BenchmarkCard({
         </div>
       </div>
 
-      {/* Expanded hardware detail panel.
-          On mobile: renders below the summary (natural stacking).
-          On desktop: renders to the right in a scrollable flex-1 panel. */}
+      {/* Expanded hardware detail panel — desktop only (sm+), renders to
+          the right in a scrollable flex-1 panel. On mobile the modal above
+          takes over instead. */}
       {expanded && (
-        <div className="flex-1 overflow-auto animate-in fade-in slide-in-from-bottom-2 duration-300 sm:slide-in-from-right-4 sm:slide-in-from-bottom-0">
-          <HardwareDetail
-            gpu={gpu}
-            cpu={cpu}
-            ram={ram}
-            canDelete={canDelete}
-            isDeleting={isDeleting}
-            onDelete={onDelete}
-          />
+        <div className="hidden flex-1 overflow-auto sm:block sm:animate-in sm:fade-in sm:slide-in-from-right-4 sm:duration-300">
+          {hardwareDetail}
         </div>
       )}
+
+      {mobileDetailModal}
     </article>
   );
 }
