@@ -1,0 +1,98 @@
+package app
+
+import (
+	"context"
+	"log"
+	"net"
+	"os"
+
+	"go.uber.org/fx"
+	"go.uber.org/zap"
+
+	pb "github.com/erickoda/build-a-computer/recommendation_microservice/pkg/protos"
+	"google.golang.org/grpc"
+
+	"github.com/erickoda/build-a-computer/recommendation_microservice/internal/adapters/db"
+	grpcHandler "github.com/erickoda/build-a-computer/recommendation_microservice/internal/adapters/grpc"
+	"github.com/erickoda/build-a-computer/recommendation_microservice/internal/services"
+)
+
+var Module = fx.Options(
+	fx.Provide(
+		db.NewDataBase,
+
+		db.NewBenchmarkRepositoryImpl,
+
+		db.NewCPURepositoryImpl,
+
+		db.NewGPURepositoryImpl,
+
+		db.NewRAMMemoryRepositoryImpl,
+
+		db.NewMotherBoardRepositoryImpl,
+
+		db.NewPowerSourceRepositoryImpl,
+
+		db.NewSSDRepositoryImpl,
+
+		db.NewGameRepositoryImpl,
+
+		zap.NewDevelopment,
+
+		services.NewBuilderService,
+
+		grpcHandler.NewBuilderHandler,
+
+		NewGRPCServer,
+	),
+	fx.Invoke(
+		RegisterServer,
+	),
+)
+
+func NewGRPCServer() *grpc.Server {
+	return grpc.NewServer()
+}
+
+func recoverServer() {
+	if r := recover(); r != nil {
+		log.Println("server recovered from panic:", r)
+	}
+}
+
+func RegisterServer(
+	lc fx.Lifecycle,
+	server *grpc.Server,
+	handler *grpcHandler.BuilderHandler,
+) {
+
+	pb.RegisterBuilderServiceServer(server, handler)
+
+	var addr string = os.Getenv("ADDR")
+
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			lis, err := net.Listen("tcp", addr)
+			if err != nil {
+				return err
+			}
+
+			defer recoverServer()
+
+			go func() {
+
+				if err := server.Serve(lis); err != nil {
+					log.Fatal(err)
+				}
+			}()
+
+			log.Println("gRPC server running on port ", lis.Addr().String())
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			log.Println("gracefully stopping gRPC server...")
+			server.GracefulStop()
+			return nil
+		},
+	})
+}

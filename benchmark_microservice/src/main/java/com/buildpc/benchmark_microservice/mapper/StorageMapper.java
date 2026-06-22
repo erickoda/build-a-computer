@@ -1,0 +1,101 @@
+package com.buildpc.benchmark_microservice.mapper;
+
+import com.buildpc.benchmark_microservice.entities.Storage;
+import com.buildpc.benchmark_microservice.entities.valueObjects.SSDType;
+import com.buildpc.benchmark_microservice.grpc.generated.DeleteSSDResponse;
+import com.buildpc.benchmark_microservice.grpc.generated.ListSSDResponse;
+import com.buildpc.benchmark_microservice.grpc.generated.SSDResponse;
+import com.buildpc.benchmark_microservice.grpc.generated.CreateSSDRequest;
+import com.buildpc.benchmark_microservice.grpc.generated.UpdateSSDRequest;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.Timestamp;
+import org.springframework.stereotype.Component;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
+
+@Component
+public class StorageMapper {
+
+    public SSDResponse toProto(Storage ssd) {
+        SSDResponse.Builder builder = SSDResponse.newBuilder()
+                .setId(String.valueOf(ssd.getId()))
+                .setBrand(ssd.getBrand())
+                .setSeries(ssd.getSeries())
+                .setAmount(ssd.getAmount())
+                .setType(ssd.getType().toProtoValue())
+                .setReading(ssd.getReading())
+                .setWriting(ssd.getWriting())
+                .setAvgPrice(ssd.getAvgPrice())
+                .setScore(ssd.getScore())
+                .setCreatedAt(dateToTimestamp(ssd.getCreatedAt()));
+
+        if (ssd.getImg() != null) {
+            builder.setImg(ByteString.copyFrom(ssd.getImg()));
+        }
+        if (ssd.getUpdatedAt() != null) {
+            builder.setUpdatedAt(dateToTimestamp(ssd.getUpdatedAt()));
+        }
+
+        return builder.build();
+    }
+
+    public ListSSDResponse createListStorageResponse(List<SSDResponse> storageResponses) {
+        return ListSSDResponse.newBuilder()
+                .addAllSsd(storageResponses)
+                .build();
+    }
+
+    public DeleteSSDResponse createDeleteSSDResponse(boolean deleteSuccess) {
+        return DeleteSSDResponse.newBuilder()
+                .setSuccess(deleteSuccess)
+                .build();
+    }
+
+    public Storage toEntity(CreateSSDRequest request) {
+        Storage ssd = new Storage();
+        ssd.setBrand(request.getBrand());
+        ssd.setSeries(request.getSeries());
+        ssd.setAmount(request.getAmount());
+        ssd.setType(SSDType.fromDatabaseValue(request.getType()));
+        ssd.setReading(request.getReading());
+        ssd.setWriting(request.getWriting());
+        ssd.setAvgPrice(request.getAvgPrice());
+        ssd.setScore(request.getScore());
+
+        if (request.hasImg()) {
+            ssd.setImg(request.getImg().toByteArray());
+        }
+
+        return ssd;
+    }
+
+    public Storage toEntity(UpdateSSDRequest request) {
+        Storage ssd = new Storage();
+        ssd.setBrand(request.getBrand());
+        ssd.setSeries(request.getSeries());
+        ssd.setAmount(request.getAmount());
+        ssd.setType(SSDType.fromDatabaseValue(request.getType()));
+        ssd.setReading(request.getReading());
+        ssd.setWriting(request.getWriting());
+        ssd.setAvgPrice(request.getAvgPrice());
+        ssd.setScore(request.getScore());
+
+        if (request.hasImg()) {
+            ssd.setImg(request.getImg().toByteArray());
+        }
+
+        return ssd;
+    }
+
+    private Timestamp dateToTimestamp(LocalDateTime dateTime) {
+        Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
+
+        return Timestamp.newBuilder()
+                .setSeconds(instant.getEpochSecond())
+                .setNanos(instant.getNano())
+                .build();
+    }
+}
