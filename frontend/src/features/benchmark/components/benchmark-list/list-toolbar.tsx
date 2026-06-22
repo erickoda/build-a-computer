@@ -67,6 +67,10 @@ export function ListToolbar({
           </Select.Popover>
         </Select>
 
+        {/* List/compact view doesn't work well on narrow screens (it relies on
+            horizontal scroll for the fixed-column row layout), so the entire
+            grid/list toggle is hidden below sm — grid is the only option on
+            mobile, and there's nothing left to toggle between. */}
         <ToggleButtonGroup
           selectionMode="single"
           disallowEmptySelection
@@ -76,6 +80,7 @@ export function ListToolbar({
             if (next) onDensityChange(next);
           }}
           size="sm"
+          className="hidden sm:flex"
         >
           <ToggleButton id="comfortable" aria-label="Comfortable grid">
             <Squares2X2Icon className="size-4" />

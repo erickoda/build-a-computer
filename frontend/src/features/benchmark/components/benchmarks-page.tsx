@@ -56,6 +56,27 @@ const BenchmarksPage = () => {
     fetchGames();
   }, [fetchBenchmarks, fetchGames]);
 
+  // List/compact view isn't usable on mobile (the toggle to reach it is
+  // hidden below sm — see ListToolbar), so if the viewport drops below sm
+  // while density is 'compact' — e.g. resizing a desktop window down, or
+  // a value restored from somewhere persisted — force it back to
+  // 'comfortable' so the user is never stuck on a view they can't toggle
+  // out of from mobile.
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 639px)');
+
+    function syncDensityToViewport(isMobile: boolean) {
+      if (isMobile) setDensity('comfortable');
+    }
+
+    syncDensityToViewport(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) =>
+      syncDensityToViewport(e.matches);
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
   function canDelete(b: BenchmarkResponseDto) {
     return (
       role === 'admin' || role === 'supervisor' || b.user_id === currentUserId
@@ -185,7 +206,7 @@ const BenchmarksPage = () => {
           Stacked: toolbar → collapsible filters → scrollable results.
           The ResizablePanelGroup is hidden on mobile; this simpler structure
           takes over so we don't fight the panel dragging logic on touch. */}
-      <div className="flex h-screen flex-col sm:hidden">
+      <div className="backdrop-blur-[15px] flex h-screen flex-col sm:hidden">
         {/* Toolbar with an extra "Filters" toggle button */}
         <div className="shrink-0 border-b">
           <ListToolbar
@@ -255,7 +276,7 @@ const BenchmarksPage = () => {
           Unchanged resizable side-by-side panel layout. */}
       <ResizablePanelGroup
         direction="horizontal"
-        className="hidden h-screen w-full items-stretch backdrop-blur-[10px] sm:flex"
+        className="hidden h-screen w-full items-stretch backdrop-blur-[15px] sm:flex"
       >
         <ResizablePanel defaultSize={22} minsize={16}>
           <FilterPanel
