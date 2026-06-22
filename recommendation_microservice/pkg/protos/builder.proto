@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package recommendation.v1;
+
+import "hardwares.proto";
+
+option go_package = "github.com/erickoda/build-a-computer/recommendation_microservice/pkg/protos";
+
+message BuildPCRequest {
+  repeated string games = 1;
+  float max_price = 2;
+  int32 resolution = 3;
+  string computer_performance = 4;
+}
+
+message BuildPCResponse {
+  repeated PC pc = 1;
+}
+
+message PC {
+  CPU cpu = 1;
+  GPU gpu = 2;
+  RAMMemory ram = 3;
+  MotherBoard mother_board = 4;
+  PowerSource psu = 5;
+  SSD ssd = 6;
+}
+
+service BuilderService {
+  rpc BuildPC(BuildPCRequest) returns (BuildPCResponse);
+}

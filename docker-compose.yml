@@ -67,7 +67,7 @@ services:
   recommendation_microservice:
     container_name: recommendation_microservice
     build:
-      context: ./pc_builder_service
+      context: ./recommendation_microservice
       dockerfile: Dockerfile
       target: run-stage
       additional_contexts:
@@ -113,7 +113,7 @@ services:
   benchmark_microservice:
     container_name: benchmark-microservice
     build:
-      context: ./benchmark_service
+      context: ./benchmark_microservice
       dockerfile: Dockerfile
       additional_contexts:
         protos: ./proto

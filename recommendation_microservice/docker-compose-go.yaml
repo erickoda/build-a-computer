@@ -1,0 +1,80 @@
+services:
+  builder-grpc:
+    container_name: recommendation_microservice
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: run-stage
+    env_file:
+      - .env.dev
+    environment:
+      - ADDR:0.0.0.0:50051
+      - PGHOST:postgres
+      - PGUSER:postgres
+      - PGPASSWORD:123
+      - PGDATABASE:benchmark
+      - PGSSLMODE:disable
+    ports:
+      - "50051:50051"
+    networks:
+      - grpc-service
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=:50051", "-service=builder.BuilderService"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      postgres:
+        condition: service_healthy
+    
+  postgres:
+     container_name: benchmarkDB
+     image: postgres:17.4-alpine
+     env_file:
+       - .env.dev
+     environment: 
+       - POSTGRES_USER=postgres
+       - POSTGRES_PASSWORD=123
+       - POSTGRES_DB=benchmark
+       - PGDATA=/data/postgres
+     ports:
+         - "5432:5432"
+     networks:
+       - grpc-service
+     extra_hosts:
+       - "host.docker.internal:host-gateway"
+     restart: unless-stopped
+     healthcheck:
+       test: ["CMD-SHELL", "pg_isready"]
+       interval: 30s
+       timeout: 10s
+       retries: 5
+     volumes:
+       - pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    env_file:
+      - .env.dev
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "15432:80"
+    restart: unless-stopped
+    networks:
+      - grpc-service
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - postgres
+
+networks:
+  grpc-service:
+    driver: bridge
+
+volumes:
+  pgdata:

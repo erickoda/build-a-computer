@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package pkg.protos.v1;
 
-option java_package = "com.buildpc.benchmark_service.grpc.generated";
+option java_package = "com.buildpc.benchmark_microservice.grpc.generated";
 option java_multiple_files = true;
 option java_outer_classname = "GameProto";
 

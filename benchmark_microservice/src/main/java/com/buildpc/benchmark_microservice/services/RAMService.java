@@ -1,0 +1,61 @@
+package com.buildpc.benchmark_microservice.services;
+
+import com.buildpc.benchmark_microservice.entities.RAM;
+import com.buildpc.benchmark_microservice.exceptions.ram.DuplicatedRAMException;
+import com.buildpc.benchmark_microservice.exceptions.ram.RAMNotFoundException;
+import com.buildpc.benchmark_microservice.repository.RAMRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@Transactional(readOnly = true, noRollbackFor = RAMNotFoundException.class)
+@AllArgsConstructor
+public class RAMService {
+    private final RAMRepository ramRepository;
+
+    public RAM saveRAM(RAM ram) throws DuplicatedRAMException {
+        return ramRepository.save(ram);
+    }
+
+    public RAM searchById(UUID id) {
+        Optional<RAM> foundRAM = ramRepository.findById(id);
+
+        return foundRAM.orElseThrow(() -> new RAMNotFoundException("Can't find this RAM memory in data base"));
+    }
+
+    public List<RAM> searchAll() throws RAMNotFoundException {
+        List<RAM> rams = ramRepository.findAll();
+
+        if(rams.isEmpty())
+            throw new RAMNotFoundException("None RAM Memory was find");
+
+        return rams;
+    }
+
+    public RAM updateRAM(UUID id, RAM ram) {
+        RAM existing = ramRepository.findById(id)
+                .orElseThrow(() -> new RAMNotFoundException("Can't find this RAM memory in data base"));
+
+        existing.setBrand(ram.getBrand());
+        existing.setDdr(ram.getDdr());
+        existing.setMemoryAmount(ram.getMemoryAmount());
+        existing.setAvgPrice(ram.getAvgPrice());
+        existing.setFrequencyMhz(ram.getFrequencyMhz());
+        existing.setSeries(ram.getSeries());
+        existing.setImg(ram.getImg());
+
+        return ramRepository.save(existing);
+    }
+
+    public void deleteById(UUID id) {
+        if(!ramRepository.existsById(id))
+            throw new RAMNotFoundException("Can't find this RAM memory in data base");
+
+        ramRepository.deleteById(id);
+    }
+}
