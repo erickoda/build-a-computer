@@ -130,7 +130,28 @@ if [ -z "$TOKEN" ]; then
   exit 1
 fi
 
-USER_ID="$(echo "$TOKEN" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null | jq -r '.sub // empty')"
+decode_jwt_payload() {
+  local token="$1"
+  local payload
+  payload="$(echo "$token" | cut -d. -f2 | tr '_-' '/+')"
+
+  # JWT payloads are base64url WITHOUT padding, but `base64 -d` (GNU
+  # coreutils, no -i flag) requires the input length to be a multiple of 4
+  # and will exit non-zero on anything else -- even though it still decodes
+  # everything correctly up to that point. Pad it ourselves before decoding
+  # rather than relying on a decoder that silently tolerates the omission;
+  # not all base64 builds do, and which JWTs trip this depends on payload
+  # length (i.e. on field values), so it can pass for one token and fail
+  # for the next with no code change at all.
+  local mod=$(( ${#payload} % 4 ))
+  if [ "$mod" -eq 2 ]; then payload="${payload}=="
+  elif [ "$mod" -eq 3 ]; then payload="${payload}="
+  fi
+
+  echo "$payload" | base64 -d 2>/dev/null
+}
+
+USER_ID="$(decode_jwt_payload "$TOKEN" | jq -r '.sub // empty')"
 if [ -z "$USER_ID" ]; then
   err "Could not decode user id (sub) from JWT"
   exit 1
