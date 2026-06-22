@@ -1,7 +1,8 @@
 import { cn } from '@/src/utils/utils';
 import { ChevronDownIcon } from '@heroicons/react/16/solid';
 import { Chip, Modal } from '@heroui/react';
-import { useEffect, useState } from 'react';
+import type { RefObject } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { BenchmarkResponseDto } from '../../types/dtos';
 import {
   brandGradient,
@@ -35,6 +36,45 @@ function useIsMobileViewport() {
   return isMobile;
 }
 
+// Measures the real, unscaled height of `contentRef`'s content and the
+// available height of `availableRef`'s box, then returns the exact scale
+// factor needed so the content fits inside that available space — no
+// guessed constants. Re-measures on resize (orientation change, on-screen
+// keyboard, address bar show/hide) and whenever content height itself
+// changes (e.g. HardwareDetail's content loads/changes async).
+function useFitScale(
+  contentRef: RefObject<HTMLElement | null>,
+  availableRef: RefObject<HTMLElement | null>,
+  isActive: boolean,
+) {
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    if (!isActive) return;
+    const contentEl = contentRef.current;
+    const availableEl = availableRef.current;
+    if (!contentEl || !availableEl) return;
+
+    function recalculate() {
+      const contentHeight = contentEl!.scrollHeight;
+      const availableHeight = availableEl!.clientHeight;
+      if (contentHeight <= 0 || availableHeight <= 0) return;
+      // Never scale up past natural size — only shrink to fit.
+      const next = Math.min(1, availableHeight / contentHeight);
+      setScale(next);
+    }
+
+    recalculate();
+
+    const observer = new ResizeObserver(recalculate);
+    observer.observe(contentEl);
+    observer.observe(availableEl);
+    return () => observer.disconnect();
+  }, [contentRef, availableRef, isActive]);
+
+  return scale;
+}
+
 type BenchmarkCardProps = {
   benchmark: BenchmarkResponseDto;
   gameName: string;
@@ -59,6 +99,11 @@ export function BenchmarkCard({
   const { gpu, cpu, ram } = b;
   const totalPrice = systemPrice(b);
   const isMobile = useIsMobileViewport();
+  const isMobileModalOpen = expanded && isMobile;
+
+  const availableRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const scale = useFitScale(contentRef, availableRef, isMobileModalOpen);
 
   const hardwareDetail = (
     <HardwareDetail
@@ -83,13 +128,13 @@ export function BenchmarkCard({
     <div onClick={(e) => e.stopPropagation()}>
       <Modal>
         <Modal.Backdrop
-          isOpen={expanded && isMobile}
+          isOpen={isMobileModalOpen}
           onOpenChange={(open) => {
             if (!open) onToggle?.();
           }}
         >
           <Modal.Container placement="auto">
-            <Modal.Dialog className="max-h-[85vh] w-full overflow-y-auto rounded-b-none rounded-t-2xl sm:rounded-2xl">
+            <Modal.Dialog className="w-full rounded-b-none rounded-t-2xl sm:rounded-2xl">
               {/* Modal.CloseTrigger renders its own default close icon/button;
                   position it top-right via className rather than supplying
                   custom children, since that's the documented API. */}
@@ -99,7 +144,37 @@ export function BenchmarkCard({
                   {gameName}
                 </Modal.Heading>
               </Modal.Header>
-              <Modal.Body className="p-0">{hardwareDetail}</Modal.Body>
+              <Modal.Body className="p-0">
+                {/* `availableRef` defines the real budget the card has to
+                    fit into — fixed at 85dvh minus a header allowance, so
+                    it matches what's actually visible on screen.
+                    `contentRef` wraps the card at its natural, unscaled
+                    size; its scrollHeight is measured directly via
+                    ResizeObserver, no guessed constant. useFitScale divides
+                    the two to get the exact factor needed to fit, applied
+                    below via transform: scale(). */}
+                <div
+                  ref={availableRef}
+                  style={{
+                    height: 'calc(85dvh - 56px)',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <div
+                    ref={contentRef}
+                    style={{
+                      width: '100%',
+                      transform: `scale(${scale})`,
+                      transformOrigin: 'top center',
+                    }}
+                  >
+                    {hardwareDetail}
+                  </div>
+                </div>
+              </Modal.Body>
             </Modal.Dialog>
           </Modal.Container>
         </Modal.Backdrop>
