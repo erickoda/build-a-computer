@@ -1,7 +1,7 @@
 'use client';
 
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/16/solid';
-import { useId, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 
 type GlassComboboxProps = {
   options: { value: string; label: string }[];
@@ -10,6 +10,41 @@ type GlassComboboxProps = {
   placeholder?: string;
   id?: string;
 };
+
+// ── Fuzzy match ──────────────────────────────────────────────────────────
+// Subsequence match: every character of `query`, in order, must appear
+// somewhere in `text` (not necessarily adjacent) — e.g. "ccs" matches
+// "Counter-Strike", "wz2" matches "Warzone 2". Returns null on no match,
+// or a score on match (lower = better) so results can be ranked instead
+// of just included/excluded. Scoring favors, in priority order:
+//   1. Matches at the very start of the text
+//   2. Contiguous/tighter matches (less gap between matched characters)
+//   3. Shorter overall text (so "Halo" ranks above "Halo Infinite" for "h")
+function fuzzyMatchScore(query: string, text: string): number | null {
+  if (query.length === 0) return text.length;
+
+  const q = query.toLowerCase();
+  const t = text.toLowerCase();
+
+  let qi = 0;
+  let firstMatchIndex = -1;
+  let lastMatchIndex = -1;
+
+  for (let ti = 0; ti < t.length && qi < q.length; ti++) {
+    if (t[ti] === q[qi]) {
+      if (firstMatchIndex === -1) firstMatchIndex = ti;
+      lastMatchIndex = ti;
+      qi++;
+    }
+  }
+
+  // Didn't find all query characters in order → no match.
+  if (qi < q.length) return null;
+
+  const spread = lastMatchIndex - firstMatchIndex; // tighter = better
+  const startPenalty = firstMatchIndex; // earlier start = better
+  return startPenalty * 2 + spread + text.length * 0.01;
+}
 
 export function GlassCombobox({
   options,
@@ -23,9 +58,31 @@ export function GlassCombobox({
   const innerId = useId();
   const buttonId = id ?? innerId;
 
-  const filtered = options.filter((o) =>
-    o.label.toLowerCase().includes(query.toLowerCase()),
-  );
+  const filtered = useMemo(() => {
+    if (query.trim() === '') return options;
+
+    // TEMP DEBUG — remove once we've confirmed what's actually in `options`.
+    console.log('[GlassCombobox debug] query:', JSON.stringify(query));
+    console.log(
+      '[GlassCombobox debug] options:',
+      options.map((o) => ({
+        value: o.value,
+        label: o.label,
+        labelJSON: JSON.stringify(o.label), // reveals hidden whitespace/chars
+        score: fuzzyMatchScore(query, o.label),
+      })),
+    );
+
+    const scored = options
+      .map((o) => ({ option: o, score: fuzzyMatchScore(query, o.label) }))
+      .filter(
+        (entry): entry is { option: typeof entry.option; score: number } =>
+          entry.score !== null,
+      );
+
+    scored.sort((a, b) => a.score - b.score);
+    return scored.map((entry) => entry.option);
+  }, [options, query]);
 
   function handleToggle(v: string) {
     onChange(value.includes(v) ? value.filter((x) => x !== v) : [...value, v]);
