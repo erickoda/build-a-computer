@@ -1,92 +1,198 @@
 'use client';
 
-import { eraseLayer } from '@/src/components/canvas-layer-driver';
-import { milkyWayLayer } from '@/src/components/milky-way-field';
-import { moteLayer } from '@/src/components/mote-field';
 import Link from 'next/link';
-import { SplitFieldBackground } from './split-field';
+import type { ReactNode } from 'react';
+import { BenchmarkChartScene } from './benchmark-chart-scene';
+import { PcModelScene } from './pc-model-scene';
+
+type Accent = {
+  // RGB triplet, used for glows so opacity can vary per layer.
+  rgb: string;
+  text: string;
+  border: string;
+};
+
+const BLUE: Accent = {
+  rgb: '56,152,236',
+  text: 'text-sky-600 dark:text-sky-300',
+  border: 'group-hover:border-sky-500/40',
+};
+
+const AMBER: Accent = {
+  rgb: '236,168,56',
+  text: 'text-amber-600 dark:text-amber-300',
+  border: 'group-hover:border-amber-500/40',
+};
+
+// Fades all four edges of the bleeding canvas. The model sits inside the
+// middle ~60%, so only the glow falloff is touched.
+const EDGE_FADE =
+  'linear-gradient(to right, transparent, black 18%, black 82%, transparent), linear-gradient(to bottom, transparent, black 18%, black 82%, transparent)';
+
+// Static dot grid, faded toward the edges. Drawn in currentColor so it
+// follows the theme through the text color.
+const DOT_GRID = 'radial-gradient(circle, currentColor 1px, transparent 1.5px)';
+const DOT_GRID_FADE =
+  'radial-gradient(ellipse 75% 70% at 50% 45%, black 30%, transparent 100%)';
 
 export function LandingPage() {
   return (
-    <div className="relative flex h-screen min-h-screen w-full flex-col overflow-hidden bg-background sm:flex-row">
-      {/* Ambient base gradient — gives the motes a dark field to glow against,
-          and a faint vignette so the corners stay calm. */}
+    <div
+      className={[
+        'relative flex h-screen min-h-screen w-full flex-col overflow-hidden bg-background sm:flex-row',
+        '[&:has(>a:hover)>a:not(:hover)]:opacity-55',
+      ].join(' ')}
+    >
+
       <div
-        className="pointer-events-none absolute inset-0"
+        aria-hidden
+        className="pointer-events-none absolute inset-0 text-foreground/10"
         style={{
-          background:
-            'radial-gradient(circle at 50% 45%, rgba(120,108,80,0.10), transparent 60%), linear-gradient(180deg, rgba(10,10,12,0.02), rgba(10,10,12,0.06))',
+          backgroundImage: DOT_GRID,
+          backgroundSize: '22px 22px',
+          maskImage: DOT_GRID_FADE,
+          WebkitMaskImage: DOT_GRID_FADE,
         }}
       />
 
-      <SplitFieldBackground
-        right={eraseLayer(moteLayer)}
-        left={eraseLayer(milkyWayLayer)}
+      <Panel
+        href="/build-pc"
+        index="01"
+        label="Configurator"
+        title={['BUILD A', 'COMPUTER']}
+        description="Find the right components for your gaming needs."
+        cta="Start building"
+        accent={BLUE}
+        scene={<PcModelScene />}
       />
 
-      {/* Left: Build a Computer */}
-      <Link
-        href={'/build-pc'}
-        type="button"
-        className="group relative z-10 flex-1 flex flex-col items-center justify-center gap-6 px-4 sm:px-8 transition-colors hover:backdrop-blur-[3px] active:bg-muted/10"
-      >
-        <div
-          className={[
-            'flex flex-col items-center gap-3 px-3 py-8 sm:py-10 text-center rounded-lg',
-            'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            'group-hover:border-black/8 group-hover:bg-white/75 dark:group-hover:border-white/8 dark:group-hover:bg-black/75',
-            'group-hover:backdrop-blur-[50px]',
-            'group-hover:shadow-[inset_0_1px_0_rgba(0,0,0,0.06),0_2px_16px_rgba(110,175,212,0.30)]',
-            'dark:group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(110,175,212,0.25)]',
-            ,
-          ].join(' ')}
-        >
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground">
-            BUILD A
-            <br />
-            COMPUTER
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-xs">
-            Find the right components for your gaming needs.
-          </p>
-        </div>
-      </Link>
+      <Divider />
 
+      <Panel
+        href="/benchmarks"
+        index="02"
+        label="Benchmarks"
+        title={['SEARCH', 'BENCHMARKS']}
+        description="Compare performance across hardware configurations and games."
+        cta="Explore data"
+        accent={AMBER}
+        scene={<BenchmarkChartScene />}
+      />
+    </div>
+  );
+}
+
+type PanelProps = {
+  href: string;
+  index: string;
+  label: string;
+  title: [string, string];
+  description: string;
+  cta: string;
+  accent: Accent;
+  scene: ReactNode;
+};
+
+function Panel({
+  href,
+  index,
+  label,
+  title,
+  description,
+  cta,
+  accent,
+  scene,
+}: PanelProps) {
+  return (
+    <Link
+      href={href}
+      className="group relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center gap-4 px-6 py-6 outline-none transition-opacity duration-700 sm:gap-8 sm:px-10 sm:py-16"
+    >
+      {/* Accent glow behind the model; blooms on hover. */}
       <div
-        className="relative z-15 pointer-events-none h-px w-full sm:h-full sm:w-20"
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-50 transition-opacity duration-1000 group-hover:opacity-100 group-focus-visible:opacity-100"
         style={{
-          background: 'light-dark(#eae9e8f0, #040404f0)',
-          filter: 'blur(20px)',
+          background: `radial-gradient(ellipse 55% 45% at 50% 42%, rgba(${accent.rgb},0.16), transparent 70%)`,
         }}
       />
 
-      {/* Right: Search Benchmarks */}
-      <Link
-        href={'/benchmarks'}
-        type="button"
-        className="group relative z-10 flex-1 flex flex-col items-center justify-center gap-6 px-4 sm:px-8 transition-colors hover:backdrop-blur-[3px] active:bg-muted/20"
+      {/* Model — sized to a shared square so both sides carry equal weight. */}
+      <div
+        aria-hidden
+        className="pointer-events-none relative min-h-0 w-full sm:aspect-square max-w-[26rem] flex-1 opacity-80 transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] group-hover:opacity-100 sm:max-h-[26rem] sm:flex-none"
       >
+        {/* The canvas bleeds past the box so glows have room to fall off,
+            and the mask fades whatever reaches its edge. The scenes widen
+            their fit margin by the same factor to keep the model size. */}
         <div
+          className="absolute inset-[-30%]"
+          style={{
+            maskImage: EDGE_FADE,
+            WebkitMaskImage: EDGE_FADE,
+            maskComposite: 'intersect',
+            WebkitMaskComposite: 'source-in',
+          }}
+        >
+          {scene}
+        </div>
+      </div>
+
+      <div className="relative flex flex-col items-center gap-3 text-center">
+        <span
+          className={`flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.25em] ${accent.text}`}
+        >
+          <span
+            className="size-1.5 rounded-full"
+            style={{
+              background: `rgb(${accent.rgb})`,
+              boxShadow: `0 0 8px rgba(${accent.rgb},0.9)`,
+            }}
+          />
+          {index} — {label}
+        </span>
+
+        <h1 className="text-3xl font-black leading-[0.95] tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+          {title[0]}
+          <br />
+          {title[1]}
+        </h1>
+
+        <p className="hidden max-w-xs text-sm text-muted-foreground sm:block">
+          {description}
+        </p>
+
+        <span
           className={[
-            'flex flex-col items-center gap-3 px-3 py-8 sm:py-10 text-center rounded-lg',
-            'transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]',
-            'group-hover:border-black/8 group-hover:bg-white/75 dark:group-hover:border-white/8 dark:group-hover:bg-black/75',
-            'group-hover:backdrop-blur-[50px]',
-            'group-hover:shadow-[inset_0_1px_0_rgba(0,0,0,0.06),0_2px_16px_rgba(212,175,110,0.30)]',
-            'dark:group-hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_2px_16px_rgba(212,175,110,0.25)]',
-            ,
+            'mt-1 inline-flex items-center gap-2 rounded-full border border-foreground/15 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-foreground/80',
+            'transition-all duration-500 group-hover:bg-foreground/5 group-hover:text-foreground',
+            'group-focus-visible:ring-2 group-focus-visible:ring-foreground/40',
+            accent.border,
           ].join(' ')}
         >
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground">
-            SEARCH
-            <br />
-            BENCHMARKS
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-xs">
-            Compare performance across hardware configurations and games.
-          </p>
-        </div>
-      </Link>
+          {cta}
+          <span
+            aria-hidden
+            className="transition-transform duration-500 group-hover:translate-x-1"
+          >
+            →
+          </span>
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function Divider() {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none relative z-20 flex items-center justify-center"
+    >
+      <div className="absolute h-px w-2/3 bg-linear-to-r from-transparent via-foreground/15 to-transparent sm:h-2/3 sm:w-px sm:bg-linear-to-b" />
+      <span className="relative rounded-full border border-foreground/15 bg-background px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
+        or
+      </span>
     </div>
   );
 }

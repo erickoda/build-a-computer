@@ -4,17 +4,18 @@ import { Switch } from '@heroui/react';
 import { useTheme } from 'next-themes';
 
 const ToggleTheme = () => {
-  const { theme, setTheme } = useTheme();
-  console.log(theme);
+  const { resolvedTheme, setTheme } = useTheme();
+  const theme = resolvedTheme;
   return (
     <Switch
-      defaultSelected
+      isSelected={theme !== 'light'}
       size="lg"
-      onChange={() => {
-        setTheme(theme === 'dark' ? 'light' : 'dark');
+      aria-label="Toggle dark mode"
+      onChange={(isDark) => {
+        setTheme(isDark ? 'dark' : 'light');
       }}
     >
-      <>
+      <Switch.Content>
         <Switch.Control className={theme === 'light' ? 'bg-white' : ''}>
           <Switch.Thumb>
             <Switch.Icon className="p-2">
@@ -52,7 +53,7 @@ const ToggleTheme = () => {
             </Switch.Icon>
           </Switch.Thumb>
         </Switch.Control>
-      </>
+      </Switch.Content>
     </Switch>
   );
 };
