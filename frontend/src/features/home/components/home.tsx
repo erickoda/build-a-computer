@@ -2,42 +2,34 @@
 
 import Link from 'next/link';
 import type { ReactNode } from 'react';
+import {
+  AMBER,
+  BLUE,
+  DOT_GRID,
+  DOT_GRID_FADE,
+  type Accent,
+} from '../utils/accents';
 import { BenchmarkChartScene } from './benchmark-chart-scene';
+import { LandingSections } from './landing/landing-sections';
 import { PcModelScene } from './pc-model-scene';
-
-type Accent = {
-  // RGB triplet, used for glows so opacity can vary per layer.
-  rgb: string;
-  text: string;
-  border: string;
-};
-
-const BLUE: Accent = {
-  rgb: '56,152,236',
-  text: 'text-sky-600 dark:text-sky-300',
-  border: 'group-hover:border-sky-500/40',
-};
-
-const AMBER: Accent = {
-  rgb: '236,168,56',
-  text: 'text-amber-600 dark:text-amber-300',
-  border: 'group-hover:border-amber-500/40',
-};
 
 // Fades all four edges of the bleeding canvas. The model sits inside the
 // middle ~60%, so only the glow falloff is touched.
 const EDGE_FADE =
   'linear-gradient(to right, transparent, black 18%, black 82%, transparent), linear-gradient(to bottom, transparent, black 18%, black 82%, transparent)';
 
-// Static dot grid, faded toward the edges. Drawn in currentColor so it
-// follows the theme through the text color.
-const DOT_GRID = 'radial-gradient(circle, currentColor 1px, transparent 1.5px)';
-const DOT_GRID_FADE =
-  'radial-gradient(ellipse 75% 70% at 50% 45%, black 30%, transparent 100%)';
-
 export function LandingPage() {
   return (
-    <div
+    <main className="relative w-full bg-background">
+      <Hero />
+      <LandingSections />
+    </main>
+  );
+}
+
+function Hero() {
+  return (
+    <section
       className={[
         'relative flex h-screen min-h-screen w-full flex-col overflow-hidden bg-background sm:flex-row',
         '[&:has(>a:hover)>a:not(:hover)]:opacity-55',
@@ -78,7 +70,9 @@ export function LandingPage() {
         accent={AMBER}
         scene={<BenchmarkChartScene />}
       />
-    </div>
+
+      <ScrollCue />
+    </section>
   );
 }
 
@@ -120,7 +114,7 @@ function Panel({
       {/* Model — sized to a shared square so both sides carry equal weight. */}
       <div
         aria-hidden
-        className="pointer-events-none relative min-h-0 w-full sm:aspect-square max-w-[26rem] flex-1 opacity-80 transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] group-hover:opacity-100 sm:max-h-[26rem] sm:flex-none"
+        className="pointer-events-none relative min-h-0 w-full sm:aspect-square max-w-104 flex-1 opacity-80 transition-[opacity,transform] duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] group-hover:opacity-100 sm:max-h-104 sm:flex-none"
       >
         {/* The canvas bleeds past the box so glows have room to fall off,
             and the mask fades whatever reaches its edge. The scenes widen
@@ -193,6 +187,23 @@ function Divider() {
       <span className="relative rounded-full border border-foreground/15 bg-background px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground">
         or
       </span>
+    </div>
+  );
+}
+
+function ScrollCue() {
+  return (
+    <div className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 sm:bottom-6">
+      <a
+        href="#how-it-works"
+        className="flex flex-col items-center gap-1 text-[10px] font-medium uppercase tracking-[0.2em] text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:text-foreground"
+      >
+        <span className="hidden sm:block">Learn more</span>
+        <span aria-hidden className="motion-safe:animate-bounce">
+          ↓
+        </span>
+        <span className="sr-only sm:hidden">Learn more</span>
+      </a>
     </div>
   );
 }
