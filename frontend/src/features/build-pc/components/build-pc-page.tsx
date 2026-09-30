@@ -28,11 +28,10 @@ export type BuildPcSubmitData = {
 };
 
 type BuildPcPageProps = {
-  onBack: () => void;
   onSubmit?: (data: BuildPcSubmitData) => void;
 };
 
-export function BuildPcPage({ onBack, onSubmit }: BuildPcPageProps) {
+export function BuildPcPage({ onSubmit }: BuildPcPageProps) {
   const [selectedGameIds, setSelectedGameIds] = useState<string[]>([]);
   const [resolution, setResolution] = useState<number | null>(null);
   const [quality, setQuality] = useState<string>('');

@@ -21,6 +21,9 @@ const EDGE_FADE =
 export function LandingPage() {
   return (
     <main className="relative w-full bg-background">
+      <h1 className="sr-only">
+        Build a Computer: gaming PC builds backed by real benchmarks
+      </h1>
       <Hero />
       <LandingSections />
     </main>
@@ -146,11 +149,11 @@ function Panel({
           {index} — {label}
         </span>
 
-        <h1 className="text-3xl font-black leading-[0.95] tracking-tight text-foreground sm:text-4xl lg:text-5xl">
+        <h2 className="text-3xl font-black leading-[0.95] tracking-tight text-foreground sm:text-4xl lg:text-5xl">
           {title[0]}
           <br />
           {title[1]}
-        </h1>
+        </h2>
 
         <p className="hidden max-w-xs text-sm text-muted-foreground sm:block">
           {description}

@@ -1,4 +1,5 @@
 import HamburgerMenu from '@/src/components/hamburger-menu';
+import { baseOpenGraph } from '@/src/utils/seo';
 import type { Metadata } from 'next';
 import { IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
 import BackButton from '../components/back-button';
@@ -18,9 +19,17 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Build a Computer',
+  metadataBase: new URL('https://buildacomputer.online'),
+  title: {
+    default: 'Build a Computer',
+    template: '%s | Build a Computer',
+  },
   description:
     'Get a complete, compatible gaming PC build from the games you play, your resolution, graphics quality and budget — backed by real benchmark data.',
+  openGraph: baseOpenGraph,
+  twitter: {
+    card: 'summary',
+  },
 };
 
 export default function RootLayout({

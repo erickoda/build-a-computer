@@ -1,4 +1,9 @@
 import ToggleTheme from "@/src/components/toggleTheme";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: true },
+};
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
