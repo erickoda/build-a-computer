@@ -292,7 +292,8 @@ build-a-computer/
 Each service keeps its own README with a detailed file-by-file architecture:
 [`api_gateway`](api_gateway/README.MD),
 [`authentication_microservice`](authentication_microservice/README.MD),
-[`recommendation_microservice`](recommendation_microservice/README.md).
+[`recommendation_microservice`](recommendation_microservice/README.md),
+[`benchmark_microservice`](benchmark_microservice/README.md).
 
 ## Development
 
