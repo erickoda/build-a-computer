@@ -4,6 +4,7 @@ services:
       context: ./api_gateway
       additional_contexts:
         protos: ./proto
+    restart: unless-stopped
     deploy:
       resources:
         limits:
@@ -40,6 +41,7 @@ services:
       context: ./authentication_microservice
       additional_contexts:
         protos: ./proto
+    restart: unless-stopped
     deploy:
       resources:
         limits:
@@ -48,8 +50,6 @@ services:
         reservations:
           cpus: "0.15"
           memory: 128M
-    ports:
-      - ${AUTH_MICROSERVICE_PORT}
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRATION=${AUTH_MICROSERVICE_JWT_EXPIRATION}
@@ -82,6 +82,7 @@ services:
       target: run-stage
       additional_contexts:
         protos: ./proto
+    restart: unless-stopped
     deploy:
       resources:
         limits:
@@ -90,8 +91,6 @@ services:
         reservations:
           cpus: "0.4"
           memory: 256M
-    env_file:
-      - .env
     environment:
       - ADDR=${RECOMMENDATION_MICROSERVICE_ADDR}
       - PGHOST=${RECOMMENDATION_PGHOST}
@@ -105,8 +104,6 @@ services:
       options:
         max-size: "20m"
         max-file: "3"
-    ports:
-      - "${RECOMMENDATION_MICROSERVICE_PORT}"
     networks:
       - microservice
       - recommendation_db
@@ -132,6 +129,7 @@ services:
       dockerfile: Dockerfile
       additional_contexts:
         protos: ./proto
+    restart: unless-stopped
     deploy:
       resources:
         limits:
@@ -150,8 +148,6 @@ services:
       options:
         max-size: "20m"
         max-file: "3"
-    ports:
-      - "${BENCHMARK_MICROSERVICE_PORT}"
     networks:
       - microservice
       - recommendation_db
@@ -177,8 +173,7 @@ services:
         reservations:
           cpus: "0.10"
           memory: 128M
-    ports:
-      - ${USERS_DB_PORT}
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${USERS_DB_POSTGRES_USER}
       POSTGRES_PASSWORD: ${USERS_DB_POSTGRES_PASSWORD}
@@ -214,8 +209,6 @@ services:
         reservations:
           cpus: "0.10"
           memory: 128M
-    ports:
-      - ${RECOMMENDATION_DB_PORT}
     environment:
       POSTGRES_USER: ${RECOMMENDATION_DB_POSTGRES_USER}
       POSTGRES_PASSWORD: ${RECOMMENDATION_DB_POSTGRES_PASSWORD}
