@@ -1,4 +1,4 @@
-FROM rust:1.95.0-slim-bullseye AS builder
+FROM rust:1.99.0-slim-bookworm AS builder
 WORKDIR /usr/src/app
 
 COPY Cargo.toml Cargo.lock build.rs ./
@@ -13,7 +13,7 @@ COPY src ./src
 RUN touch src/main.rs
 RUN cargo build --release
 
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 WORKDIR /app
 
