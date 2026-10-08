@@ -59,7 +59,7 @@ export function BuyMeACoffee() {
                   <span className="text-foreground">{line.item}</span>
                   <span
                     aria-hidden
-                    className="flex-1 translate-y-[-3px] border-b border-dotted border-foreground/25"
+                    className="flex-1 -translate-y-0.75 border-b border-dotted border-foreground/25"
                   />
                   <span className="text-muted-foreground">{line.note}</span>
                 </li>
