@@ -7,23 +7,70 @@
 # 2. Signs in through api_gateway to obtain a JWT.
 # 3. Uses the JWT to create hardware/games/benchmarks via api_gateway's HTTP API.
 #
-# Requires: docker compose stack already running, curl, jq.
+# Asks interactively for the target (localhost or production), the admin
+# username/email and the password (read without echo). Any of these can be
+# preset via SEED_TARGET (local|prod), ADMIN_USERNAME, ADMIN_EMAIL and
+# ADMIN_PASSWORD to skip the corresponding prompt.
+#
+# Step 1 only runs against localhost; in production the admin must already exist.
+#
+# Requires: curl, jq; for localhost also docker compose (stack running) and pexpect.
 
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
-ADMIN_EMAIL="${ADMIN_EMAIL:-admin@example.com}"
-ADMIN_PASSWORD="${ADMIN_PASSWORD:-Admin123!}"
 AUTH_SERVICE_NAME="${AUTH_SERVICE_NAME:-authentication_microservice}"
+PROD_API_BASE="${PROD_API_BASE:-https://api.buildacomputer.online/api/v1}"
 
-if [ -f .env ]; then
-  API_GATEWAY_PORT="$(grep -E '^API_GATEWAY_PORT=' .env | tail -1 | cut -d= -f2 | tr -d '[:space:]')"
+if [ -z "${SEED_TARGET:-}" ]; then
+  echo "Which environment do you want to populate?"
+  echo "  1) localhost"
+  echo "  2) api.buildacomputer.online (production)"
+  read -rp "Choice [1]: " choice
+  case "${choice:-1}" in
+    1) SEED_TARGET=local ;;
+    2) SEED_TARGET=prod ;;
+    *) echo "Invalid choice: $choice" >&2; exit 1 ;;
+  esac
 fi
-API_GATEWAY_PORT="${API_GATEWAY_PORT:-3000}"
-API_BASE="${API_BASE:-http://localhost:${API_GATEWAY_PORT}/api/v1}"
+
+case "$SEED_TARGET" in
+  local)
+    if [ -f .env ]; then
+      API_GATEWAY_PORT="$(grep -E '^API_GATEWAY_PORT=' .env | tail -1 | cut -d= -f2 | tr -d '[:space:]')"
+    fi
+    API_GATEWAY_PORT="${API_GATEWAY_PORT:-3000}"
+    API_BASE="${API_BASE:-http://localhost:${API_GATEWAY_PORT}/api/v1}"
+    ;;
+  prod)
+    API_BASE="$PROD_API_BASE"
+    read -rp "You are about to write to PRODUCTION ($API_BASE). Type 'yes' to continue: " confirm
+    [ "$confirm" = "yes" ] || { echo "Aborted." >&2; exit 1; }
+    ;;
+  *)
+    echo "Invalid SEED_TARGET: $SEED_TARGET (expected local or prod)" >&2
+    exit 1
+    ;;
+esac
+
+if [ -z "${ADMIN_USERNAME:-}" ]; then
+  read -rp "Admin username [admin]: " ADMIN_USERNAME
+  ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
+fi
+if [ -z "${ADMIN_EMAIL:-}" ]; then
+  read -rp "Admin email [admin@example.com]: " ADMIN_EMAIL
+  ADMIN_EMAIL="${ADMIN_EMAIL:-admin@example.com}"
+fi
+if [ -z "${ADMIN_PASSWORD:-}" ]; then
+  read -rsp "Admin password: " ADMIN_PASSWORD
+  echo
+  if [ -z "$ADMIN_PASSWORD" ]; then
+    echo "Password cannot be empty." >&2
+    exit 1
+  fi
+fi
 
 MISSING=0
 
@@ -37,17 +84,20 @@ check_bin() {
 
 check_bin curl "e.g. sudo pacman -S curl / apt install curl"
 check_bin jq "e.g. sudo pacman -S jq / apt install jq"
-check_bin docker "e.g. sudo pacman -S docker / apt install docker.io"
-check_bin python3 "e.g. sudo pacman -S python / apt install python3"
 
-if command -v docker >/dev/null 2>&1 && ! docker compose version >/dev/null 2>&1; then
-  echo "Missing required tool: docker compose plugin (e.g. sudo pacman -S docker-compose / apt install docker-compose-plugin)" >&2
-  MISSING=1
-fi
+if [ "$SEED_TARGET" = local ]; then
+  check_bin docker "e.g. sudo pacman -S docker / apt install docker.io"
+  check_bin python3 "e.g. sudo pacman -S python / apt install python3"
 
-if command -v python3 >/dev/null 2>&1 && ! python3 -c "import pexpect" >/dev/null 2>&1; then
-  echo "Missing required python module: pexpect (pip install pexpect)" >&2
-  MISSING=1
+  if command -v docker >/dev/null 2>&1 && ! docker compose version >/dev/null 2>&1; then
+    echo "Missing required tool: docker compose plugin (e.g. sudo pacman -S docker-compose / apt install docker-compose-plugin)" >&2
+    MISSING=1
+  fi
+
+  if command -v python3 >/dev/null 2>&1 && ! python3 -c "import pexpect" >/dev/null 2>&1; then
+    echo "Missing required python module: pexpect (pip install pexpect)" >&2
+    MISSING=1
+  fi
 fi
 
 [ "$MISSING" -eq 0 ] || exit 1
@@ -89,13 +139,24 @@ log "Trying to sign in as $ADMIN_EMAIL..."
 SIGN_IN_RESPONSE="$(sign_in)"
 TOKEN="$(echo "$SIGN_IN_RESPONSE" | jq -r '.token // empty' 2>/dev/null || true)"
 
+if [ -z "$TOKEN" ] && [ "$SEED_TARGET" = prod ]; then
+  err "Sign-in failed against production. The admin user must already exist there"
+  err "(create it on the server with the authentication_microservice CLI)."
+  err "Response was: ${SIGN_IN_RESPONSE:-<empty>}"
+  exit 1
+fi
+
 if [ -z "$TOKEN" ]; then
   log "Sign-in failed, creating admin user via CLI..."
-  python3 - "$AUTH_SERVICE_NAME" "$ADMIN_USERNAME" "$ADMIN_EMAIL" "$ADMIN_PASSWORD" <<'PYEOF'
+  # Password goes through the environment, not argv, so it doesn't show up in `ps`.
+  SEED_ADMIN_PASSWORD="$ADMIN_PASSWORD" \
+  python3 - "$AUTH_SERVICE_NAME" "$ADMIN_USERNAME" "$ADMIN_EMAIL" <<'PYEOF'
+import os
 import sys
 import pexpect
 
-service, username, email, password = sys.argv[1:5]
+service, username, email = sys.argv[1:4]
+password = os.environ["SEED_ADMIN_PASSWORD"]
 # `-t` forces docker to allocate a TTY inside the container. The CLI reads the
 # password from /dev/tty (via the `rpassword` crate); without a container TTY that
 # open fails with ENXIO ("No such device or address"). pexpect supplies the PTY on
